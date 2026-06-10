@@ -1,9 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  /* Tokens are refined in Task 7 from get_variable_defs.
-     These defaults keep the app rendering before the MCP read. */
-  --color-primary: #ff5a1f;
-  --color-surface: #ffffff;
-  --radius-card: 16px;
+  /* Solid colors. Token names chosen so the generated utility matches the
+     class names used by components (e.g. text-text-brown, text-text-amount). */
+  --color-screen: #81ccd1;
+  --color-on-dark: #ffffff;
+  --color-text-brown: #7a3201;
+  --color-text-amount: #e55f2b;
+  --color-divider: rgba(255, 255, 255, 0.25);
+
+  /* Radii */
+  --radius-card: 20px;
+  --radius-button: 18px;
+  --radius-tab: 12px;
+  --radius-table: 10px;
+}
+
+/* Gradients live as CSS custom properties so components reference a token,
+   never a raw gradient. Tailwind v4 can't generate gradient bg utilities
+   from @theme, so we expose tiny utility classes in @layer components. */
+:root {
+  --grad-cta: linear-gradient(180deg, #fbc059 0%, #f86a32 100%);
+  --grad-tab-active: linear-gradient(232deg, #f9ae63, #f6801d, #ffc464);
+  --grad-banner: linear-gradient(180deg, #762aaa, #541b87);
+  --grad-card: linear-gradient(-30deg, #84c3ba 8%, #a4f5c8 67%, #45a5aa);
+}
+
+@layer components {
+  .bg-cta {
+    background-image: var(--grad-cta);
+  }
+  .bg-tab-active {
+    background-image: var(--grad-tab-active);
+  }
+  .bg-banner {
+    background-image: var(--grad-banner);
+  }
+  .bg-card-grad {
+    background-image: var(--grad-card);
+  }
 }
