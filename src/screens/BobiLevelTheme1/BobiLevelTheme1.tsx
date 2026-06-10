@@ -4,6 +4,11 @@ import { Banner } from '../../components/Banner/Banner'
 import { TabSwitch } from '../../components/TabSwitch/TabSwitch'
 import { type Status } from '../../components/StatusIcon/StatusIcon'
 import { StepCard, type StepStat } from '../../components/StepCard/StepCard'
+import {
+  RewardTable,
+  type RewardColumn,
+  type RewardRow,
+} from '../../components/RewardTable/RewardTable'
 import { cn } from '../../lib/cn'
 import decoBottom1 from '../../assets/bobi-theme1/deco-bottom-1.png'
 import decoBottom2 from '../../assets/bobi-theme1/deco-bottom-2.png'
@@ -98,6 +103,49 @@ const STEPS: Step[] = [
   },
 ]
 
+/**
+ * 活动详情 rewards table (Figma Frame 1410107570 / node 1:1197+).
+ * Header: 日累计充值 / 关卡 / 倍数 tiers (2,5,10,20,50). Each row is a 关卡
+ * tier mapping a daily-recharge threshold to the 彩金 payout per multiplier.
+ */
+const REWARD_COLUMNS: RewardColumn[] = [
+  { id: 'tier', label: '日累计充值', align: 'left' },
+  { id: 'level', label: '关卡' },
+  { id: 'm2', label: '2倍' },
+  { id: 'm5', label: '5倍' },
+  { id: 'm10', label: '10倍' },
+  { id: 'm20', label: '20倍' },
+  { id: 'm50', label: '50倍' },
+]
+
+const REWARD_ROWS: RewardRow[] = [
+  {
+    id: 'lv1',
+    cells: ['1000元+', '第一关', '8元', '18元', '28元', '38元', '58元'],
+    highlight: true,
+  },
+  {
+    id: 'lv2',
+    cells: ['5000元+', '第二关', '18元', '28元', '38元', '68元', '88元'],
+  },
+  {
+    id: 'lv3',
+    cells: ['10000元+', '第三关', '28元', '38元', '58元', '88元', '188元'],
+  },
+  {
+    id: 'lv4',
+    cells: ['50000元+', '第四关', '38元', '68元', '118元', '188元', '388元'],
+  },
+  {
+    id: 'lv5',
+    cells: ['100000元+', '第五关', '88元', '118元', '388元', '588元', '888元'],
+  },
+  {
+    id: 'lv6',
+    cells: ['500000元+', '第六关', '188元', '288元', '888元', '1188元', '3888元'],
+  },
+]
+
 const INFO_DETAIL =
   '即日起，本直播平台新老贵宾凡是使用波币钱包充值，当日累计充值 1000元+达到相应的有效投注，' +
   '次日即可领取闯关礼金，最高达 3888 元，关关有礼，关关相送。'
@@ -146,8 +194,10 @@ export function BobiLevelTheme1({ className }: { className?: string }) {
             {INFO_DETAIL}
           </p>
         </div>
-        {/* TODO: render full 活动详情 rewards TABLE (Figma 第一关…第六关 rows,
-            id 1:1197 onward). Deferred — needs the table layout pass. */}
+        {/* 活动详情 rewards table (Figma 第一关…第六关 rows, node 1:1197+). */}
+        <div className="bg-on-dark rounded-card mt-3 p-3">
+          <RewardTable columns={REWARD_COLUMNS} rows={REWARD_ROWS} />
+        </div>
       </section>
 
       {/* Decorative illustrations anchored at the very bottom. */}
