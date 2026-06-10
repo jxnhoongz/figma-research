@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  /* Tokens are refined in Task 7 from get_variable_defs.
+     These defaults keep the app rendering before the MCP read. */
+  --color-primary: #ff5a1f;
+  --color-surface: #ffffff;
+  --radius-card: 16px;
+}
