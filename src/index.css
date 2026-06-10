@@ -9,6 +9,18 @@
   --color-text-amount: #e55f2b;
   --color-divider: rgba(255, 255, 255, 0.25);
 
+  /* Nav header (Frame 1410102067): white bar, navy title #110940. */
+  --color-nav: #ffffff;
+  --color-nav-title: #110940;
+
+  /* Step card (Component 38) text + active-state accents. Inside the frosted
+     white card the design uses near-black 30% for labels; the active orange
+     card surfaces stats in #E57811. */
+  --color-step-text: rgba(0, 0, 0, 0.55);
+  --color-step-muted: rgba(0, 0, 0, 0.35);
+  --color-active-amount: #e57811;
+  --color-active-muted: rgba(229, 120, 17, 0.6);
+
   /* Radii */
   --radius-card: 20px;
   --radius-button: 18px;
@@ -24,6 +36,47 @@
   --grad-tab-active: linear-gradient(232deg, #f9ae63, #f6801d, #ffc464);
   --grad-banner: linear-gradient(180deg, #762aaa, #541b87);
   --grad-card: linear-gradient(-30deg, #84c3ba 8%, #a4f5c8 67%, #45a5aa);
+
+  /* Step card surfaces (Component 38).
+     - Default: white 75% frosted glass over the #81CCD1 screen.
+     - Active: orange gradient (fill_BUKX6N) with a rainbow stroke (fill_ISJD4H). */
+  --grad-step-card: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.68) 100%
+  );
+  --grad-active-card: linear-gradient(90deg, #fb6924 38%, #fba136 100%);
+  --grad-active-stroke: linear-gradient(
+    90deg,
+    #f56876 0%,
+    #eeffae 29%,
+    #f758bb 60%
+  );
+
+  /* Map pattern-bg approximation: layered radial "tiles" of teal so the
+     content area reads as a patterned map rather than flat fill. No exported
+     asset exists for the winding path, so this is a CSS stand-in. */
+  --pattern-map: radial-gradient(
+      circle at 18% 12%,
+      rgba(255, 255, 255, 0.12) 0 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 72% 28%,
+      rgba(255, 255, 255, 0.1) 0 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(255, 255, 255, 0.1) 0 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 88% 78%,
+      rgba(255, 255, 255, 0.1) 0 2px,
+      transparent 3px
+    ),
+    linear-gradient(180deg, #8ad2d6 0%, #76c4c9 100%);
 }
 
 @layer components {
@@ -38,5 +91,22 @@
   }
   .bg-card-grad {
     background-image: var(--grad-card);
+  }
+  .bg-step-card {
+    background-image: var(--grad-step-card);
+  }
+  .bg-active-card {
+    background-image: var(--grad-active-card);
+  }
+  .bg-pattern-map {
+    background-image: var(--pattern-map);
+  }
+  /* Rainbow gradient border for the active step card. A padding-box/border-box
+     mask paints the gradient on the 1px border only (fill_ISJD4H). */
+  .border-active-grad {
+    border: 1px solid transparent;
+    background-image: var(--grad-active-card), var(--grad-active-stroke);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
   }
 }
