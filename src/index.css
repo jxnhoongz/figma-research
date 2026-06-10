@@ -21,6 +21,18 @@
   --color-active-amount: #e57811;
   --color-active-muted: rgba(229, 120, 17, 0.6);
 
+  /* Rewards table (活动详情, Frame 1410107570 / node 1:1197+).
+     Header row teal with white text; body cells white with #444 text,
+     alternating rows get a light teal tint; cell borders #CACACA; the
+     first-tier 彩金 value is highlighted blue (#0943D5). */
+  --color-table-header: #81ccd1;
+  --color-table-header-text: #ffffff;
+  --color-table-cell: #ffffff;
+  --color-table-stripe: #e6f4f5;
+  --color-table-text: #444444;
+  --color-table-border: #cacaca;
+  --color-table-highlight: #0943d5;
+
   /* Radii */
   --radius-card: 20px;
   --radius-button: 18px;
