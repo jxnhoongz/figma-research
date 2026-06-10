@@ -87,6 +87,32 @@ real frame:
 5. Add the missing structural pieces: nav header + a `Table` kit component for
    the rewards grid.
 
+## Tooling reality: the "free" route still has a hard ceiling
+
+We hit `429 Too Many Requests` on the Figma REST API mid-rebuild — locked out
+of image exports for **~4.6 days**. The error: *"Your seat type (Viewer or
+Collaborator) has a lower API rate limit. Your starter plan has limited API
+access."*
+
+Correction to an earlier assumption: **a Full seat does NOT reliably get
+~10 req/min on a Starter plan.** The underlying Figma REST API throttles
+Starter accounts hard — especially Tier-1 endpoints (GET file / nodes /
+images). Framelink removes the *hosted-MCP* 6/month cap but is still bound by
+these REST limits, and a Starter account can exhaust them and get locked out
+for days. "Free + open-source MCP" ≠ "unlimited."
+
+Practical implications:
+- **Budget API calls even on Framelink.** Pull the structured data ONCE, cache
+  it (we saved `bobi-theme1.framelink.yaml`), and render reference images
+  sparingly. Don't batch-render many nodes.
+- **Manual export bypasses the REST limit entirely.** Exporting a layer as
+  SVG/PNG from the Figma *UI* is client-side — it does NOT hit the REST rate
+  limit. For a quota-locked Starter account, manual export is the reliable way
+  to get assets.
+- For real volume, this needs a **paid plan** (Pro+, Full/Dev seat) — the free
+  route is fine for learning/prototyping, not for converting dozens of screens
+  in a sitting.
+
 ## Principles to carry forward
 
 - **Mirror the design system, don't reinterpret the screen.** The components
