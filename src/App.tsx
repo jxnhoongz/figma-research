@@ -1,3 +1,5 @@
+import { BobiLevelTheme1 } from './screens/BobiLevelTheme1/BobiLevelTheme1'
+
 export default function App() {
-  return <div className="p-4">Figma Learning — scaffold ready</div>
+  return <BobiLevelTheme1 className="mx-auto w-[390px]" />
 }
