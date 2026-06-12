@@ -123,3 +123,13 @@ Practical implications:
   positioning; don't flatten everything into a vertical flow.
 - **Reuse compounds — but only if the kit is faithful.** A loose kit makes every
   downstream screen loose too.
+- **Not everything reused is a Figma *component*.** Designers copy-paste plain
+  frames across screens (e.g. the 闯关排列 container box). These never show up in
+  the component-masters list, so extracting only registered components MISSES
+  them. Extract from the actual SCREEN structure, not just the component library
+  — anything that visually repeats is "a component" for our build even if Figma
+  didn't formalize it. (See docs/theme1-fidelity-issues.md.)
+- **Composition is layered AND nested AND serpentine.** Beyond z-order: real
+  layouts nest cards inside container frames and arrange them non-linearly
+  (serpentine paths, alternating sides). A flat vertical stack with strips
+  between rows is a tell that you reconstructed structure instead of reading it.
