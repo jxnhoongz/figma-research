@@ -67,8 +67,11 @@ export function StepCard({
 }: StepCardProps) {
   const variant = active ? 'active' : 'default'
   const Chrome = STEP_CARD[CHROME_KEY[status]][side]
-  // The current (active) card uses light-on-orange text; others use dark-on-frost.
-  const onOrange = status === 'active'
+  // Every Component 38 variant has a WHITE inner panel for the main content;
+  // only the right reward wedge is colored (orange on current, accent elsewhere).
+  // So title/requirement/stats always sit on white — dark text for frosted
+  // cards, orange-accent text for the active card.
+  const activeText = status === 'active'
 
   return (
     <article
@@ -96,26 +99,18 @@ export function StepCard({
           <span
             className={cn(
               'truncate text-[13px] leading-tight font-bold',
-              onOrange ? 'text-on-dark' : 'text-step-text',
+              activeText ? 'text-active-amount' : 'text-step-text',
             )}
           >
             {title}
           </span>
-          <span
-            className={cn(
-              'truncate text-[10px] leading-tight',
-              onOrange ? 'text-on-dark/90' : 'text-step-muted',
-            )}
-          >
-            {requirement}
-          </span>
 
           {active && stats?.length ? (
-            <dl className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0">
+            <dl className="mt-0.5 flex flex-col gap-y-0">
               {stats.map((s) => (
-                <div key={s.label} className="flex items-baseline gap-0.5">
-                  <dt className="text-on-dark/80 text-[9px]">{s.label}</dt>
-                  <dd className="text-on-dark text-[11px] font-bold">
+                <div key={s.label} className="flex items-baseline gap-1">
+                  <dt className="text-step-muted text-[9px]">{s.label}</dt>
+                  <dd className="text-active-amount text-[11px] font-bold">
                     {s.value}
                     {s.unit ? (
                       <span className="ml-0.5 text-[9px] font-bold">
@@ -126,7 +121,11 @@ export function StepCard({
                 </div>
               ))}
             </dl>
-          ) : null}
+          ) : (
+            <span className="text-step-muted truncate text-[10px] leading-tight">
+              {requirement}
+            </span>
+          )}
         </div>
       </div>
 
@@ -147,11 +146,13 @@ export function StepCard({
             可领取
           </Button>
         ) : claimed ? (
+          // statusText already shows 已领取 above; keep a real (sr-only) disabled
+          // control so the claimed state is programmatically exposed.
           <Button
             size="md"
             variant="secondary"
             disabled
-            className="mt-0.5 h-5 rounded-full bg-transparent px-2 text-[9px] leading-none text-on-dark/90 shadow-none"
+            className="sr-only"
           >
             已领取
           </Button>
