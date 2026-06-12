@@ -2,8 +2,11 @@
 
 @theme {
   /* Solid colors. Token names chosen so the generated utility matches the
-     class names used by components (e.g. text-text-brown, text-text-amount). */
-  --color-screen: #81ccd1;
+     class names used by components (e.g. text-text-brown, text-text-amount).
+     The screen + table-header follow the live theme accent (set per-theme via
+     --theme-bg / --theme-accent on the screen wrapper), falling back to the
+     theme1 teal when no theme var is present. */
+  --color-screen: var(--theme-bg, #81ccd1);
   --color-on-dark: #ffffff;
   --color-text-brown: #7a3201;
   --color-text-amount: #e55f2b;
@@ -25,7 +28,7 @@
      Header row teal with white text; body cells white with #444 text,
      alternating rows get a light teal tint; cell borders #CACACA; the
      first-tier 彩金 value is highlighted blue (#0943D5). */
-  --color-table-header: #81ccd1;
+  --color-table-header: var(--theme-accent, #81ccd1);
   --color-table-header-text: #ffffff;
   --color-table-cell: #ffffff;
   --color-table-stripe: #e6f4f5;

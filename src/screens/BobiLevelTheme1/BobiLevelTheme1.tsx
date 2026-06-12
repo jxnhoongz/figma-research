@@ -3,19 +3,22 @@ import { NavHeader } from '../../components/NavHeader/NavHeader'
 import { Banner } from '../../components/Banner/Banner'
 import { TabSwitch } from '../../components/TabSwitch/TabSwitch'
 import { type Status } from '../../components/StatusIcon/StatusIcon'
-import { StepCard, type StepStat } from '../../components/StepCard/StepCard'
+import { StepCard, type StepStat, type StepSide } from '../../components/StepCard/StepCard'
 import {
   RewardTable,
   type RewardColumn,
   type RewardRow,
 } from '../../components/RewardTable/RewardTable'
+import { TAB_ICON, Start, MidRightToLeft } from '../../components/svg'
 import { cn } from '../../lib/cn'
+import { getTheme, themeVars } from '../../lib/themes'
 import decoBottom1 from '../../assets/bobi-theme1/deco-bottom-1.png'
 import decoBottom2 from '../../assets/bobi-theme1/deco-bottom-2.png'
 
 /**
- * Sample data for the 波币大闯关 theme1 screen. Static/presentational.
- * Content mirrors assets/figma/bobi-theme1.framelink.yaml (Component 38 ×8).
+ * 波币大闯关 theme1 screen, rebuilt 1:1 with the real section2 SVG assets.
+ * Presentational; recolors live via the `themeId` prop (sets `--theme-accent`
+ * / `--theme-bg`, which the kit SVGs follow through `currentColor`).
  */
 interface Step {
   id: string
@@ -24,7 +27,7 @@ interface Step {
   requirement: string
   statusText: string
   amount: string
-  /** Active steps surface a claim CTA + progress stats (Figma 第三关). */
+  side: StepSide
   active?: boolean
   claimable?: boolean
   claimed?: boolean
@@ -36,6 +39,8 @@ const TABS = [
   { id: 'today', label: '今日闯关' },
 ]
 
+const TAB_ART = { today: TAB_ICON.today, yesterday: TAB_ICON.yesterday }
+
 const STEPS: Step[] = [
   {
     id: 's1',
@@ -44,6 +49,7 @@ const STEPS: Step[] = [
     requirement: '累计充值 1000元+',
     statusText: '已领取',
     amount: '彩金 8元',
+    side: 'left',
     claimed: true,
   },
   {
@@ -53,6 +59,7 @@ const STEPS: Step[] = [
     requirement: '累计充值 5000元+',
     statusText: '已领取',
     amount: '彩金 18元',
+    side: 'right',
     claimed: true,
   },
   {
@@ -62,11 +69,12 @@ const STEPS: Step[] = [
     requirement: '累计充值 10000元+',
     statusText: '当前关卡',
     amount: '彩金 28元',
+    side: 'left',
     active: true,
     claimable: true,
     stats: [
       { label: '日计充值', value: '3,756', unit: '元' },
-      { label: '有效投', value: '65,422', unit: '(0倍)' },
+      { label: '有效投', value: '65,422', unit: '元' },
     ],
   },
   {
@@ -76,37 +84,13 @@ const STEPS: Step[] = [
     requirement: '累计充值 5万元+',
     statusText: '闯关失败',
     amount: '彩金 88元',
-  },
-  {
-    id: 's6',
-    status: 'locked',
-    title: '第六关',
-    requirement: '累计充值 50万元+',
-    statusText: '待闯关',
-    amount: '彩金 188元',
-  },
-  {
-    id: 's7',
-    status: 'locked',
-    title: '第七关',
-    requirement: '累计充值 100万元+',
-    statusText: '待闯关',
-    amount: '彩金 288元',
-  },
-  {
-    id: 's8',
-    status: 'locked',
-    title: '第八关',
-    requirement: '累计充值 500万元+',
-    statusText: '待闯关',
-    amount: '彩金 388元',
+    side: 'right',
   },
 ]
 
 /**
  * 活动详情 rewards table (Figma Frame 1410107570 / node 1:1197+).
- * Header: 日累计充值 / 关卡 / 倍数 tiers (2,5,10,20,50). Each row is a 关卡
- * tier mapping a daily-recharge threshold to the 彩金 payout per multiplier.
+ * Header: 日累计充值 / 关卡 / 倍数 tiers (2,5,10,20,50).
  */
 const REWARD_COLUMNS: RewardColumn[] = [
   { id: 'tier', label: '日累计充值', align: 'left' },
@@ -124,37 +108,38 @@ const REWARD_ROWS: RewardRow[] = [
     cells: ['1000元+', '第一关', '8元', '18元', '28元', '38元', '58元'],
     highlight: true,
   },
-  {
-    id: 'lv2',
-    cells: ['5000元+', '第二关', '18元', '28元', '38元', '68元', '88元'],
-  },
-  {
-    id: 'lv3',
-    cells: ['10000元+', '第三关', '28元', '38元', '58元', '88元', '188元'],
-  },
-  {
-    id: 'lv4',
-    cells: ['50000元+', '第四关', '38元', '68元', '118元', '188元', '388元'],
-  },
-  {
-    id: 'lv5',
-    cells: ['100000元+', '第五关', '88元', '118元', '388元', '588元', '888元'],
-  },
-  {
-    id: 'lv6',
-    cells: ['500000元+', '第六关', '188元', '288元', '888元', '1188元', '3888元'],
-  },
+  { id: 'lv2', cells: ['5000元+', '第二关', '18元', '28元', '38元', '68元', '88元'] },
+  { id: 'lv3', cells: ['10000元+', '第三关', '28元', '38元', '58元', '88元', '188元'] },
+  { id: 'lv4', cells: ['50000元+', '第四关', '38元', '68元', '118元', '188元', '388元'] },
+  { id: 'lv5', cells: ['100000元+', '第五关', '88元', '118元', '388元', '588元', '888元'] },
+  { id: 'lv6', cells: ['500000元+', '第六关', '188元', '288元', '888元', '1188元', '3888元'] },
 ]
 
 const INFO_DETAIL =
   '即日起，本直播平台新老贵宾凡是使用波币钱包充值，当日累计充值 1000元+达到相应的有效投注，' +
   '次日即可领取闯关礼金，最高达 3888 元，关关有礼，关关相送。'
 
-export function BobiLevelTheme1({ className }: { className?: string }) {
-  const [activeTab, setActiveTab] = useState(TABS[0].id)
+export function BobiLevelTheme1({
+  className,
+  themeId = 'theme1',
+}: {
+  className?: string
+  themeId?: string
+}) {
+  const [activeTab, setActiveTab] = useState(TABS[1].id)
+  const theme = getTheme(themeId)
 
   return (
-    <div className={cn('bg-screen flex w-[390px] flex-col pb-0', className)}>
+    <div
+      data-testid="bobi-screen"
+      data-theme={theme.id}
+      style={{
+        ...themeVars(theme),
+        backgroundColor: 'var(--theme-bg)',
+        color: 'var(--theme-accent)',
+      }}
+      className={cn('flex w-[390px] flex-col pb-0', className)}
+    >
       <NavHeader title="波币大闯关" />
       <Banner title="波币大闯关" />
 
@@ -162,57 +147,89 @@ export function BobiLevelTheme1({ className }: { className?: string }) {
         tabs={TABS}
         active={activeTab}
         onChange={setActiveTab}
-        className="mx-4 mt-4"
+        artByActive={TAB_ART}
+        className="mx-4 mt-3"
       />
 
-      {/* Patterned teal map background (CSS approximation of Map pattern-bg)
-          layered behind the step list. */}
-      <div className="bg-pattern-map mt-4">
-        <div className="flex flex-col gap-3 px-4 py-4">
-          {STEPS.map((step) => (
-            <StepCard
-              key={step.id}
-              status={step.status}
-              title={step.title}
-              requirement={step.requirement}
-              statusText={step.statusText}
-              amount={step.amount}
-              active={step.active}
-              claimable={step.claimable}
-              claimed={step.claimed}
-              stats={step.stats}
-            />
+      {/* Map header banner (闯关排列). */}
+      <div className="mt-3 flex justify-center">
+        <span className="bg-cta text-on-dark rounded-full px-6 py-1 text-sm font-bold shadow-sm">
+          闯关排列
+        </span>
+      </div>
+
+      {/* Serpentine map: step cards alternate sides, real connector lanes
+          (Start / MidRightToLeft) thread between them. */}
+      <div className="relative mt-2 px-3 pb-4">
+        <ol className="flex flex-col">
+          {STEPS.map((step, i) => (
+            <li key={step.id} className="flex flex-col">
+              <div className={cn(step.side === 'right' ? 'pl-10' : 'pr-10')}>
+                <StepCard
+                  status={step.status}
+                  title={step.title}
+                  requirement={step.requirement}
+                  statusText={step.statusText}
+                  amount={step.amount}
+                  side={step.side}
+                  active={step.active}
+                  claimable={step.claimable}
+                  claimed={step.claimed}
+                  stats={step.stats}
+                />
+              </div>
+              {/* Connector lane to the next card (real map-pattern SVG). */}
+              {i < STEPS.length - 1 ? (
+                <div className="-my-1 h-7 w-full overflow-hidden" aria-hidden="true">
+                  {i === 0 ? (
+                    <Start
+                      preserveAspectRatio="none"
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <MidRightToLeft
+                      preserveAspectRatio="none"
+                      className={cn(
+                        'h-full w-full',
+                        step.side === 'right' ? '-scale-x-100' : '',
+                      )}
+                    />
+                  )}
+                </div>
+              ) : null}
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
 
       {/* 活动详情 info panel. */}
-      <section className="bg-card-grad rounded-card mt-2 px-4 pt-5 pb-6">
-        <h2 className="text-text-brown text-lg font-bold">活动详情</h2>
-        <div className="bg-on-dark rounded-card mt-3 p-4">
-          <p className="text-text-brown text-sm leading-relaxed">
-            {INFO_DETAIL}
-          </p>
+      <section className="bg-card-grad rounded-card mx-2 mt-2 px-4 pt-4 pb-6">
+        <div className="flex justify-center">
+          <span className="bg-cta text-on-dark rounded-full px-6 py-1 text-sm font-bold shadow-sm">
+            活动详情
+          </span>
         </div>
-        {/* 活动详情 rewards table (Figma 第一关…第六关 rows, node 1:1197+). */}
-        <div className="bg-on-dark rounded-card mt-3 p-3">
+        <p className="text-text-brown mt-3 text-xs leading-relaxed">
+          {INFO_DETAIL}
+        </p>
+        <div className="mt-3">
           <RewardTable columns={REWARD_COLUMNS} rows={REWARD_ROWS} />
         </div>
       </section>
 
       {/* Decorative illustrations anchored at the very bottom. */}
-      <div className="relative h-[120px]">
+      <div className="relative h-[110px]">
         <img
           src={decoBottom1}
           alt=""
           aria-hidden="true"
-          className="absolute bottom-0 left-0 h-[120px] object-contain"
+          className="absolute bottom-0 left-0 h-[110px] object-contain"
         />
         <img
           src={decoBottom2}
           alt=""
           aria-hidden="true"
-          className="absolute bottom-0 right-0 h-[120px] object-contain"
+          className="absolute right-0 bottom-0 h-[110px] object-contain"
         />
       </div>
     </div>
