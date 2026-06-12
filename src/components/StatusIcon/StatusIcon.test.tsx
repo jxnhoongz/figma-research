@@ -5,11 +5,11 @@ import { StatusIcon } from './StatusIcon'
 const statuses = ['locked', 'active', 'done', 'fail'] as const
 
 describe('StatusIcon', () => {
-  it.each(statuses)('sets data-variant=%s and a src on the img', (status) => {
+  it.each(statuses)('renders an inline svg glyph with data-variant=%s', (status) => {
     render(<StatusIcon status={status} />)
     const img = screen.getByRole('img', { name: `step ${status}` })
     expect(img).toHaveAttribute('data-variant', status)
-    expect(img).toHaveAttribute('src')
-    expect(img.getAttribute('src')).toBeTruthy()
+    // Real assets are now inline <svg> components (themeable), not <img src>.
+    expect(img.tagName.toLowerCase()).toBe('svg')
   })
 })

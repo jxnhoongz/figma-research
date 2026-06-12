@@ -1,6 +1,7 @@
 import { cn } from '../../lib/cn'
 import { StatusIcon, type Status } from '../StatusIcon/StatusIcon'
 import { Button } from '../Button/Button'
+import { STEP_CARD } from '../svg'
 
 export interface StepStat {
   label: string
@@ -8,19 +9,23 @@ export interface StepStat {
   unit?: string
 }
 
+export type StepSide = 'left' | 'right'
+
 export interface StepCardProps {
   status: Status
   title: string
   requirement: string
-  /** Short status label shown on the reward pill (e.g. 已领取 / 当前关卡). */
+  /** Short status label shown on the reward wedge (e.g. 已领取 / 当前关卡). */
   statusText: string
   /** Reward amount, e.g. 彩金 8元. */
   amount: string
-  /** Highlighted current step — renders the orange gradient treatment. */
+  /** Which side the map-path pointer tab juts toward. Default `left`. */
+  side?: StepSide
+  /** Highlighted current step — renders the orange "current" chrome. */
   active?: boolean
   /** Surfaces an enabled claim CTA. */
   claimable?: boolean
-  /** Already-claimed step — claim control is shown disabled as 已领取. */
+  /** Already-claimed step — claim control shown disabled as 已领取. */
   claimed?: boolean
   /** Progress stats shown only on the active card (Figma 第三关). */
   stats?: StepStat[]
@@ -28,16 +33,23 @@ export interface StepCardProps {
   className?: string
 }
 
+/** Maps the screen Status to the Component 38 chrome key. */
+const CHROME_KEY: Record<Status, keyof typeof STEP_CARD> = {
+  done: 'passed',
+  active: 'current',
+  locked: 'locked',
+  fail: 'locked', // fail reuses the grey locked card body
+}
+
 /**
- * Mirrors Figma `Component 38` (id 1:5062), the repeated STEP CARD.
+ * Mirrors Figma `Component 38` (id 1:5062), the repeated STEP CARD, rendered
+ * with the REAL section2 SVG chrome. The SVG provides the card background
+ * (rounded body, map-path pointer tab, right reward wedge); content (status
+ * icon, title/requirement, reward text, claim control) is overlaid on top.
  *
- * Default state: a frosted-white glass card (`.bg-step-card`, white 70% stroke,
- * radius 10px) holding the status icon, the level title + requirement, a reward
- * pill (status text + 彩金 amount) and a claim control.
- *
- * Active state (`active`): orange gradient card (`.border-active-grad`) with a
- * rainbow border, optional充值 progress stats, and a prominent claim CTA — the
- * visually dominant block in the reference.
+ * The `passed` chrome carries the themeable accent slot (`currentColor`), so a
+ * parent setting `color: var(--theme-accent)` recolors the frosted body per
+ * theme. `current` is the semantic orange active card; `locked`/`fail` are grey.
  */
 export function StepCard({
   status,
@@ -45,6 +57,7 @@ export function StepCard({
   requirement,
   statusText,
   amount,
+  side = 'left',
   active = false,
   claimable = false,
   claimed = false,
@@ -53,102 +66,97 @@ export function StepCard({
   className,
 }: StepCardProps) {
   const variant = active ? 'active' : 'default'
+  const Chrome = STEP_CARD[CHROME_KEY[status]][side]
+  // The current (active) card uses light-on-orange text; others use dark-on-frost.
+  const onOrange = status === 'active'
 
   return (
     <article
       data-testid="step-card"
       data-variant={variant}
-      className={cn(
-        'flex items-center gap-3 rounded-[10px] p-3',
-        active
-          ? 'border-active-grad shadow-[0_4px_12px_rgba(251,105,36,0.35)]'
-          : 'bg-step-card border border-white/70',
-        className,
-      )}
+      data-side={side}
+      className={cn('relative w-full', className)}
+      style={{ aspectRatio: '245 / 60' }}
     >
-      <StatusIcon status={status} className="shrink-0" />
+      {/* Real Component 38 chrome as the absolute background. */}
+      <Chrome
+        className="absolute inset-0 h-full w-full"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      />
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span
-          className={cn(
-            'text-sm font-bold',
-            active ? 'text-on-dark' : 'text-step-text',
-          )}
-        >
-          {title}
-        </span>
-        <span
-          className={cn(
-            'text-xs',
-            active ? 'text-on-dark/90' : 'text-step-muted',
-          )}
-        >
-          {requirement}
-        </span>
+      {/* Content overlay. The right ~36% is the reward wedge per the SVG. */}
+      <div className="absolute inset-0 flex items-center pr-[34%] pl-2">
+        <StatusIcon
+          status={status}
+          className="relative z-10 -ml-1 h-[88%] w-auto shrink-0"
+        />
 
-        {active && stats?.length ? (
-          <dl className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
-            {stats.map((s) => (
-              <div key={s.label} className="flex items-baseline gap-1">
-                <dt className="text-active-muted text-[10px]">{s.label}</dt>
-                <dd className="text-active-amount text-sm font-bold">
-                  {s.value}
-                  {s.unit ? (
-                    <span className="ml-0.5 text-[10px] font-bold">
-                      {s.unit}
-                    </span>
-                  ) : null}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
+        <div className="flex min-w-0 flex-1 flex-col justify-center pl-1">
+          <span
+            className={cn(
+              'truncate text-[13px] leading-tight font-bold',
+              onOrange ? 'text-on-dark' : 'text-step-text',
+            )}
+          >
+            {title}
+          </span>
+          <span
+            className={cn(
+              'truncate text-[10px] leading-tight',
+              onOrange ? 'text-on-dark/90' : 'text-step-muted',
+            )}
+          >
+            {requirement}
+          </span>
+
+          {active && stats?.length ? (
+            <dl className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0">
+              {stats.map((s) => (
+                <div key={s.label} className="flex items-baseline gap-0.5">
+                  <dt className="text-on-dark/80 text-[9px]">{s.label}</dt>
+                  <dd className="text-on-dark text-[11px] font-bold">
+                    {s.value}
+                    {s.unit ? (
+                      <span className="ml-0.5 text-[9px] font-bold">
+                        {s.unit}
+                      </span>
+                    ) : null}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </div>
       </div>
 
-      {/* Reward block: a green frosted mini-card (label + 彩金 amount) on the
-          default state; on the active card it sits flush on the orange surface. */}
-      <div
-        className={cn(
-          'flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-[10px] px-3 py-1.5 text-center',
-          active ? 'bg-white/15' : 'bg-card-grad',
-        )}
-      >
-        <span
-          className={cn(
-            'text-[11px] font-semibold',
-            active ? 'text-on-dark' : 'text-text-brown',
-          )}
-        >
+      {/* Reward wedge content: status text + amount, pinned over the SVG wedge. */}
+      <div className="absolute inset-y-0 right-0 flex w-[34%] flex-col items-center justify-center gap-0.5 px-1 text-center">
+        <span className="text-on-dark text-[10px] leading-tight font-semibold drop-shadow-sm">
           {statusText}
         </span>
-        <span
-          className={cn(
-            'text-sm font-bold',
-            active ? 'text-on-dark' : 'text-text-amount',
-          )}
-        >
+        <span className="text-on-dark text-[13px] leading-tight font-bold drop-shadow-sm">
           {amount}
         </span>
+        {claimable ? (
+          <Button
+            size="md"
+            className="mt-0.5 h-5 rounded-full px-2 text-[10px] leading-none"
+            onClick={onClaim}
+          >
+            可领取
+          </Button>
+        ) : claimed ? (
+          <Button
+            size="md"
+            variant="secondary"
+            disabled
+            className="mt-0.5 h-5 rounded-full bg-transparent px-2 text-[9px] leading-none text-on-dark/90 shadow-none"
+          >
+            已领取
+          </Button>
+        ) : null}
       </div>
-
-      {claimable ? (
-        <Button
-          size="md"
-          className="h-8 shrink-0 px-3 text-xs"
-          onClick={onClaim}
-        >
-          可领取
-        </Button>
-      ) : (
-        <Button
-          size="md"
-          variant="secondary"
-          disabled
-          className="h-8 shrink-0 px-3 text-xs"
-        >
-          {claimed ? '已领取' : '待闯关'}
-        </Button>
-      )}
     </article>
   )
 }
