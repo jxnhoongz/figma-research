@@ -19,6 +19,7 @@ import { Yesterday } from './generated/tab-switch/Yesterday'
 
 import { Start } from './generated/map-pattern/Start'
 import { MidRightToLeft } from './generated/map-pattern/MidRightToLeft'
+import { MidLeftToRight } from './generated/map-pattern/MidLeftToRight'
 import { AllPieces } from './generated/map-pattern/AllPieces'
 
 /** Status -> status-icon glyph. `active` maps to the gold "current" star. */
@@ -38,7 +39,18 @@ export const STEP_CARD = {
 
 export const TAB_ICON = { today: Today, yesterday: Yesterday } as const
 
-export const MAP_PATTERN = { start: Start, midRightToLeft: MidRightToLeft, all: AllPieces } as const
+// Serpentine map lanes. The Figma path (Background Content, 1:1048) stacks 8
+// tiles: Start, then alternating Mid-right-to-left / Mid-left-to-right, capped
+// by an End lane. Only `start` + `midRightToLeft` were exported; `midLeftToRight`
+// is a mirror-approximation of `midRightToLeft`. For the actual screen we render
+// the real `all` composite (all-pieces.svg = the full 4-step serpentine,
+// start+mid+mid+2 ends), which is the most faithful single asset.
+export const MAP_PATTERN = {
+  start: Start,
+  midRightToLeft: MidRightToLeft,
+  midLeftToRight: MidLeftToRight,
+  all: AllPieces,
+} as const
 
 export {
   Passed,
@@ -55,5 +67,6 @@ export {
   Yesterday,
   Start,
   MidRightToLeft,
+  MidLeftToRight,
   AllPieces,
 }
