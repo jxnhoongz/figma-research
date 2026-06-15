@@ -25,15 +25,20 @@
   --color-active-muted: rgba(229, 120, 17, 0.6);
 
   /* Rewards table (活动详情, Frame 1410107570 / node 1:1197+).
-     Header row teal with white text; body cells white with #444 text,
-     alternating rows get a light teal tint; cell borders #CACACA; the
-     first-tier 彩金 value is highlighted blue (#0943D5). */
-  --color-table-header: var(--theme-accent, #81ccd1);
+     The whole table now follows the live theme accent so it recolors on theme
+     switch (was: header tied to accent but stripe/border frozen teal, so the
+     body never recolored). Header = solid accent + white text; striped rows =
+     a ~12% accent tint mixed toward white; cell borders = a ~35% accent tint;
+     body text #444; first-tier 彩金 value highlighted blue (#0943D5).
+     `color-mix` derives the tints from the single accent var; the static hex
+     after `--theme-accent` is the theme1 fallback. */
+  --color-table-accent: var(--theme-accent, #81ccd1);
+  --color-table-header: var(--color-table-accent);
   --color-table-header-text: #ffffff;
   --color-table-cell: #ffffff;
-  --color-table-stripe: #e6f4f5;
+  --color-table-stripe: color-mix(in srgb, var(--color-table-accent) 14%, #ffffff);
   --color-table-text: #444444;
-  --color-table-border: #cacaca;
+  --color-table-border: color-mix(in srgb, var(--color-table-accent) 35%, #ffffff);
   --color-table-highlight: #0943d5;
 
   /* Radii */
@@ -66,6 +71,16 @@
     #f56876 0%,
     #eeffae 29%,
     #f758bb 60%
+  );
+
+  /* 闯关排列 container (Figma "Steps List" frame 1:1020). A frosted white box
+     that wraps ALL step cards: a near-white vertical gradient (78%→80% white)
+     over the theme bg, with a 3px translucent-white border + 20px radius. The
+     serpentine map path sits behind the cards inside this box. */
+  --grad-steps-container: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 78%,
+    rgba(255, 255, 255, 0.8) 100%
   );
 
   /* Map pattern-bg approximation: layered radial "tiles" of teal so the
@@ -106,6 +121,9 @@
   }
   .bg-card-grad {
     background-image: var(--grad-card);
+  }
+  .bg-steps-container {
+    background-image: var(--grad-steps-container);
   }
   .bg-step-card {
     background-image: var(--grad-step-card);

@@ -64,6 +64,21 @@ describe('RewardTable', () => {
     )
   })
 
+  it('drives the header off the theme accent (bg-table-header → --theme-accent)', () => {
+    render(<RewardTable columns={columns} rows={rows} />)
+    // The header row uses the accent-wired token class; index.css maps
+    // --color-table-header → var(--theme-accent), so the header recolors on
+    // theme switch rather than staying a frozen teal.
+    const headerRow = screen.getByText('日累计充值').closest('tr')
+    expect(headerRow).toHaveClass('bg-table-header')
+    // Cell dividers + striped rows also follow the accent (token classes), so
+    // the WHOLE table recolors cohesively, not just the header.
+    const header = screen.getByText('日累计充值')
+    expect(header).toHaveClass('border-table-border')
+    const stripeRow = screen.getByTestId('reward-row-r2')
+    expect(stripeRow).toHaveClass('bg-table-stripe')
+  })
+
   it('throws when a row has the wrong number of cells', () => {
     const bad: RewardRow[] = [{ id: 'x', cells: ['only-one'] }]
     expect(() => render(<RewardTable columns={columns} rows={bad} />)).toThrow()
