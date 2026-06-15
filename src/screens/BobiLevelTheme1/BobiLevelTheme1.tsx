@@ -161,10 +161,10 @@ export function BobiLevelTheme1({
             key={step.id}
             className={cn(
               'flex',
-              step.side === 'right' ? 'justify-end pl-4' : 'justify-start pr-4',
+              step.side === 'right' ? 'justify-end pl-2' : 'justify-start pr-2',
             )}
           >
-            <div className="w-[86%]">
+            <div className="w-[92%]">
               <StepCard
                 status={step.status}
                 title={step.title}

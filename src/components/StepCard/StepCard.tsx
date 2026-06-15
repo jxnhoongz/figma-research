@@ -140,7 +140,7 @@ export function StepCard({
         {claimable ? (
           <Button
             size="md"
-            className="mt-0.5 h-5 rounded-full px-2 text-[10px] leading-none"
+            className="mt-0.5 h-4 rounded-full px-1.5 text-[9px] leading-none"
             onClick={onClaim}
           >
             可领取
