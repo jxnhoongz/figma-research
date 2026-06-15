@@ -4,12 +4,13 @@ import { Banner } from '../../components/Banner/Banner'
 import { TabSwitch } from '../../components/TabSwitch/TabSwitch'
 import { type Status } from '../../components/StatusIcon/StatusIcon'
 import { StepCard, type StepStat, type StepSide } from '../../components/StepCard/StepCard'
+import { StepsContainer } from '../../components/StepsContainer/StepsContainer'
 import {
   RewardTable,
   type RewardColumn,
   type RewardRow,
 } from '../../components/RewardTable/RewardTable'
-import { TAB_ICON, Start, MidRightToLeft } from '../../components/svg'
+import { TAB_ICON } from '../../components/svg'
 import { cn } from '../../lib/cn'
 import { getTheme, themeVars } from '../../lib/themes'
 import decoBottom1 from '../../assets/bobi-theme1/deco-bottom-1.png'
@@ -151,56 +152,35 @@ export function BobiLevelTheme1({
         className="mx-4 mt-3"
       />
 
-      {/* Map header banner (闯关排列). */}
-      <div className="mt-3 flex justify-center">
-        <span className="bg-cta text-on-dark rounded-full px-6 py-1 text-sm font-bold shadow-sm">
-          闯关排列
-        </span>
-      </div>
-
-      {/* Serpentine map: step cards alternate sides, real connector lanes
-          (Start / MidRightToLeft) thread between them. */}
-      <div className="relative mt-2 px-3 pb-4">
-        <ol className="flex flex-col">
-          {STEPS.map((step, i) => (
-            <li key={step.id} className="flex flex-col">
-              <div className={cn(step.side === 'right' ? 'pl-10' : 'pr-10')}>
-                <StepCard
-                  status={step.status}
-                  title={step.title}
-                  requirement={step.requirement}
-                  statusText={step.statusText}
-                  amount={step.amount}
-                  side={step.side}
-                  active={step.active}
-                  claimable={step.claimable}
-                  claimed={step.claimed}
-                  stats={step.stats}
-                />
-              </div>
-              {/* Connector lane to the next card (real map-pattern SVG). */}
-              {i < STEPS.length - 1 ? (
-                <div className="-my-1 h-7 w-full overflow-hidden" aria-hidden="true">
-                  {i === 0 ? (
-                    <Start
-                      preserveAspectRatio="none"
-                      className="h-full w-full"
-                    />
-                  ) : (
-                    <MidRightToLeft
-                      preserveAspectRatio="none"
-                      className={cn(
-                        'h-full w-full',
-                        step.side === 'right' ? '-scale-x-100' : '',
-                      )}
-                    />
-                  )}
-                </div>
-              ) : null}
-            </li>
-          ))}
-        </ol>
-      </div>
+      {/* 闯关排列 container (Figma "Steps List" frame): a frosted box wrapping
+          ALL step cards, with the serpentine map path as a background layer
+          behind them. Cards alternate sides and overlap the path. */}
+      <StepsContainer title="闯关排列">
+        {STEPS.map((step) => (
+          <li
+            key={step.id}
+            className={cn(
+              'flex',
+              step.side === 'right' ? 'justify-end pl-4' : 'justify-start pr-4',
+            )}
+          >
+            <div className="w-[86%]">
+              <StepCard
+                status={step.status}
+                title={step.title}
+                requirement={step.requirement}
+                statusText={step.statusText}
+                amount={step.amount}
+                side={step.side}
+                active={step.active}
+                claimable={step.claimable}
+                claimed={step.claimed}
+                stats={step.stats}
+              />
+            </div>
+          </li>
+        ))}
+      </StepsContainer>
 
       {/* 活动详情 info panel. */}
       <section className="bg-card-grad rounded-card mx-2 mt-2 px-4 pt-4 pb-6">
