@@ -10,3 +10,6 @@ vite.config.d.ts
 
 # Local MCP config — contains a Figma token, never commit
 .mcp.json
+
+# Raw Figma plugin export dump (22MB) — curated assets live in src/assets/section2
+src/assets/figma-plugin/
