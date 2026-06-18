@@ -10,6 +10,8 @@
   --color-on-dark: #ffffff;
   --color-text-brown: #7a3201;
   --color-text-amount: #e55f2b;
+  /* 活动详情 body paragraph (node 1:1201 region): neutral dark, NOT brown. */
+  --color-text-body: #222222;
   --color-divider: rgba(255, 255, 255, 0.25);
 
   /* Nav header (Frame 1410102067): white bar, navy title #110940. */
