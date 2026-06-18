@@ -90,9 +90,12 @@ export function StepCard({
 
       {/* Content overlay. The right ~36% is the reward wedge per the SVG. */}
       <div className="absolute inset-0 flex items-center pr-[34%] pl-2">
+        {/* Native disc is 51px tall in a 60px card (~85%). The SVG viewBox
+            (57×52) carries ~6px of drop-shadow bleed on the right, so the
+            visible disc sits flush-left with no extra negative margin. */}
         <StatusIcon
           status={status}
-          className="relative z-10 -ml-1 h-[88%] w-auto shrink-0"
+          className="relative z-10 h-[85%] w-auto shrink-0"
         />
 
         <div className="flex min-w-0 flex-1 flex-col justify-center pl-1">
