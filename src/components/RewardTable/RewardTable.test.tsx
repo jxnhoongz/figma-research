@@ -64,6 +64,26 @@ describe('RewardTable', () => {
     )
   })
 
+  it('highlights ONLY the specified cell (not the whole row)', () => {
+    // Figma highlights a single cell (第一关 / 2倍 = 8元) in blue, not the row.
+    const single: RewardRow[] = [
+      { id: 'h', cells: ['1000元+', '第一关', '8元', '18元'], highlightCells: [2] },
+    ]
+    render(<RewardTable columns={columns} rows={single} />)
+    const blue = screen.getByText('8元')
+    expect(blue).toHaveAttribute('data-highlight', 'true')
+    expect(blue).toHaveClass('text-table-highlight')
+    // Sibling value in the same row is NOT highlighted.
+    const plain = screen.getByText('18元')
+    expect(plain).not.toHaveAttribute('data-highlight')
+    expect(plain).toHaveClass('text-table-text')
+    // The row still reports data-highlight=true (it contains a highlighted cell).
+    expect(screen.getByTestId('reward-row-h')).toHaveAttribute(
+      'data-highlight',
+      'true',
+    )
+  })
+
   it('drives the header off the theme accent (bg-table-header → --theme-accent)', () => {
     render(<RewardTable columns={columns} rows={rows} />)
     // The header row uses the accent-wired token class; index.css maps
