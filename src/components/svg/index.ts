@@ -20,7 +20,9 @@ import { Yesterday } from './generated/tab-switch/Yesterday'
 import { Start } from './generated/map-pattern/Start'
 import { MidRightToLeft } from './generated/map-pattern/MidRightToLeft'
 import { MidLeftToRight } from './generated/map-pattern/MidLeftToRight'
-import { AllPieces } from './generated/map-pattern/AllPieces'
+import { EndLeftToRight } from './generated/map-pattern/EndLeftToRight'
+import { EndRightToLeft } from './generated/map-pattern/EndRightToLeft'
+import { MapPath } from './generated/map-pattern/MapPath'
 
 /** Status -> status-icon glyph. `active` maps to the gold "current" star. */
 export const STATUS_ICON = {
@@ -39,17 +41,19 @@ export const STEP_CARD = {
 
 export const TAB_ICON = { today: Today, yesterday: Yesterday } as const
 
-// Serpentine map lanes. The Figma path (Background Content, 1:1048) stacks 8
-// tiles: Start, then alternating Mid-right-to-left / Mid-left-to-right, capped
-// by an End lane. Only `start` + `midRightToLeft` were exported; `midLeftToRight`
-// is a mirror-approximation of `midRightToLeft`. For the actual screen we render
-// the real `all` composite (all-pieces.svg = the full 4-step serpentine,
-// start+mid+mid+2 ends), which is the most faithful single asset.
+// Serpentine map lanes. The Figma path (Background Content frame) stacks 8 tiles
+// at a 70px pitch: Start, then alternating Mid-right-to-left / Mid-left-to-right,
+// capped by End-left-to-right. ALL pieces are now real exports (no mirror-approx).
+// `path` is the assembled composite the screen renders; the individual lanes are
+// re-exported for completeness. See MapPath.tsx for the exact tile order pulled
+// from the structure JSON.
 export const MAP_PATTERN = {
   start: Start,
   midRightToLeft: MidRightToLeft,
   midLeftToRight: MidLeftToRight,
-  all: AllPieces,
+  endLeftToRight: EndLeftToRight,
+  endRightToLeft: EndRightToLeft,
+  path: MapPath,
 } as const
 
 export {
@@ -68,5 +72,7 @@ export {
   Start,
   MidRightToLeft,
   MidLeftToRight,
-  AllPieces,
+  EndLeftToRight,
+  EndRightToLeft,
+  MapPath,
 }

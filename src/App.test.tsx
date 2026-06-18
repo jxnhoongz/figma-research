@@ -43,4 +43,16 @@ describe('App theme switcher', () => {
       'false',
     )
   })
+
+  it('swaps the banner image when the theme changes', () => {
+    render(<App />)
+    const bannerImg = screen.getByRole('img', { name: '波币大闯关' })
+    const theme1Src = bannerImg.getAttribute('src')
+    expect(theme1Src).toBe(getTheme('theme1').banner)
+
+    fireEvent.click(screen.getByTestId('theme-btn-theme3'))
+    const after = screen.getByRole('img', { name: '波币大闯关' })
+    expect(after.getAttribute('src')).toBe(getTheme('theme3').banner)
+    expect(after.getAttribute('src')).not.toBe(theme1Src)
+  })
 })

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
-import { AllPieces } from '../svg'
+import { MapPath } from '../svg'
 
 interface StepsContainerProps {
   /** Pill header label (Figma "等级可领" text = 闯关排列). */
@@ -13,9 +13,11 @@ interface StepsContainerProps {
 /**
  * 闯关排列 container — Figma "Steps List" frame (1:1020). A frosted white box
  * (3px translucent-white border, 20px radius) that wraps ALL step cards. Inside
- * it the real serpentine map path (`AllPieces`, the start+mid+mid+end composite)
+ * it the real serpentine map path (`MapPath`, the 8-tile start+mid…+end stack)
  * is an absolute BACKGROUND layer; the cards overlay it in front, overlapping
  * the path. The "闯关排列" pill is the frame header, straddling the top edge.
+ * The path is `MapPath` — the 8 real map-pattern tiles assembled in the exact
+ * serpentine order from the structure JSON (no mirror-approximations).
  *
  * This frame is NOT a registered Figma component (it's a plain copy-pasted
  * frame), so it was missing from the component-master extraction — captured here
@@ -39,9 +41,9 @@ export function StepsContainer({ title, children, className }: StepsContainerPro
         {/* Serpentine map path: absolute BACKGROUND layer, behind the cards.
             Themed via currentColor (inherits --theme-accent from the screen).
             Stretched (preserveAspectRatio=none) to fill the card stack so each
-            of the 4 serpentine lanes sits under its card and the connector
-            arcs peek out on alternating sides. */}
-        <AllPieces
+            serpentine lane sits under its card and the connector arcs peek out
+            on alternating sides. */}
+        <MapPath
           aria-hidden="true"
           preserveAspectRatio="none"
           className="pointer-events-none absolute inset-0 z-0 h-full w-full"

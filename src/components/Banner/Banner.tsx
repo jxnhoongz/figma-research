@@ -1,5 +1,5 @@
 import { cn } from '../../lib/cn'
-import banner from '../../assets/bobi-theme1/banner.png'
+import banner from '../../assets/section2/banner/theme1.png'
 
 export interface BannerProps {
   title?: string

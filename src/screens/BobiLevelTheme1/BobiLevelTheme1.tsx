@@ -142,7 +142,7 @@ export function BobiLevelTheme1({
       className={cn('flex w-[390px] flex-col pb-0', className)}
     >
       <NavHeader title="波币大闯关" />
-      <Banner title="波币大闯关" />
+      <Banner title="波币大闯关" src={theme.banner} />
 
       <TabSwitch
         tabs={TABS}
