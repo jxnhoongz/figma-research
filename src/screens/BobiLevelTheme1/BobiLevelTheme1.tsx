@@ -16,7 +16,7 @@ import { TAB_ICON } from '../../components/svg'
 import { cn } from '../../lib/cn'
 import { getTheme, themeVars } from '../../lib/themes'
 import mainTexture from '../../assets/section2/decor/main-container-texture.svg'
-import bottomHalftone from '../../assets/section2/decor/bottom-halftone.svg'
+import bottomDeco from '../../assets/section2/decor/bottom-deco.svg'
 
 /**
  * 波币大闯关 theme1 screen, rebuilt 1:1 with the real section2 SVG assets.
@@ -233,12 +233,14 @@ export function BobiLevelTheme1({
         data-testid="info-section"
         className="bg-theme-accent relative mt-2.5 px-2.5 pt-2.5 pb-2.5"
       >
-        {/* Bottom-left halftone decoration (node 1:1312/1:1313). */}
+        {/* Frame 1410107938 decoration: the real Vector (135×143, node 1:983).
+            Anchored at the bottom frame's top-left (x+0 y+0); the vector itself
+            overflows up-and-left by (-47, -67) as a corner flourish. */}
         <img
-          src={bottomHalftone}
+          src={bottomDeco}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -top-12 left-0 h-24 w-24 object-contain opacity-90"
+          className="pointer-events-none absolute top-[-67px] left-[-47px] h-[143px] w-[135px] object-contain"
         />
 
         {/* 活动详情 title — IDENTICAL star + underline header as 闯关排列
