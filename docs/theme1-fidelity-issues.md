@@ -1,44 +1,40 @@
-# theme1 Fidelity Issues (from user review, 2026-06-12)
+# theme1 Fidelity Audit (JSON-grounded, 2026-06-19)
 
-Comparing our render (v4) against the real Figma theme1. Two problems.
+Read node-by-node from `src/assets/figma-plugin/theme1/structure/Frame_1410108374_1-971.json`
+(NOT eyeballed). This is the fix spec.
 
-## Issue 1 (small) — Banner + table don't recolor on theme switch
-- **Banner:** stays theme1's photo across all themes. Partly known (the other 5
-  banner PNGs are export-blocked) — but also a raster photo can't be recolored;
-  each theme needs its OWN banner art.
-- **Table (活动详情):** the rewards table colors do NOT follow the theme accent
-  on switch — they stay static. Bug: the table's tokens aren't wired to
-  `--theme-accent` (despite the build claiming the header recolors). Fix: drive
-  table header/stripe/border off the theme accent like the rest of the chrome.
+## Headers
+1. **闯关排列 + 活动详情 are the IDENTICAL component** and must render the same:
+   `Star 25` (30×31 vector) + `Vector 2723` (69×12 stroke/ribbon underline) + text `#222222`
+   (display face, 22px). Today they differ (闯关排列 has a chevron + generic `✦`; 活动详情 has
+   only `✦`), and neither has the stroke underline.
+   - NOTE: `Star 25` (930px²) + `Vector 2723` (828px²) are below the plugin's 1500px² export
+     threshold, so they're NOT in our export. Approximate closely (5-point star + short rule) OR
+     re-export with a lower threshold. Flag which.
 
-## Issue 2 (MAJOR) — Theme/asset structural mismatch
+## Tabs
+2. **Active tab is 昨日闯关 (LEFT)** — bigger (184×53) with `Star 64/65` decorations.
+   **今日闯关 (right) is inactive** (176×40, plain). Our build has the right tab active → FLIP.
 
-### 2a. Missing the "闯关排列" container frame
-- The real design wraps ALL the step cards inside a single **frosted rounded
-  container box** (with the "闯关排列" title pill as its header). We rendered the
-  step cards as separate full-width cards with no wrapping container.
-- **Root cause (important lesson):** this container is **NOT a registered Figma
-  component** — so it did NOT appear in the Section-2 component-masters list we
-  extracted from. It's a plain frame, **copy-pasted across all 6 themes**.
-- **Implication:** extracting only the registered component masters MISSES
-  reused-but-not-componentized frames. We must extract from the actual SCREEN
-  structure (the theme frames), not just the component library. Anything that
-  visually repeats across themes is "a component" for our purposes even if Figma
-  didn't formalize it.
+## Steps module (Component 32)
+3. **Cards do NOT overlap each other** — step blocks are `gap 10` (spaced). The `gap -20` is on
+   Component 32 = the 闯关排列 *title* overlapping the steps top by 20px. Remove card overlap.
+4. **8 step blocks** in `Overlay Content` (each 306×60); `Steps List` (364h) + `Component 32`
+   (440h) both **CLIP** → ~5 visible. We render 4. Model the clip + show ~5.
+5. **Status icon is always LEFT** — each block is horizontal `[Status Icon 51 | Step Block
+   Content 245]`. The left/right alternation is the card's pointer tab (`Polygon 2`, 10×20) +
+   the Component 38 left/right variant — NOT the icon. Don't alternate the icon.
+6. **Active 第三关 card is the SAME 306×60 size** — just orange chrome + stats
+   (日计充值 / 有效投) + 彩金28元. Don't oversize it.
+7. **Claim Button Container (345×70, 可领取 3888元)** is a real separate button — keep it.
 
-### 2b. Step "bridges" are layered/arranged wrong
-- We render the map-pattern connectors ("bridges") as separate strips **below**
-  each card. In the real design the path sits **behind** the cards — the cards
-  overlap and sit ON the path, in a **serpentine/zigzag** arrangement with the
-  status icons protruding to alternating sides.
-- Fix: the map path is a background layer (z-behind); cards overlap it; layout
-  is serpentine, not a flat vertical stack with bridges between rows.
+## Main Container
+8. Behind tabs/title: a `bg` group (378×521) + a `Vector` (270×126) decorative graphic. Verify
+   ours matches.
 
-## Fix plan (when we tackle it)
-1. **Re-read the actual theme1 SCREEN frame structure** (not the component
-   masters) to capture the 闯关排列 container + the real serpentine step layout +
-   z-order. Reads are available now (frugally).
-2. Build the missing container frame as a component; nest the step cards inside.
-3. Re-layer: map path behind, cards overlapping, serpentine arrangement.
-4. Wire the table colors to `--theme-accent`.
-5. Per-theme banner art (blocked on export quota).
+## Bottom (Frame 1410107935)
+9. Headers per #1. One decorative `Vector` (135×143). **No gift+ingot pair** exists in theme1 —
+   if our build still has gift/ingot PNGs, remove them.
+
+## Method note
+The recurring error was approximating where we should mirror. For every value, read the JSON.
