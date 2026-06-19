@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /></head>
+  <body style="font-family: -apple-system, sans-serif; padding: 14px; margin: 0">
+    <h3 style="margin: 0 0 8px">Figma Section Exporter</h3>
+    <p id="status" style="color: #444; font-size: 13px">Exporting… (select a section/screen first if nothing happens)</p>
+    <p id="stats" style="display: none; color: #2a7; font-size: 12px; margin: 4px 0"></p>
+    <button id="dl" style="display: none; padding: 8px 14px; font-size: 14px; cursor: pointer">
+      ⬇ Download figma-export.json
+    </button>
+    <p id="hint" style="display: none; color: #888; font-size: 12px; margin-top: 10px">
+      Then run: <code>node scripts/import-figma-export.mjs &lt;file&gt; src/assets/figma-plugin</code>
+    </p>
+    <script>
+      let payload = null;
+      onmessage = (e) => {
+        const msg = e.data.pluginMessage;
+        if (!msg) return;
+        const status = document.getElementById("status");
+        if (msg.type === "error") { status.textContent = "⚠ " + msg.msg; return; }
+        if (msg.type === "log") { status.textContent = msg.msg; return; }
+        if (msg.type === "done") {
+          payload = JSON.stringify({ generatedAt: Date.now(), files: msg.files });
+          const mb = (payload.length / 1048576).toFixed(1);
+          status.textContent = `Ready: ${msg.count} files (${mb} MB). Click to download.`;
+          if (msg.stats) {
+            const s = msg.stats;
+            const el = document.getElementById("stats");
+            el.textContent = `${s.components} components · ${s.instances} instances · ${s.decor} decor · ${s.images} images · ${s.deduped} deduped`;
+            el.style.display = "block";
+          }
+          document.getElementById("dl").style.display = "inline-block";
+          document.getElementById("hint").style.display = "block";
+        }
+      };
+      document.getElementById("dl").onclick = () => {
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "figma-export.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      };
+    </script>
+  </body>
+</html>

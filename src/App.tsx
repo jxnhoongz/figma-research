@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { BobiLevelTheme1 } from './screens/BobiLevelTheme1/BobiLevelTheme1'
 import { MoonFestival } from './screens/MoonFestival/MoonFestival'
 import { Section3 } from './screens/Section3/Section3'
+import { Section6 } from './screens/Section6/Section6'
+import { Section7 } from './screens/Section7/Section7'
 import { THEMES } from './lib/themes'
 import { cn } from './lib/cn'
 
@@ -15,6 +17,8 @@ const PAGES = [
   { id: 'bobi', label: '波币大闯关' },
   { id: 'moon', label: '中秋大转盘' },
   { id: 'section3', label: '点击领取' },
+  { id: 'section6', label: '升级模式' },
+  { id: 'section7', label: '领取彩金' },
 ] as const
 
 // Section 3's 8 distinct palettes (accent swatch only drives the switcher dot;
@@ -111,6 +115,12 @@ export default function App() {
       )}
       {page === 'section3' && (
         <Section3 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      )}
+      {page === 'section6' && (
+        <Section6 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      )}
+      {page === 'section7' && (
+        <Section7 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
       )}
     </div>
   )
