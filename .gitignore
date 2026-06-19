@@ -18,3 +18,7 @@ src/assets/figma-plugin/
 # src/assets/<section> by scripts/build-section-scene.mjs
 figma-export-section*/
 figma-export/
+
+# Raw screen recordings (huge, often >100MB → can't push). The committed demo
+# is the compressed mp4 in demo/; keep originals local.
+demo/*.mov
