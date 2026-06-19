@@ -17,12 +17,33 @@
 figma.showUI(__html__, { width: 380, height: 300 });
 
 const PNG_SCALE = 2; // 2× retina — crisp enough for 1:1, half the bytes of 3×.
-const DECOR_MIN_AREA = 500; // skip sub-pixel vector noise; capture real decor.
+// Capture real decor down to small icons (step dots, +/- markers, list bullets).
+// 500 (≈22×22) was far too aggressive and dropped legitimate small art; the true
+// sub-pixel-noise guard is exportable() (rejects <1px). 16 = 4×4 keeps real icons
+// (e.g. a 5×5 "+" union) while still skipping degenerate specks.
+const DECOR_MIN_AREA = 16;
 const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
 
 const seen = new Set();
-const errors = [];
-const stats = { components: 0, instances: 0, decor: 0, images: 0, deduped: 0 };
+const failures = []; // structured, identifiable: { id, name, type, box, fills, visible, reason }
+const stats = { components: 0, instances: 0, decor: 0, images: 0, deduped: 0, failed: 0 };
+
+// Record an export failure with everything needed to identify and backfill the
+// node later (by id, via the REST images endpoint, or by reconstructing simple
+// fills from the structure JSON). Figma export errors often carry no .message,
+// so we synthesise a real one instead of logging "undefined".
+function recordFailure(node, e) {
+  const b = node.absoluteBoundingBox;
+  failures.push({
+    id: node.id,
+    name: node.name || null,
+    type: node.type,
+    box: b ? { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) } : null,
+    fills: Array.isArray(node.fills) ? node.fills.map((f) => f.type) : [],
+    visible: node.visible !== false,
+    reason: (e && (e.message || e.name)) || String(e) || "exportAsync threw with no message (likely an unrenderable mask/boolean node)",
+  });
+}
 
 function safeName(node) {
   const base = (node.name || node.type || "node").trim().replace(/[^\w.\-一-鿿]+/g, "_").slice(0, 60);
@@ -42,6 +63,36 @@ function deepHasImage(node) {
 function area(node) {
   const b = node.absoluteBoundingBox;
   return b ? b.width * b.height : 0;
+}
+// Color-aware dedup signature. Decor that is IDENTICAL across themes (a white
+// moon) shares a signature and still dedups; decor that RECOLORS per theme (the
+// bottom panel, wheel wedges) gets a distinct signature so every theme keeps its
+// own asset instead of collapsing to the first theme's colour. Order-independent
+// (sorted set) so it matches the generator's reading of the structure JSON.
+function hashStr(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+function colorHex(c) {
+  return [c.r, c.g, c.b].map((v) => Math.round(v * 255)).join(",");
+}
+function colorSig(node) {
+  const set = new Set();
+  const add = (paints) => {
+    if (!Array.isArray(paints)) return; // figma.mixed / undefined
+    for (const p of paints) {
+      if (p.visible === false) continue;
+      if (p.type === "SOLID") set.add(colorHex(p.color));
+      else if (p.gradientStops) for (const s of p.gradientStops) set.add(colorHex(s.color));
+    }
+  };
+  (function walk(n) {
+    add(n.fills);
+    add(n.strokes);
+    if ("children" in n && n.children) n.children.forEach(walk);
+  })(node);
+  return hashStr([...set].sort().join(","));
 }
 // Once-only guard. Returns false if this key was already exported.
 function first(key) {
@@ -85,8 +136,8 @@ async function walk(node, files) {
     }
     if (node.type === "COMPONENT") {
       if (!first("comp:" + (node.key || node.id))) return;
+      await exportWhole(node, files); // count only on success — throws skip the ++
       stats.components++;
-      await exportWhole(node, files);
       return; // whole — don't recurse
     }
     if (node.type === "INSTANCE") {
@@ -95,32 +146,34 @@ async function walk(node, files) {
       // exports too), dedupe the rest.
       const mc = node.mainComponent;
       if (!first("comp:" + (mc && mc.key ? mc.key : node.id))) return;
-      stats.instances++;
       await exportWhole(node, files);
+      stats.instances++;
       return; // whole — don't recurse
     }
     if (DECOR_TYPES.includes(node.type) && area(node) >= DECOR_MIN_AREA) {
       const raster = deepHasImage(node);
       const key = raster
         ? "img:" + (firstImageRef(node) || node.id)
-        : "decor:" + (node.name || node.type) + ":" + Math.round(area(node));
+        : "decor:" + (node.name || node.type) + ":" + Math.round(area(node)) + ":" + colorSig(node);
       if (!first(key)) return;
-      stats.decor++;
       await exportWhole(node, files);
+      stats.decor++;
       return; // decorative piece exported whole — don't dig into sub-vectors
     }
     if (hasImageFill(node)) {
       if (!first("img:" + (firstImageRef(node) || node.id))) return;
-      stats.images++;
       await exportPng(node, files);
+      stats.images++;
       return;
     }
     if ("children" in node) {
       for (const c of node.children) await walk(c, files);
     }
   } catch (e) {
-    const why = (e && (e.message || e.toString())) || String(e);
-    errors.push(`${node.name || node.id} <${node.type}>: ${why}`);
+    // The node was selected for export and threw — record it identifiably so the
+    // bundle never silently loses a visual. seen[] already holds its dedup key,
+    // so a guaranteed-fail node isn't retried for every duplicate.
+    recordFailure(node, e);
   }
 }
 
@@ -144,7 +197,13 @@ async function run() {
     }
     await walk(root, files);
   }
-  if (errors.length) files.push({ path: "errors.log", kind: "text", data: errors.join("\n") });
+  stats.failed = failures.length;
+  if (failures.length) {
+    // Machine-readable manifest of every asset that failed to export locally.
+    // Each entry has the node id (fetch via REST images?ids=) plus box+fills so
+    // simple gradient/solid/mask nodes can be reconstructed straight from JSON.
+    files.push({ path: "failed.json", kind: "text", data: JSON.stringify(failures, null, 2) });
+  }
   files.push({ path: "export-stats.json", kind: "text", data: JSON.stringify(stats, null, 2) });
   figma.ui.postMessage({ type: "done", files, count: files.length, stats });
 }

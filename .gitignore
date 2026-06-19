@@ -13,3 +13,8 @@ vite.config.d.ts
 
 # Raw Figma plugin export dump (22MB) — curated assets live in src/assets/section2
 src/assets/figma-plugin/
+
+# Unpacked plugin export bundles (throwaway) — curated assets are copied into
+# src/assets/<section> by scripts/build-section-scene.mjs
+figma-export-section*/
+figma-export/

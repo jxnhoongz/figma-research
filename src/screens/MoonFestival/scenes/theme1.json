@@ -1,0 +1,965 @@
+{
+  "name": "3. 中秋大转盘-Moon Festival 17",
+  "width": 390,
+  "height": 1290,
+  "nodes": [
+    {
+      "kind": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1290,
+      "bg": "#81ccd1",
+      "opacity": 1,
+      "radius": 0
+    },
+    {
+      "kind": "rect",
+      "x": 0,
+      "y": 92,
+      "w": 390,
+      "h": 325,
+      "bg": "linear-gradient(0deg, #84c3ba 0%, #76d0c3 44%, #45a5aa 100%)",
+      "opacity": 1,
+      "radius": 0
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108290_1-18650.svg",
+      "x": 21,
+      "y": 2,
+      "w": 348,
+      "h": 348
+    },
+    {
+      "kind": "img",
+      "src": "Ellipse_3803_1-18654.svg",
+      "x": 127,
+      "y": 148,
+      "w": 143,
+      "h": 181
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108092_1-18655.svg",
+      "x": 123,
+      "y": 185,
+      "w": 233,
+      "h": 84
+    },
+    {
+      "kind": "img",
+      "src": "e67e4f2df4cd16c7cef636fde9de4711b5f8ddac105c9-nzm4aB_fw1200__1-18886.png",
+      "x": -9,
+      "y": -21,
+      "w": 611,
+      "h": 359
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-18887.svg",
+      "x": -54,
+      "y": 243,
+      "w": 305,
+      "h": 168
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-18892.svg",
+      "x": 208,
+      "y": 257,
+      "w": 226,
+      "h": 117
+    },
+    {
+      "kind": "img",
+      "src": "花瓣素材_中秋节通用可爱兔子元素_193685862_2_1-18897.png",
+      "x": 47,
+      "y": 156,
+      "w": 129,
+      "h": 129
+    },
+    {
+      "kind": "img",
+      "src": "freepik_br_a4c95331-49f7-4e27-a783-31a6bb7ea99d_1-18898.png",
+      "x": 88,
+      "y": 80,
+      "w": 214,
+      "h": 211
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108241_1-18899.svg",
+      "x": 194,
+      "y": 154,
+      "w": 5,
+      "h": 5
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108242_1-18902.svg",
+      "x": 169,
+      "y": 156,
+      "w": 5,
+      "h": 5
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108289_1-18905.svg",
+      "x": 31,
+      "y": 219,
+      "w": 329,
+      "h": 113
+    },
+    {
+      "kind": "img",
+      "src": "3cd1d647e29fd8725c1e80b441c00f0b43a2246d9c53-yUP50E_fw1200we_1-18911.png",
+      "x": 74,
+      "y": 352,
+      "w": 32,
+      "h": 33
+    },
+    {
+      "kind": "img",
+      "src": "image_1252833_1-18912.png",
+      "x": 353,
+      "y": 89,
+      "w": 39,
+      "h": 36
+    },
+    {
+      "kind": "img",
+      "src": "组_5_拷贝_6_1_1-18913.png",
+      "x": 345,
+      "y": 314,
+      "w": 45,
+      "h": 34
+    },
+    {
+      "kind": "img",
+      "src": "image_1253580_1-18914.png",
+      "x": 60,
+      "y": 303,
+      "w": 29,
+      "h": 29
+    },
+    {
+      "kind": "img",
+      "src": "Vector_2714_1-18915.svg",
+      "x": 284,
+      "y": 130,
+      "w": 43,
+      "h": 51
+    },
+    {
+      "kind": "img",
+      "src": "Vector_2715_1-18916.svg",
+      "x": 36,
+      "y": 191,
+      "w": 31,
+      "h": 41
+    },
+    {
+      "kind": "img",
+      "src": "孔明灯_2_1-18917.png",
+      "x": -6,
+      "y": 69,
+      "w": 60,
+      "h": 112
+    },
+    {
+      "kind": "img",
+      "src": "烟花_6_1-18918.png",
+      "x": 19,
+      "y": 147,
+      "w": 84,
+      "h": 57
+    },
+    {
+      "kind": "img",
+      "src": "烟花_6_1-18918.png",
+      "x": 291,
+      "y": 285,
+      "w": 43,
+      "h": 29
+    },
+    {
+      "kind": "img",
+      "src": "烟花_6_1-18918.png",
+      "x": 308,
+      "y": 201,
+      "w": 54,
+      "h": 37
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410107148_1-18937.svg",
+      "x": 356,
+      "y": 121,
+      "w": 34,
+      "h": 81
+    },
+    {
+      "kind": "img",
+      "src": "Ellipse_3607_1-18967.svg",
+      "x": -14,
+      "y": 402,
+      "w": 418,
+      "h": 418
+    },
+    {
+      "kind": "img",
+      "src": "Vector_2101_1-18969.svg",
+      "x": 29,
+      "y": 457,
+      "w": 75,
+      "h": 94
+    },
+    {
+      "kind": "img",
+      "src": "Star_1-18970.png",
+      "x": 2,
+      "y": 435,
+      "w": 55,
+      "h": 55
+    },
+    {
+      "kind": "img",
+      "src": "Rectangle_346245508_1-18971.svg",
+      "x": -14,
+      "y": 644,
+      "w": 418,
+      "h": 864
+    },
+    {
+      "kind": "img",
+      "src": "Mask_group_1-18972.png",
+      "x": -7,
+      "y": 957,
+      "w": 404,
+      "h": 333
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108363_1-18977.png",
+      "x": 288,
+      "y": 391,
+      "w": 107,
+      "h": 149
+    },
+    {
+      "kind": "img",
+      "src": "Rectangle_346245522_1-18980.svg",
+      "x": -8,
+      "y": 782,
+      "w": 407,
+      "h": 45
+    },
+    {
+      "kind": "img",
+      "src": "Ellipse_3624_1-18981.svg",
+      "x": 48,
+      "y": 797,
+      "w": 61,
+      "h": 11
+    },
+    {
+      "kind": "img",
+      "src": "Mask_group_1-18982.png",
+      "x": 455,
+      "y": 647,
+      "w": 400,
+      "h": 120
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108332_1-19807.svg",
+      "x": 19,
+      "y": 790,
+      "w": 352,
+      "h": 31
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108378_1-19824.svg",
+      "x": 305,
+      "y": 476,
+      "w": 51,
+      "h": 58
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108381_1-19832.svg",
+      "x": 33,
+      "y": 476,
+      "w": 51,
+      "h": 58
+    },
+    {
+      "kind": "img",
+      "src": "Vector_1-19869.png",
+      "x": 16,
+      "y": 430,
+      "w": 360,
+      "h": 360
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-19871.svg",
+      "x": 116,
+      "y": 540,
+      "w": 159,
+      "h": 252
+    },
+    {
+      "kind": "img",
+      "src": "Vector_1-19874.svg",
+      "x": 24,
+      "y": 438,
+      "w": 342,
+      "h": 344
+    },
+    {
+      "kind": "img",
+      "src": "Vector_1-19875.svg",
+      "x": 40,
+      "y": 453,
+      "w": 310,
+      "h": 311
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108315_1-19877.png",
+      "x": 47,
+      "y": 747,
+      "w": 67,
+      "h": 61
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108367_1-19889.svg",
+      "x": 70,
+      "y": 486,
+      "w": 251,
+      "h": 294
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108374_1-19895.svg",
+      "x": 350,
+      "y": 552,
+      "w": 26,
+      "h": 112
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-19911.svg",
+      "x": 107,
+      "y": 423,
+      "w": 177,
+      "h": 37
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108342_1-19914.svg",
+      "x": 121,
+      "y": 446,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108380_1-19920.svg",
+      "x": 265,
+      "y": 446,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "kind": "img",
+      "src": "Star_37_1-19926.svg",
+      "x": 187,
+      "y": 427,
+      "w": 12,
+      "h": 12
+    },
+    {
+      "kind": "rect",
+      "x": 157,
+      "y": 432,
+      "w": 7,
+      "h": 11,
+      "bg": "#81ccd1",
+      "opacity": 1,
+      "radius": 15.000001907348633
+    },
+    {
+      "kind": "rect",
+      "x": 148,
+      "y": 434,
+      "w": 7,
+      "h": 11,
+      "bg": "#81ccd1",
+      "opacity": 1,
+      "radius": 15.000001907348633
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410107727_1-19934.png",
+      "x": 36,
+      "y": 581,
+      "w": 132,
+      "h": 137
+    },
+    {
+      "kind": "rect",
+      "x": 226,
+      "y": 432,
+      "w": 7,
+      "h": 11,
+      "bg": "#81ccd1",
+      "opacity": 1,
+      "radius": 15.000001907348633
+    },
+    {
+      "kind": "rect",
+      "x": 235,
+      "y": 434,
+      "w": 7,
+      "h": 11,
+      "bg": "#81ccd1",
+      "opacity": 1,
+      "radius": 15.000001907348633
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108377_1-19938.png",
+      "x": 33,
+      "y": 448,
+      "w": 324,
+      "h": 322
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-19946.svg",
+      "x": 178,
+      "y": 421,
+      "w": 33,
+      "h": 63
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108379_1-19949.svg",
+      "x": 14,
+      "y": 552,
+      "w": 26,
+      "h": 112
+    },
+    {
+      "kind": "img",
+      "src": "Button_1-19965.svg",
+      "x": 137,
+      "y": 551,
+      "w": 116,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108331_1-19966.svg",
+      "x": 60,
+      "y": 794,
+      "w": 269,
+      "h": 37
+    },
+    {
+      "kind": "img",
+      "src": "history_1-19973.png",
+      "x": 308,
+      "y": 703,
+      "w": 70,
+      "h": 70
+    },
+    {
+      "kind": "rect",
+      "x": 15,
+      "y": 345,
+      "w": 175,
+      "h": 68,
+      "bg": "linear-gradient(-90deg, #fffbf2 0%, #f8f4ff 100%)",
+      "opacity": 0.699999988079071,
+      "radius": 48
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108299_1-19977.svg",
+      "x": 20,
+      "y": 349,
+      "w": 135,
+      "h": 57
+    },
+    {
+      "kind": "img",
+      "src": "Vector_2094_1-20147.svg",
+      "x": 29,
+      "y": 354,
+      "w": 55,
+      "h": 14
+    },
+    {
+      "kind": "img",
+      "src": "image_1253253_1-20149.png",
+      "x": 49,
+      "y": 363,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "kind": "text",
+      "x": 86,
+      "y": 362,
+      "w": 40,
+      "h": 14,
+      "text": "累计充值",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 600,
+      "color": "#4d7a7d",
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 86,
+      "y": 375,
+      "w": 71,
+      "h": 21,
+      "text": "500000元",
+      "fontFamily": "DIN Alternate",
+      "fontSize": 16,
+      "fontWeight": 700,
+      "color": "#4d7a7d",
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 19,
+      "letterSpacing": 0.96,
+      "stroke": null
+    },
+    {
+      "kind": "rect",
+      "x": 200,
+      "y": 346,
+      "w": 175,
+      "h": 66,
+      "bg": "linear-gradient(-90deg, #fffbf2 0%, #f8f4ff 100%)",
+      "opacity": 0.699999988079071,
+      "radius": 48
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108299_1-19977.svg",
+      "x": 205,
+      "y": 350,
+      "w": 135,
+      "h": 57
+    },
+    {
+      "kind": "img",
+      "src": "Vector_2094_1-20147.svg",
+      "x": 214,
+      "y": 355,
+      "w": 55,
+      "h": 14
+    },
+    {
+      "kind": "img",
+      "src": "image_1253254_1-20328.png",
+      "x": 215,
+      "y": 363,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "kind": "text",
+      "x": 252,
+      "y": 363,
+      "w": 60,
+      "h": 14,
+      "text": "充值累计时间",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 600,
+      "color": "#4d7a7d",
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 252,
+      "y": 381,
+      "w": 109,
+      "h": 14,
+      "text": "2025.12.25 - 2025.12.25 ",
+      "fontFamily": "DIN Alternate",
+      "fontSize": 12,
+      "fontWeight": 700,
+      "color": "#4d7a7d",
+      "align": "left",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": -0.24,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-20333.svg",
+      "x": 33,
+      "y": 893,
+      "w": 324,
+      "h": 122
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108365_1-20336.svg",
+      "x": 346,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108367_1-20340.svg",
+      "x": 35,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108366_1-20344.svg",
+      "x": 337,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108368_1-20348.svg",
+      "x": 44,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-20353.svg",
+      "x": 225,
+      "y": 894,
+      "w": 131,
+      "h": 56
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108315_1-20521.png",
+      "x": 311,
+      "y": 911,
+      "w": 47,
+      "h": 47
+    },
+    {
+      "kind": "img",
+      "src": "image_1253271_1-20525.png",
+      "x": 277,
+      "y": 887,
+      "w": 73,
+      "h": 72
+    },
+    {
+      "kind": "img",
+      "src": "image_1253249_1-20526.png",
+      "x": 275,
+      "y": 919,
+      "w": 31,
+      "h": 32
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-20527.svg",
+      "x": 10,
+      "y": 1071,
+      "w": 370,
+      "h": 192
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-20530.svg",
+      "x": 10,
+      "y": 937,
+      "w": 370,
+      "h": 132
+    },
+    {
+      "kind": "text",
+      "x": 30,
+      "y": 1136,
+      "w": 333,
+      "h": 102,
+      "text": "所得优惠活动彩金需要满足一倍流水后即可提款；\n直播的所有优惠为玩家而设，若发现任何团体或个人， 以不诚实方式套取红利或任何威胁、滥用公司优惠等行 为，公司保留冻结、取消该团体或个人账户结余的权利\n直播保留对活动的最终解释权；以及在无通知的情况下修改终止活动的权利，适用于所有优惠。",
+      "fontFamily": "PingFang SC",
+      "fontSize": 12,
+      "fontWeight": 400,
+      "color": "#548588",
+      "align": "left",
+      "alignVertical": "top",
+      "lineHeight": 17,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108337_1-20534.svg",
+      "x": 349,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108369_1-20538.svg",
+      "x": 32,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108364_1-20542.svg",
+      "x": 340,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108370_1-20546.svg",
+      "x": 41,
+      "y": 1059,
+      "w": 9,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108341_1-20550.svg",
+      "x": 145,
+      "y": 1088,
+      "w": 108,
+      "h": 29
+    },
+    {
+      "kind": "img",
+      "src": "Star_28_1-20561.svg",
+      "x": 279,
+      "y": 904,
+      "w": 10,
+      "h": 8
+    },
+    {
+      "kind": "img",
+      "src": "Star_32_1-20562.svg",
+      "x": 158,
+      "y": 904,
+      "w": 10,
+      "h": 8
+    },
+    {
+      "kind": "img",
+      "src": "Star_30_1-20563.svg",
+      "x": 337,
+      "y": 902,
+      "w": 7,
+      "h": 6
+    },
+    {
+      "kind": "img",
+      "src": "Star_29_1-20564.svg",
+      "x": 276,
+      "y": 913,
+      "w": 6,
+      "h": 4
+    },
+    {
+      "kind": "img",
+      "src": "Star_33_1-20565.svg",
+      "x": 155,
+      "y": 913,
+      "w": 6,
+      "h": 4
+    },
+    {
+      "kind": "text",
+      "x": 35,
+      "y": 968,
+      "w": 321,
+      "h": 68,
+      "text": "🧧 新春狂欢：春节金福红包盛典启幕！在 2024年1月1日 至 2025年4月24日 期间累计充值达到5万元的贵宾，即刻获得抽奖资格。旋转幸运轮盘，抓住机遇赢取金福红包，祝您在新的一年里财源广进，福气满满！",
+      "fontFamily": "PingFang SC",
+      "fontSize": 12,
+      "fontWeight": 400,
+      "color": "#548588",
+      "align": "left",
+      "alignVertical": "top",
+      "lineHeight": 17,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-20570.svg",
+      "x": 50,
+      "y": 901,
+      "w": 30,
+      "h": 31
+    },
+    {
+      "kind": "text",
+      "x": 67,
+      "y": 910,
+      "w": 85,
+      "h": 16,
+      "text": "活动详情",
+      "fontFamily": "YouSheBiaoTiHei",
+      "fontSize": 24,
+      "fontWeight": 400,
+      "color": "#46256c",
+      "align": "justified",
+      "alignVertical": "top",
+      "lineHeight": 16,
+      "letterSpacing": -1.2,
+      "stroke": {
+        "color": "#ffffff",
+        "width": 0.83
+      }
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108344_1-20576.svg",
+      "x": 10,
+      "y": 870,
+      "w": 9,
+      "h": 9
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108336_1-20582.svg",
+      "x": 48,
+      "y": 866,
+      "w": 59,
+      "h": 16
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108335_1-20589.svg",
+      "x": 284,
+      "y": 866,
+      "w": 59,
+      "h": 16
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410108345_1-20596.svg",
+      "x": 371,
+      "y": 870,
+      "w": 9,
+      "h": 9
+    },
+    {
+      "kind": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 92,
+      "bg": "#ffffff",
+      "opacity": 1,
+      "radius": 0
+    },
+    {
+      "kind": "text",
+      "x": 153,
+      "y": 59,
+      "w": 85,
+      "h": 24,
+      "text": "中秋大转盘",
+      "fontFamily": "PingFang SC",
+      "fontSize": 17,
+      "fontWeight": 400,
+      "color": "#110940",
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 24,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410107096_1-20603.svg",
+      "x": 16,
+      "y": 59,
+      "w": 24,
+      "h": 24
+    },
+    {
+      "kind": "text",
+      "x": 52,
+      "y": 18,
+      "w": 37,
+      "h": 22,
+      "text": "9:41",
+      "fontFamily": "SF Pro",
+      "fontSize": 17,
+      "fontWeight": 590,
+      "color": "#000000",
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 22,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Battery_1-20608.svg",
+      "x": 332,
+      "y": 23,
+      "w": 27,
+      "h": 13
+    },
+    {
+      "kind": "img",
+      "src": "Wifi_1-20612.svg",
+      "x": 307,
+      "y": 24,
+      "w": 17,
+      "h": 12
+    },
+    {
+      "kind": "img",
+      "src": "Cellular_Connection_1-20613.svg",
+      "x": 281,
+      "y": 24,
+      "w": 19,
+      "h": 12
+    },
+    {
+      "kind": "img",
+      "src": "Home_Indicator_1-20614.svg",
+      "x": 1,
+      "y": 1269,
+      "w": 389,
+      "h": 21
+    }
+  ]
+}

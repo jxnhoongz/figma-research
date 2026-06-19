@@ -15,6 +15,19 @@ instance whose name matches the left column, reuse the right-column component.
 | `Steps List` (frame `1:1020`, the 闯关排列 box) | `<StepsContainer>` | The frosted container frame that wraps ALL step cards. NOT a registered Figma component (a copy-pasted plain frame) — captured from the screen structure, not the master list. Props: `title: string` (header pill, 闯关排列), `children: ReactNode` (the `<li>` step cards), `className?`. Renders a frosted gradient box (`.bg-steps-container`, 3px `white/60` border, `rounded-card`) with the title pill straddling the top edge, the real serpentine map path (`<AllPieces>`) as an absolute `z-0` background layer, and the cards in a `z-10` `<ol>` overlapping it. `data-testid="steps-container"`. |
 | `Component 38`        | `<StepCard>`   | The repeated STEP CARD (Figma id 1:5062), rendered with the REAL section2 SVG chrome as the card background (rounded body + map-path pointer tab + right reward wedge) and content overlaid. Props: `status`, `title`, `requirement`, `statusText`, `amount`, `side?: 'left'\|'right'` (which way the pointer tab juts), `active?`, `claimable?`, `claimed?`, `stats?: {label,value,unit?}[]`, `onClaim?`, `className?`. `passed` chrome carries the themeable accent (`currentColor`); `current`=orange active card with stats on the white panel; `locked`/`fail`=grey. `data-testid="step-card"`, `data-variant` = `active`\|`default`, `data-side`. |
 
+## Section 5 — 中秋大转盘 (Moon Festival lottery wheel)
+
+| Figma layer name | Code component | Key props |
+|------------------|----------------|-----------|
+| _(any plugin-export screen frame)_ | `<SceneRenderer>` | Generic, data-driven reconstruction of a screen. `scene: Scene` (from `scripts/build-section-scene.mjs`), `assetUrl: (src) => string \| undefined` (resolves a scene `src` filename to a bundled URL), `className?`. Renders each node absolutely at its exact Figma coordinate (`rect` = container fill incl. CSS gradients, `img` = exported asset, `text` = loose/overlay text). Array order = paint order. Single-line text gets symmetric horizontal slack so system-font width doesn't mis-wrap CJK labels. `data-testid="scene"`; text nodes `data-testid="scene-text"`. |
+| `3. 中秋大转盘-Moon Festival 17` | `<MoonFestival>` | Section 5 screen, reconstructed 1:1 from `scene.json` via `<SceneRenderer>`. Presentational, `className?`. Art is baked (no per-theme recolor). Regenerate: `node scripts/build-section-scene.mjs <exportDir> "3. 中秋大转盘-Moon Festival 17" src/assets/section5/img src/screens/MoonFestival/scene.json`. |
+
+`scripts/build-section-scene.mjs` replays the exporter's dedup classification to
+map every on-screen node occurrence back to its deduped asset file, normalises
+positions to the screen origin, and emits an ordered `scene.json` + copied
+assets. Reusable path for any future section: export →
+`import-figma-export.mjs` → `build-section-scene.mjs` → `<SceneRenderer>`.
+
 ## Theming + generated SVGs
 
 The kit SVGs (status-icon, component-38, tab-switch, map-pattern) are converted

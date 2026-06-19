@@ -1,9 +1,20 @@
 @import "tailwindcss";
 
 /* 优设标题黑 (YouSheBiaoTiHei) — the Figma display face for 闯关排列 / 活动详情 /
-   第X关 / tab labels. Best-effort webfont from a public CDN; if it fails to load
-   the `--font-display` stack below falls back to a heavy system sans so the
-   exact size/weight/color from the structure JSON still apply. */
+   活动细则 / 第X关 / tab labels.
+
+   Primary: a local, self-hosted SUBSET (1KB) covering exactly the header glyphs
+   活动详情细则, scoped by `unicode-range` so the browser pulls it locally for
+   those codepoints (reliable, no network). All OTHER glyphs fall through to the
+   best-effort CDN face below; if that also fails the `--font-display` stack
+   keeps the exact size/weight/colour from the structure JSON. */
+@font-face {
+  font-family: "YouSheBiaoTiHei";
+  font-display: swap;
+  src: url("/fonts/YouSheBiaoTiHei-subset.woff2") format("woff2");
+  /* 活 动 详 情 细 则 */
+  unicode-range: U+6D3B, U+52A8, U+8BE6, U+60C5, U+7EC6, U+5219;
+}
 @font-face {
   font-family: "YouSheBiaoTiHei";
   font-display: swap;
