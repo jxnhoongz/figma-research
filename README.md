@@ -192,3 +192,13 @@ npm run dev       # vite dev server
 npm run build     # tsc -b && vite build
 npm test          # vitest run
 ```
+
+## Demo
+
+Opus 4.8 building all 6 themes of `贵宾会员晋级奖-领取彩金` (Section 7) in ~7 minutes:
+
+<video src="demo/section7-6-themes.mp4" controls width="390"></video>
+
+▶︎ [demo/section7-6-themes.mp4](demo/section7-6-themes.mp4) — if the player above
+doesn't load inline (GitHub only embeds videos uploaded through its editor), the
+link plays it directly.
