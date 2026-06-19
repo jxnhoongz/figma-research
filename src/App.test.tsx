@@ -44,6 +44,30 @@ describe('App theme switcher', () => {
     )
   })
 
+  it('marks 昨日闯关 (left) as the active tab, 今日闯关 inactive', () => {
+    render(<App />)
+    expect(screen.getByRole('tab', { name: '昨日闯关' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    expect(screen.getByRole('tab', { name: '今日闯关' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    )
+  })
+
+  it('renders 闯关排列 + 活动详情 with the IDENTICAL header structure', () => {
+    render(<App />)
+    const headers = screen.getAllByTestId('section-header')
+    const titled = headers.filter((h) =>
+      ['闯关排列', '活动详情'].some((t) => h.textContent?.includes(t)),
+    )
+    expect(titled.length).toBe(2)
+    const norm = (el: HTMLElement) =>
+      el.innerHTML.replace('闯关排列', 'TITLE').replace('活动详情', 'TITLE')
+    expect(norm(titled[0])).toBe(norm(titled[1]))
+  })
+
   it('swaps the banner image when the theme changes', () => {
     render(<App />)
     const bannerImg = screen.getByRole('img', { name: '波币大闯关' })

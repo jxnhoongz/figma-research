@@ -43,7 +43,7 @@ describe('StepsContainer', () => {
       </StepsContainer>,
     )
     // The map path svg sits behind the cards (z-0) and is decorative.
-    const bg = container.querySelector('svg[aria-hidden="true"]')
+    const bg = container.querySelector('svg[aria-hidden="true"].z-0')
     expect(bg).not.toBeNull()
     expect(bg).toHaveClass('z-0')
   })
