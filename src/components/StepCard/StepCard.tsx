@@ -53,10 +53,12 @@ const CHROME_KEY: Record<Status, keyof typeof STEP_CARD> = {
  *            ├ Step Info Content 128×39   ← title + requirement / stats
  *            └ Step Card 84×43            ← reward wedge: statusText + amount
  *
- * The status icon is a real 51px sibling LEFT of the card — NOT overlaid inside
- * it — which is what un-cramps the layout (the old build squeezed the icon and
- * all content into the 245 card body). Only the card's pointer tab (Polygon 2,
- * baked into the SVG) flips per `side`; the icon never flips.
+ * The status icon is a real 51px sibling of the card — NOT overlaid inside it —
+ * which is what un-cramps the layout. The icon ALTERNATES sides per `side` (the
+ * serpentine zigzag from the structure JSON): left-icon on odd blocks, right-icon
+ * on even blocks, matching the road. The card's INTERNAL order (info left, reward
+ * wedge right) stays fixed; only the icon swaps sides, and the card's pointer tab
+ * (Polygon 2, baked into the SVG variant) follows `side`.
  *
  * The `passed` chrome carries the themeable accent slot (`currentColor`), so a
  * parent setting `color: var(--theme-accent)` recolors the frosted body. The
@@ -89,7 +91,12 @@ export function StepCard({
       data-testid="step-card"
       data-variant={variant}
       data-side={side}
-      className={cn('flex w-[306px] items-center gap-2.5', className)}
+      className={cn(
+        'flex w-[306px] items-center gap-2.5',
+        // Serpentine zigzag: even (right) blocks put the icon on the RIGHT.
+        side === 'right' && 'flex-row-reverse',
+        className,
+      )}
     >
       {/* Status Icon 51×51 — always left, fixed-width sibling. */}
       <StatusIcon
