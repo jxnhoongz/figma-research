@@ -24,9 +24,17 @@ const PNG_SCALE = 2; // 2× retina — crisp enough for 1:1, half the bytes of 3
 const DECOR_MIN_AREA = 16;
 const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
 
-const seen = new Set();
+// Dedup is by RENDERED CONTENT, not a guessed signature: render each candidate,
+// hash the actual bytes, and collapse only byte-identical output. This makes
+// dedup ground-truth — no name/area/colour/text heuristic can ever wrongly merge
+// two visually-different assets (theme recolours, reward-grid cards, icon-only
+// differences all stay distinct automatically). The plugin records every
+// exported node in `manifest` (nodeId → asset path) so the generator never has
+// to re-derive any signature.
+const seenHash = new Map(); // contentHash → asset path
+const manifest = {}; // nodeId → asset path (incl. deduped nodes → shared path)
 const failures = []; // structured, identifiable: { id, name, type, box, fills, visible, reason }
-const stats = { components: 0, instances: 0, decor: 0, images: 0, deduped: 0, failed: 0 };
+const stats = { components: 0, instances: 0, decor: 0, grids: 0, images: 0, deduped: 0, failed: 0 };
 
 // Record an export failure with everything needed to identify and backfill the
 // node later (by id, via the REST images endpoint, or by reconstructing simple
@@ -52,10 +60,6 @@ function safeName(node) {
 function hasImageFill(node) {
   return Array.isArray(node.fills) && node.fills.some((f) => f.type === "IMAGE");
 }
-function firstImageRef(node) {
-  const f = (Array.isArray(node.fills) ? node.fills : []).find((x) => x.type === "IMAGE" && x.imageHash);
-  return f ? f.imageHash : null;
-}
 function deepHasImage(node) {
   if (hasImageFill(node)) return true;
   return "children" in node ? node.children.some(deepHasImage) : false;
@@ -64,59 +68,105 @@ function area(node) {
   const b = node.absoluteBoundingBox;
   return b ? b.width * b.height : 0;
 }
-// Color-aware dedup signature. Decor that is IDENTICAL across themes (a white
-// moon) shares a signature and still dedups; decor that RECOLORS per theme (the
-// bottom panel, wheel wedges) gets a distinct signature so every theme keeps its
-// own asset instead of collapsing to the first theme's colour. Order-independent
-// (sorted set) so it matches the generator's reading of the structure JSON.
+// A "grid panel" = a frame whose visual is a table: a pure stack of frames + text
+// held together by per-side cell strokes (and 1–4% opacity fill bands). The
+// generator CANNOT faithfully reconstruct that — horizontal separators are often
+// sub-pixel fill steps, not strokes — so we render the whole table to ONE asset
+// (crisp, exactly like Figma; same reason hand-built tables "just worked").
+// Pure = no instances/components/images/vectors inside (those are their own
+// exportables); GRID_MIN_CELLS partial-stroked descendants is the table signal.
+const GRID_MIN_CELLS = 6;
+function isPureGridSubtree(node) {
+  let ok = true;
+  (function rec(n) {
+    if (!ok) return;
+    if (n !== node) {
+      const t = n.type;
+      if (t === "INSTANCE" || t === "COMPONENT" || hasImageFill(n) || DECOR_TYPES.includes(t)) {
+        ok = false;
+        return;
+      }
+    }
+    if ("children" in n) for (const c of n.children) rec(c);
+  })(node);
+  return ok;
+}
+// A "divider cell": visible strokes whose per-side weights are partial (some side
+// 0, some > 0) — left-only / left+right etc. NOTE the live plugin API exposes
+// per-side weights as strokeTopWeight/…/strokeLeftWeight (numbers); the REST
+// JSON_REST_V1 export calls the same thing `individualStrokeWeights:{top,…}`.
+// We must read the PLUGIN names here (this runs in-sandbox), keeping the REST
+// shape as a fallback so the helper also works if reused on exported JSON.
+function partialStroke(x) {
+  if (!Array.isArray(x.strokes) || !x.strokes.some((s) => s.visible !== false)) return false;
+  let sides;
+  if (typeof x.strokeTopWeight === "number") {
+    sides = [x.strokeTopWeight, x.strokeRightWeight, x.strokeBottomWeight, x.strokeLeftWeight];
+  } else if (x.individualStrokeWeights) {
+    const w = x.individualStrokeWeights;
+    sides = [w.top, w.right, w.bottom, w.left];
+  } else {
+    return false;
+  }
+  return sides.some((w) => w > 0) && sides.some((w) => !w);
+}
+function countPartialStrokedCells(node) {
+  let n = 0;
+  (function rec(x) {
+    if (x !== node && partialStroke(x)) n++;
+    if ("children" in x) for (const c of x.children) rec(c);
+  })(node);
+  return n;
+}
+function isGridPanel(node) {
+  if (node.type !== "FRAME" && node.type !== "GROUP") return false;
+  return isPureGridSubtree(node) && countPartialStrokedCells(node) >= GRID_MIN_CELLS;
+}
+// djb2 — fast non-crypto hash for content dedup of the rendered bytes.
 function hashStr(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
-function colorHex(c) {
-  return [c.r, c.g, c.b].map((v) => Math.round(v * 255)).join(",");
-}
-function colorSig(node) {
-  const set = new Set();
-  const add = (paints) => {
-    if (!Array.isArray(paints)) return; // figma.mixed / undefined
-    for (const p of paints) {
-      if (p.visible === false) continue;
-      if (p.type === "SOLID") set.add(colorHex(p.color));
-      else if (p.gradientStops) for (const s of p.gradientStops) set.add(colorHex(s.color));
-    }
-  };
-  (function walk(n) {
-    add(n.fills);
-    add(n.strokes);
-    if ("children" in n && n.children) n.children.forEach(walk);
-  })(node);
-  return hashStr([...set].sort().join(","));
-}
-// Once-only guard. Returns false if this key was already exported.
-function first(key) {
-  if (seen.has(key)) { stats.deduped++; return false; }
-  seen.add(key);
-  return true;
+
+// Render a node WHOLE in its natural format (PNG if it contains a raster, else
+// SVG); on failure fall back to the other format. Returns { kind, ext, data }.
+async function renderWhole(node) {
+  const raster = deepHasImage(node);
+  const svg = async () => ({ kind: "text", ext: "svg", data: await node.exportAsync({ format: "SVG_STRING" }) });
+  const png = async () => ({
+    kind: "base64",
+    ext: "png",
+    data: figma.base64Encode(await node.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: PNG_SCALE } })),
+  });
+  try {
+    return raster ? await png() : await svg();
+  } catch (e) {
+    return raster ? await svg() : await png();
+  }
 }
 
-async function exportSvg(node, files) {
-  files.push({ path: `svg/${safeName(node)}.svg`, kind: "text", data: await node.exportAsync({ format: "SVG_STRING" }) });
-}
-async function exportPng(node, files) {
-  const png = await node.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: PNG_SCALE } });
-  files.push({ path: `png/${safeName(node)}.png`, kind: "base64", data: figma.base64Encode(png) });
-}
-// Export the node whole; if the preferred format fails, fall back to the other.
-async function exportWhole(node, files) {
+// Export a node whole, dedup by rendered-content hash, record it in `manifest`.
+// `onNew` bumps the relevant stat only when a genuinely new asset is written.
+async function emitWhole(node, files, onNew) {
+  let r;
   try {
-    if (deepHasImage(node)) await exportPng(node, files);
-    else await exportSvg(node, files);
+    r = await renderWhole(node);
   } catch (e) {
-    if (deepHasImage(node)) await exportSvg(node, files);
-    else await exportPng(node, files);
+    recordFailure(node, e);
+    return;
   }
+  const h = r.ext + ":" + hashStr(r.data);
+  let path = seenHash.get(h);
+  if (path) {
+    stats.deduped++; // byte-identical to an already-exported asset
+  } else {
+    path = `${r.ext}/${safeName(node)}.${r.ext}`;
+    files.push({ path, kind: r.kind, data: r.data });
+    seenHash.set(h, path);
+    onNew();
+  }
+  manifest[node.id] = path; // every exported node maps to its (shared) asset
 }
 
 function exportable(node) {
@@ -134,36 +184,30 @@ async function walk(node, files) {
       for (const c of node.children) await walk(c, files); // fan out to variants
       return;
     }
+    // Classify WHAT to export whole; dedup-by-content + the manifest live in
+    // emitWhole. An instance is rendered WITH its overrides, so each distinct
+    // card naturally gets its own asset (or shares one iff byte-identical).
     if (node.type === "COMPONENT") {
-      if (!first("comp:" + (node.key || node.id))) return;
-      await exportWhole(node, files); // count only on success — throws skip the ++
-      stats.components++;
+      await emitWhole(node, files, () => stats.components++);
       return; // whole — don't recurse
     }
     if (node.type === "INSTANCE") {
-      // Visual = its master (exported) + the structure JSON's overrides. Export
-      // the first instance of each unique component (covers single-screen
-      // exports too), dedupe the rest.
-      const mc = node.mainComponent;
-      if (!first("comp:" + (mc && mc.key ? mc.key : node.id))) return;
-      await exportWhole(node, files);
-      stats.instances++;
+      await emitWhole(node, files, () => stats.instances++);
       return; // whole — don't recurse
     }
     if (DECOR_TYPES.includes(node.type) && area(node) >= DECOR_MIN_AREA) {
-      const raster = deepHasImage(node);
-      const key = raster
-        ? "img:" + (firstImageRef(node) || node.id)
-        : "decor:" + (node.name || node.type) + ":" + Math.round(area(node)) + ":" + colorSig(node);
-      if (!first(key)) return;
-      await exportWhole(node, files);
-      stats.decor++;
+      await emitWhole(node, files, () => stats.decor++);
       return; // decorative piece exported whole — don't dig into sub-vectors
     }
     if (hasImageFill(node)) {
-      if (!first("img:" + (firstImageRef(node) || node.id))) return;
-      await exportPng(node, files);
-      stats.images++;
+      await emitWhole(node, files, () => stats.images++);
+      return;
+    }
+    // Tables: bake the whole grid to one asset (see isGridPanel). Must precede
+    // the descend below — once we recurse, the per-side / sub-opacity grid is
+    // lost to cell-by-cell reconstruction.
+    if (isGridPanel(node)) {
+      await emitWhole(node, files, () => stats.grids++);
       return;
     }
     if ("children" in node) {
@@ -171,8 +215,7 @@ async function walk(node, files) {
     }
   } catch (e) {
     // The node was selected for export and threw — record it identifiably so the
-    // bundle never silently loses a visual. seen[] already holds its dedup key,
-    // so a guaranteed-fail node isn't retried for every duplicate.
+    // bundle never silently loses a visual.
     recordFailure(node, e);
   }
 }
@@ -198,10 +241,12 @@ async function run() {
     await walk(root, files);
   }
   stats.failed = failures.length;
+  // nodeId → asset path for every exported node. The generator reads this and
+  // never re-derives a dedup key, so plugin and generator can't drift.
+  files.push({ path: "manifest.json", kind: "text", data: JSON.stringify(manifest) });
   if (failures.length) {
-    // Machine-readable manifest of every asset that failed to export locally.
-    // Each entry has the node id (fetch via REST images?ids=) plus box+fills so
-    // simple gradient/solid/mask nodes can be reconstructed straight from JSON.
+    // Every asset that failed to export locally — node id (fetch via REST
+    // images?ids=) + box + fills so simple fills can be reconstructed from JSON.
     files.push({ path: "failed.json", kind: "text", data: JSON.stringify(failures, null, 2) });
   }
   files.push({ path: "export-stats.json", kind: "text", data: JSON.stringify(stats, null, 2) });

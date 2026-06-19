@@ -12,8 +12,9 @@
   font-family: "YouSheBiaoTiHei";
   font-display: swap;
   src: url("/fonts/YouSheBiaoTiHei-subset.woff2") format("woff2");
-  /* 活 动 详 情 细 则 */
-  unicode-range: U+6D3B, U+52A8, U+8BE6, U+60C5, U+7EC6, U+5219;
+  /* 活 动 详 情 细 则 (section 2/5) + 当 前 时 间 奖 励 预 览 (section 3) */
+  unicode-range: U+6D3B, U+52A8, U+8BE6, U+60C5, U+7EC6, U+5219, U+5F53, U+524D,
+    U+65F6, U+95F4, U+5956, U+52B1, U+9884, U+89C8;
 }
 @font-face {
   font-family: "YouSheBiaoTiHei";

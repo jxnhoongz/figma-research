@@ -1,50 +1,50 @@
 // Reconstructs a single screen from a plugin export bundle as a flat, ordered
-// "scene": every whole-exported asset placed at its exact structure coordinate,
-// plus independent text and container backgrounds. Positioning is correct by
+// "scene": every exported asset placed at its exact structure coordinate, plus
+// independent text and container backgrounds. Positioning is correct by
 // construction (we read Figma's absolute boxes), not by eyeballing.
 //
-// Why this works: the exporter emits one deduped asset per unique component /
-// decor / image, and STOPS descending there. So a screen is just those assets
-// tiled at each occurrence's position, in document (paint) order, with loose
-// text + frame fills overlaid. We replay the SAME classification here to map
-// every on-screen occurrence back to its asset file.
+// The plugin decides WHAT to export and dedups by RENDERED-CONTENT hash, then
+// writes `manifest.json` (nodeId → asset path). This script just FOLLOWS that
+// manifest — it never re-derives a dedup signature, so it can't drift from the
+// plugin. A node in the manifest is whole-exported (place it, stop); otherwise
+// it's a container we descend, painting loose text + rectangular fills.
 //
 // Usage:
-//   node scripts/build-section-scene.mjs <unpackedExportDir> "<screenName>" <destAssetsDir> <sceneJsonPath>
+//   node scripts/build-section-scene.mjs <unpackedExportDir> "<screenName|id>" <destAssetsDir> <sceneJsonPath>
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 
 const [, , exportDir, screenName, destAssets, scenePath] = process.argv;
 if (!exportDir || !screenName || !destAssets || !scenePath) {
-  console.error('usage: build-section-scene.mjs <exportDir> "<screenName>" <destAssets> <scenePath>');
+  console.error('usage: build-section-scene.mjs <exportDir> "<screenName|id>" <destAssets> <scenePath>');
   process.exit(1);
 }
 
 const structDir = join(exportDir, "structure");
 const structFile = join(structDir, readdirSync(structDir).find((f) => f.endsWith(".json")));
-const root = JSON.parse(readFileSync(structFile, "utf8"));
-const doc = root.document;
-const components = root.components || {};
+const doc = JSON.parse(readFileSync(structFile, "utf8")).document;
 
-const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
-const DECOR_MIN_AREA = 16; // keep in sync with figma-plugin/code.js
+// nodeId → asset path ("svg/foo.svg" | "png/bar.png"), authored by the plugin.
+const manifestPath = join(exportDir, "manifest.json");
+if (!existsSync(manifestPath)) {
+  console.error("manifest.json not found — re-export with the current plugin (content-hash + manifest).");
+  process.exit(1);
+}
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+// Nodes the plugin tried to export but that threw — stop there, don't recurse
+// (avoids painting wrong child rects under a failed asset).
+const failedSet = new Set(
+  existsSync(join(exportDir, "failed.json"))
+    ? JSON.parse(readFileSync(join(exportDir, "failed.json"), "utf8")).map((f) => f.id)
+    : [],
+);
+
 // Only these node types are faithfully representable as a CSS rect background.
 // Never approximate an ellipse / boolean / vector with a rect (that turns a
-// circle into a square, a "+" union into crossing bars, etc.) — those must come
-// through as exported SVG assets.
+// circle into a square, a "+" union into crossing bars) — those are SVG assets.
 const RECT_BG_TYPES = ["RECTANGLE", "FRAME", "COMPONENT", "INSTANCE", "SECTION"];
 
-const safeName = (n) => {
-  const base = (n.name || n.type || "node").trim().replace(/[^\w.\-一-鿿]+/g, "_").slice(0, 60);
-  return `${base}_${n.id.replace(/[:;]/g, "-")}`;
-};
-const hasImageFill = (n) => Array.isArray(n.fills) && n.fills.some((f) => f.type === "IMAGE");
-const firstImageRef = (n) => {
-  const f = (Array.isArray(n.fills) ? n.fills : []).find((x) => x.type === "IMAGE" && x.imageRef);
-  return f ? f.imageRef : null;
-};
-const deepHasImage = (n) => hasImageFill(n) || (n.children ? n.children.some(deepHasImage) : false);
 const area = (n) => {
   const b = n.absoluteBoundingBox;
   return b ? b.width * b.height : 0;
@@ -56,69 +56,17 @@ const exportable = (n) => {
   return true;
 };
 
-// Color-aware dedup signature — MUST stay byte-identical to figma-plugin/code.js
-// so we resolve the same asset filename the plugin emitted.
-function hashStr(s) {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(36);
-}
-const colorTriplet = (c) => [c.r, c.g, c.b].map((v) => Math.round(v * 255)).join(",");
-function colorSig(node) {
-  const set = new Set();
-  const add = (paints) => {
-    if (!Array.isArray(paints)) return;
-    for (const p of paints) {
-      if (p.visible === false) continue;
-      if (p.type === "SOLID") set.add(colorTriplet(p.color));
-      else if (p.gradientStops) for (const s of p.gradientStops) set.add(colorTriplet(s.color));
-    }
-  };
-  (function walk(n) {
-    add(n.fills);
-    add(n.strokes);
-    if (n.children) n.children.forEach(walk);
-  })(node);
-  return hashStr([...set].sort().join(","));
-}
-
-// Dedup key — must match the plugin so we resolve the right asset filename.
-function dedupKey(n) {
-  if (n.type === "COMPONENT") return "comp:" + (components[n.id]?.key || n.id);
-  if (n.type === "INSTANCE") return "comp:" + (components[n.componentId]?.key || n.id);
-  if (DECOR_TYPES.includes(n.type) && area(n) >= DECOR_MIN_AREA) {
-    return deepHasImage(n)
-      ? "img:" + (firstImageRef(n) || n.id)
-      : "decor:" + (n.name || n.type) + ":" + Math.round(area(n)) + ":" + colorSig(n);
-  }
-  if (hasImageFill(n)) return "img:" + (firstImageRef(n) || n.id);
-  return null;
-}
-
-// Pass 1: walk the WHOLE doc to learn which node's safeName became each key's
-// asset file (first occurrence wins, exactly like the plugin's `first()`).
-const keyToStem = new Map();
-(function learn(n) {
-  if (!exportable(n)) return;
-  if (n.type === "COMPONENT_SET") return n.children?.forEach(learn);
-  const key = dedupKey(n);
-  if (key) {
-    if (!keyToStem.has(key)) keyToStem.set(key, safeName(n));
-    return; // whole-export — stop (matches plugin)
-  }
-  n.children?.forEach(learn);
-})(doc);
-
-// Resolve a key to an on-disk asset file (svg or png).
-const have = new Map(); // stem -> {file, ext}
-for (const dir of ["svg", "png"]) {
-  const d = join(exportDir, dir);
-  if (!existsSync(d)) continue;
-  for (const f of readdirSync(d)) have.set(f.replace(/\.(svg|png)$/, ""), { file: join(d, f), ext: f.split(".").pop() });
-}
-
 // --- fill → CSS helpers ---
 const hex = (c) => "#" + [c.r, c.g, c.b].map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("");
+// Colour → CSS, honouring the colour's own alpha times an extra layer opacity.
+// Translucent paints (e.g. a white gradient sheen over a solid base) MUST keep
+// their alpha or they occlude everything beneath them.
+const rgba = (c, op = 1) => {
+  const a = (c.a === undefined ? 1 : c.a) * op;
+  if (a >= 0.999) return hex(c);
+  const to = (v) => Math.round(v * 255);
+  return `rgba(${to(c.r)}, ${to(c.g)}, ${to(c.b)}, ${a.toFixed(3)})`;
+};
 
 // Composite a stack of SOLID fills (Figma paints array index 0 = bottom, last =
 // top) into one resolved colour, honouring per-fill opacity. Text frequently
@@ -143,23 +91,94 @@ function compositeFills(fills) {
   return `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${a.toFixed(3)})`;
 }
 function gradientCss(f) {
-  const stops = (f.gradientStops || []).map((s) => `${hex(s.color)} ${Math.round(s.position * 100)}%`).join(", ");
+  const op = f.opacity === undefined ? 1 : f.opacity;
+  const stops = (f.gradientStops || []).map((s) => `${rgba(s.color, op)} ${Math.round(s.position * 100)}%`).join(", ");
   if (f.type === "GRADIENT_RADIAL") return `radial-gradient(circle, ${stops})`;
   const [p0, p1] = f.gradientHandlePositions || [{ x: 0, y: 0 }, { x: 0, y: 1 }];
   const ang = Math.round((Math.atan2(p1.x - p0.x, -(p1.y - p0.y)) * 180) / Math.PI);
   return `linear-gradient(${ang}deg, ${stops})`;
 }
-function bgFromFills(n) {
-  const f = (Array.isArray(n.fills) ? n.fills : []).find((x) => x.visible !== false && x.type !== "IMAGE");
-  if (!f) return null;
-  if (f.type === "SOLID") return { bg: hex(f.color), opacity: f.opacity ?? 1 };
-  if (f.type.startsWith("GRADIENT")) return { bg: gradientCss(f), opacity: f.opacity ?? 1 };
+// One Figma paint → one CSS background layer (solids become a flat gradient so
+// they can stack in the `background` shorthand).
+function fillToCssLayer(f) {
+  if (f.type === "SOLID") {
+    const c = rgba(f.color, f.opacity === undefined ? 1 : f.opacity);
+    return `linear-gradient(${c}, ${c})`;
+  }
+  if (f.type.startsWith("GRADIENT")) return gradientCss(f);
   return null;
 }
+// Resolve a node's paints to one CSS `background`. Figma stacks fills bottom→top
+// (index 0 = bottom); CSS `background: A, B` paints A on top — so we LAYER all
+// fills (reversed) instead of picking one. This keeps a solid base visible under
+// a translucent gradient sheen, and reproduces darker/lighter table bands
+// (base + translucent black/white overlay) without flattening either away.
+function bgFromFills(n) {
+  const fills = (Array.isArray(n.fills) ? n.fills : []).filter((x) => x.visible !== false && x.type !== "IMAGE");
+  if (!fills.length) return null;
+  // Fast path: a single opaque solid is just a flat colour.
+  const only = fills[0];
+  if (fills.length === 1 && only.type === "SOLID" && (only.opacity ?? 1) >= 0.999 && (only.color.a ?? 1) >= 0.999)
+    return { bg: hex(only.color), opacity: 1 };
+  const layers = [];
+  for (let i = fills.length - 1; i >= 0; i--) {
+    const l = fillToCssLayer(fills[i]);
+    if (l) layers.push(l);
+  }
+  return layers.length ? { bg: layers.join(", "), opacity: 1 } : null;
+}
 
-// Find the screen frame and normalise to its top-left.
+// A frame's SOLID stroke becomes a CSS border — this is how table grid lines are
+// encoded. CRITICAL: honour `individualStrokeWeights` (per-side widths). Table
+// cells stroke only the sides that form shared dividers (e.g. left-only, or
+// left+right), so a uniform 4-side border would box every cell and double up on
+// shared edges — the classic "weird grid". The renderer uses border-box so a
+// sub-pixel line doesn't inflate the cell.
+function borderFromStrokes(n) {
+  const s = (Array.isArray(n.strokes) ? n.strokes : []).find((x) => x.type === "SOLID" && x.visible !== false);
+  if (!s) return null;
+  const round = (w) => Math.round((w || 0) * 100) / 100;
+  const isw = n.individualStrokeWeights;
+  const sides = isw
+    ? { top: round(isw.top), right: round(isw.right), bottom: round(isw.bottom), left: round(isw.left) }
+    : (() => {
+        const w = round(n.strokeWeight);
+        return { top: w, right: w, bottom: w, left: w };
+      })();
+  if (!sides.top && !sides.right && !sides.bottom && !sides.left) return null;
+  return { color: hex(s.color), ...sides };
+}
+
+// Split a TEXT node into coloured runs from Figma's per-character overrides
+// (characterStyleOverrides indexes into styleOverrideTable; 0 = base style).
+// Two-tone titles like 活动[详情] layer an accent fill on only some characters;
+// reading node.fills[0] alone flattens them. Returns null when every character
+// resolves to the same colour (so single-colour text stays a plain string).
+function textRuns(n) {
+  const ov = n.characterStyleOverrides;
+  if (!Array.isArray(ov) || !ov.length) return null;
+  const tbl = n.styleOverrideTable || {};
+  const chars = Array.from(n.characters || "");
+  const colorAt = (i) => {
+    const sid = ov[i] || 0;
+    const fills = sid && tbl[sid] && tbl[sid].fills ? tbl[sid].fills : n.fills;
+    return compositeFills(fills) || "#000";
+  };
+  const runs = [];
+  for (let i = 0; i < chars.length; i++) {
+    const c = colorAt(i);
+    const last = runs[runs.length - 1];
+    if (last && last.color === c) last.text += chars[i];
+    else runs.push({ text: chars[i], color: c });
+  }
+  return new Set(runs.map((r) => r.color)).size > 1 ? runs : null;
+}
+
+// Find the screen frame and normalise to its top-left. Matches by node id OR
+// name — sibling theme frames often share a name, so an id ("1:32192") is the
+// unambiguous way to pick one variant.
 const screen = (function find(n) {
-  if (n.name === screenName) return n;
+  if (n.id === screenName || n.name === screenName) return n;
   for (const c of n.children || []) {
     const r = find(c);
     if (r) return r;
@@ -177,68 +196,67 @@ const box = (n) => {
   return { x: Math.round(b.x - ox), y: Math.round(b.y - oy), w: Math.round(b.width), h: Math.round(b.height) };
 };
 
-// Pass 2: ordered walk of the SCREEN → flat scene nodes (paint order).
+// Ordered walk of the SCREEN → flat scene nodes (paint order).
 const scene = [];
-const usedFiles = new Map(); // file -> destName
+const usedAssets = new Map(); // srcFile -> destName
 const missing = [];
 
-function placeAsset(n, key) {
-  const stem = keyToStem.get(key);
-  const asset = stem && have.get(stem);
-  if (!asset) {
+function placeAsset(n) {
+  const rel = manifest[n.id]; // e.g. "svg/Foo_1-23.svg"
+  const src = join(exportDir, rel);
+  if (!existsSync(src)) {
     missing.push({ id: n.id, name: n.name, type: n.type, ...box(n) });
-    return false;
+    return;
   }
-  const dest = `${basename(asset.file)}`;
-  usedFiles.set(asset.file, dest);
+  const dest = basename(rel);
+  usedAssets.set(src, dest);
   scene.push({ kind: "img", src: dest, ...box(n) });
-  return true;
+}
+
+function emitText(n) {
+  const st = n.style || {};
+  // Text stroke (e.g. 活动详情's white outline). strokeAlign is usually OUTSIDE;
+  // the renderer paints it behind the fill so the glyph stays crisp.
+  const strokePaint = (n.strokes || []).find((x) => x.type === "SOLID" && x.visible !== false);
+  const stroke =
+    strokePaint && n.strokeWeight
+      ? { color: hex(strokePaint.color), width: Math.round(n.strokeWeight * 100) / 100 }
+      : null;
+  scene.push({
+    kind: "text",
+    ...box(n),
+    text: n.characters || "",
+    fontFamily: st.fontFamily || null,
+    fontSize: Math.round(st.fontSize || 14),
+    fontWeight: st.fontWeight || 400,
+    color: compositeFills(n.fills) || "#000",
+    runs: textRuns(n), // per-character colour runs (two-tone titles); null if uniform
+    align: (st.textAlignHorizontal || "LEFT").toLowerCase(),
+    alignVertical: (st.textAlignVertical || "TOP").toLowerCase(),
+    lineHeight: st.lineHeightPx ? Math.round(st.lineHeightPx) : null,
+    letterSpacing: st.letterSpacing ? Math.round(st.letterSpacing * 100) / 100 : 0,
+    stroke,
+  });
 }
 
 function walk(n) {
   if (!exportable(n)) return;
   if (n.type === "COMPONENT_SET") return n.children?.forEach(walk);
-  if (!box(n)) return n.children?.forEach(walk); // no renderable box; descend for children
+  if (!box(n)) return n.children?.forEach(walk); // no renderable box; descend
 
-  if (n.type === "TEXT") {
-    const b = box(n);
-    const st = n.style || {};
-    // Captured text stroke (e.g. 活动详情's white outline). Figma strokeAlign is
-    // usually OUTSIDE; we render it behind the fill via paint-order in the
-    // renderer, so the visible weight ≈ strokeWeight.
-    const strokePaint = (n.strokes || []).find((x) => x.type === "SOLID" && x.visible !== false);
-    const stroke =
-      strokePaint && n.strokeWeight
-        ? { color: hex(strokePaint.color), width: Math.round(n.strokeWeight * 100) / 100 }
-        : null;
-    scene.push({
-      kind: "text",
-      ...b,
-      text: n.characters || "",
-      fontFamily: st.fontFamily || null,
-      fontSize: Math.round(st.fontSize || 14),
-      fontWeight: st.fontWeight || 400,
-      color: compositeFills(n.fills) || "#000",
-      align: (st.textAlignHorizontal || "LEFT").toLowerCase(),
-      alignVertical: (st.textAlignVertical || "TOP").toLowerCase(),
-      lineHeight: st.lineHeightPx ? Math.round(st.lineHeightPx) : null,
-      letterSpacing: st.letterSpacing ? Math.round(st.letterSpacing * 100) / 100 : 0,
-      stroke,
-    });
+  if (manifest[n.id]) {
+    placeAsset(n); // whole-exported (incl. baked text/overrides) — stop here
     return;
   }
+  if (failedSet.has(n.id)) return; // plugin tried + failed; leave a gap, don't recurse
+  if (n.type === "TEXT") return emitText(n);
 
-  const key = dedupKey(n);
-  if (key) {
-    placeAsset(n, key);
-    return; // whole-exported — its subtree (incl. baked text) is in the asset
-  }
-
-  // Container we descend through: paint its own fill first (only when a rect is
-  // geometrically faithful), then its children.
+  // Container we descend through: paint its own fill + border first (only when a
+  // rect is geometrically faithful), then its children.
   if (RECT_BG_TYPES.includes(n.type)) {
     const bg = bgFromFills(n);
-    if (bg) scene.push({ kind: "rect", ...box(n), ...bg, radius: n.cornerRadius || 0 });
+    const border = borderFromStrokes(n);
+    if (bg || border) scene.push({ kind: "rect", ...box(n), ...(bg || {}), border, radius: n.cornerRadius || 0 });
   }
   n.children?.forEach(walk);
 }
@@ -246,11 +264,14 @@ walk(screen);
 
 // Copy used assets.
 mkdirSync(destAssets, { recursive: true });
-for (const [src, dest] of usedFiles) copyFileSync(src, join(destAssets, dest));
+for (const [src, dest] of usedAssets) copyFileSync(src, join(destAssets, dest));
 
 mkdirSync(dirname(scenePath), { recursive: true });
-writeFileSync(scenePath, JSON.stringify({ name: screenName, width: box(screen).w, height: box(screen).h, nodes: scene }, null, 2));
+writeFileSync(
+  scenePath,
+  JSON.stringify({ name: screenName, width: box(screen).w, height: box(screen).h, nodes: scene }, null, 2),
+);
 
 const counts = scene.reduce((a, n) => ((a[n.kind] = (a[n.kind] || 0) + 1), a), {});
-console.log(`scene: ${JSON.stringify(counts)} | assets copied: ${usedFiles.size} | missing: ${missing.length}`);
-if (missing.length) console.log("MISSING (reconstruct from JSON / re-export):", JSON.stringify(missing, null, 2));
+console.log(`scene: ${JSON.stringify(counts)} | assets copied: ${usedAssets.size} | missing: ${missing.length}`);
+if (missing.length) console.log("MISSING (in manifest but no file — re-export):", JSON.stringify(missing, null, 2));

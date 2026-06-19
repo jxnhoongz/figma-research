@@ -13,9 +13,11 @@ export interface SceneRectNode {
   y: number
   w: number
   h: number
-  bg: string
+  bg?: string
   opacity?: number
   radius?: number
+  /** Frame stroke → per-side CSS border widths (table grid lines / dividers). */
+  border?: { color: string; top: number; right: number; bottom: number; left: number } | null
 }
 export interface SceneImgNode {
   kind: 'img'
@@ -36,6 +38,8 @@ export interface SceneTextNode {
   fontSize: number
   fontWeight: number
   color: string
+  /** Per-character colour runs (two-tone titles). Falls back to `color`. */
+  runs?: { text: string; color: string }[] | null
   align: string
   alignVertical?: string
   lineHeight: number | null
@@ -92,9 +96,23 @@ export function SceneRenderer({
                 ...pos,
                 width: n.w,
                 height: n.h,
-                background: n.bg,
+                background: n.bg || undefined,
                 opacity: n.opacity ?? 1,
                 borderRadius: n.radius || undefined,
+                // Per-side widths (Figma individualStrokeWeights) so cells draw
+                // only their shared dividers, not a full box. border-box keeps
+                // the line inside the cell so the grid geometry doesn't shift.
+                ...(n.border
+                  ? {
+                      borderStyle: 'solid' as const,
+                      borderColor: n.border.color,
+                      borderTopWidth: n.border.top,
+                      borderRightWidth: n.border.right,
+                      borderBottomWidth: n.border.bottom,
+                      borderLeftWidth: n.border.left,
+                      boxSizing: 'border-box' as const,
+                    }
+                  : {}),
               }}
             />
           )
@@ -144,7 +162,13 @@ export function SceneRenderer({
                 : {}),
             }}
           >
-            {n.text}
+            {n.runs
+              ? n.runs.map((r, j) => (
+                  <span key={j} style={{ color: r.color }}>
+                    {r.text}
+                  </span>
+                ))
+              : n.text}
           </div>
         )
       })}

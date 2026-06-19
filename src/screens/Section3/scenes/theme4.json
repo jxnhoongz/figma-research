@@ -1,0 +1,989 @@
+{
+  "name": "1:36176",
+  "width": 390,
+  "height": 2076,
+  "nodes": [
+    {
+      "kind": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 2076,
+      "bg": "linear-gradient(180deg, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.200) 100%), linear-gradient(#fc8aa3, #fc8aa3)",
+      "opacity": 1,
+      "border": null,
+      "radius": 0
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410107165_1-32194.png",
+      "x": 320,
+      "y": 2829,
+      "w": 70,
+      "h": 75
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410107148_1-36197.svg",
+      "x": 356,
+      "y": 185,
+      "w": 34,
+      "h": 81
+    },
+    {
+      "kind": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 84,
+      "bg": "#ffffff",
+      "opacity": 1,
+      "border": null,
+      "radius": 0
+    },
+    {
+      "kind": "text",
+      "x": 167,
+      "y": 54,
+      "w": 56,
+      "h": 21,
+      "text": "逢6必发",
+      "fontFamily": "PingFang SC",
+      "fontSize": 15,
+      "fontWeight": 500,
+      "color": "#110940",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 21,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410107096_1-36230.svg",
+      "x": 15,
+      "y": 54,
+      "w": 22,
+      "h": 22
+    },
+    {
+      "kind": "text",
+      "x": 36,
+      "y": 17,
+      "w": 26,
+      "h": 20,
+      "text": "9:41",
+      "fontFamily": "SF Pro",
+      "fontSize": 15,
+      "fontWeight": 590,
+      "color": "#000000",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Battery_1-32251.svg",
+      "x": 345,
+      "y": 21,
+      "w": 25,
+      "h": 12
+    },
+    {
+      "kind": "img",
+      "src": "Wifi_1-32255.svg",
+      "x": 323,
+      "y": 21,
+      "w": 16,
+      "h": 11
+    },
+    {
+      "kind": "img",
+      "src": "Cellular_Connection_1-32256.svg",
+      "x": 298,
+      "y": 21,
+      "w": 17,
+      "h": 11
+    },
+    {
+      "kind": "img",
+      "src": "Banner_1-36241.png",
+      "x": 0,
+      "y": 84,
+      "w": 390,
+      "h": 256
+    },
+    {
+      "kind": "img",
+      "src": "Rectangle_346249805_1-36246.svg",
+      "x": 19,
+      "y": 335,
+      "w": 354,
+      "h": 167
+    },
+    {
+      "kind": "rect",
+      "x": 7,
+      "y": 387,
+      "w": 372,
+      "h": 163,
+      "bg": "linear-gradient(0deg, rgba(252, 238, 147, 0.400) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(0deg, rgba(255, 255, 255, 0.500) 46%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(rgba(255, 255, 255, 0.900), rgba(255, 255, 255, 0.900)), linear-gradient(#fc8aa3, #fc8aa3)",
+      "opacity": 1,
+      "border": {
+        "color": "#fc8aa3",
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "radius": 24
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-33261.svg",
+      "x": -67,
+      "y": 396,
+      "w": 302,
+      "h": 289
+    },
+    {
+      "kind": "text",
+      "x": 28,
+      "y": 407,
+      "w": 60,
+      "h": 14,
+      "text": "当前有效投注",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 500,
+      "color": "#190e10",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 28,
+      "y": 424,
+      "w": 29,
+      "h": 23,
+      "text": "266",
+      "fontFamily": "DIN Alternate",
+      "fontSize": 20,
+      "fontWeight": 700,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 23,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 61,
+      "y": 427,
+      "w": 9,
+      "h": 20,
+      "text": "¥",
+      "fontFamily": "PingFang SC",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 158,
+      "y": 407,
+      "w": 70,
+      "h": 14,
+      "text": "距离下一档 5元",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 400,
+      "color": "#190e10",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 158,
+      "y": 429,
+      "w": 24,
+      "h": 17,
+      "text": "还差",
+      "fontFamily": "PingFang SC",
+      "fontSize": 12,
+      "fontWeight": 600,
+      "color": "#b06072",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 17,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 186,
+      "y": 424,
+      "w": 29,
+      "h": 23,
+      "text": "734",
+      "fontFamily": "DIN Alternate",
+      "fontSize": 20,
+      "fontWeight": 700,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 23,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 219,
+      "y": 427,
+      "w": 9,
+      "h": 20,
+      "text": "¥",
+      "fontFamily": "PingFang SC",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 338,
+      "y": 407,
+      "w": 20,
+      "h": 14,
+      "text": "目标",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 500,
+      "color": "#190e10",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 306,
+      "y": 424,
+      "w": 39,
+      "h": 23,
+      "text": "1000",
+      "fontFamily": "DIN Alternate",
+      "fontSize": 20,
+      "fontWeight": 700,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 23,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "text",
+      "x": 349,
+      "y": 427,
+      "w": 9,
+      "h": 20,
+      "text": "¥",
+      "fontFamily": "PingFang SC",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "color": "#fc8aa3",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "center",
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "rect",
+      "x": 27,
+      "y": 457,
+      "w": 332,
+      "h": 10,
+      "bg": "linear-gradient(rgba(255, 255, 255, 0.850), rgba(255, 255, 255, 0.850)), linear-gradient(#fc8aa3, #fc8aa3)",
+      "opacity": 1,
+      "border": {
+        "color": "#ffffff",
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "radius": 20
+    },
+    {
+      "kind": "rect",
+      "x": 27,
+      "y": 457,
+      "w": 332,
+      "h": 10,
+      "bg": "radial-gradient(circle, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, rgba(255, 255, 255, 0.800) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.200) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(22deg, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, rgba(255, 0, 174, 0.500) 0%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(-90deg, #ff00ae 3%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(#e9463f, #e9463f)",
+      "opacity": 1,
+      "border": {
+        "color": "#fdf7e7",
+        "top": 0.39,
+        "right": 0.39,
+        "bottom": 0.39,
+        "left": 0.39
+      },
+      "radius": 9.806035041809082
+    },
+    {
+      "kind": "rect",
+      "x": 29,
+      "y": 458,
+      "w": 327,
+      "h": 7,
+      "bg": "linear-gradient(-180deg, rgba(255, 255, 255, 0.700) 0%, rgba(255, 255, 255, 0.000) 100%)",
+      "opacity": 1,
+      "border": null,
+      "radius": 10.394396781921387
+    },
+    {
+      "kind": "img",
+      "src": "image_1253640_1-32306.png",
+      "x": 347,
+      "y": 453,
+      "w": 18,
+      "h": 18
+    },
+    {
+      "kind": "img",
+      "src": "Button_1-34306.png",
+      "x": 27,
+      "y": 492,
+      "w": 332,
+      "h": 45
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-36301.svg",
+      "x": 213,
+      "y": 339,
+      "w": 160,
+      "h": 68
+    },
+    {
+      "kind": "rect",
+      "x": 267,
+      "y": 357,
+      "w": 96,
+      "h": 19,
+      "bg": "linear-gradient(90deg, #ffff6e 0%, #ccfd5b 100%)",
+      "opacity": 1,
+      "border": {
+        "color": "#ffffff",
+        "top": 0.7,
+        "right": 0.7,
+        "bottom": 0.7,
+        "left": 0.7
+      },
+      "radius": 20
+    },
+    {
+      "kind": "text",
+      "x": 275,
+      "y": 360,
+      "w": 80,
+      "h": 14,
+      "text": "4月26号至5月5号",
+      "fontFamily": "PingFang SC",
+      "fontSize": 10,
+      "fontWeight": 500,
+      "color": "#000000",
+      "runs": null,
+      "align": "center",
+      "alignVertical": "top",
+      "lineHeight": 14,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-36472.svg",
+      "x": 25,
+      "y": 339,
+      "w": 160,
+      "h": 68
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6806_1-36641.svg",
+      "x": 42,
+      "y": 349,
+      "w": 99,
+      "h": 41
+    },
+    {
+      "kind": "text",
+      "x": 55,
+      "y": 357,
+      "w": 122,
+      "h": 19,
+      "text": "当前活动时间",
+      "fontFamily": "YouSheBiaoTiHei",
+      "fontSize": 22,
+      "fontWeight": 400,
+      "color": "#222222",
+      "runs": null,
+      "align": "justified",
+      "alignVertical": "top",
+      "lineHeight": 19,
+      "letterSpacing": 0,
+      "stroke": {
+        "color": "#ffffff",
+        "width": 1
+      }
+    },
+    {
+      "kind": "img",
+      "src": "Star_32_1-36644.svg",
+      "x": 25,
+      "y": 347,
+      "w": 38,
+      "h": 38
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410162692_1-34653.svg",
+      "x": 37,
+      "y": 357,
+      "w": 19,
+      "h": 15
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6818_1-36650.svg",
+      "x": 177,
+      "y": 351,
+      "w": 15,
+      "h": 12
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6819_1-36651.svg",
+      "x": 180,
+      "y": 362,
+      "w": 8,
+      "h": 6
+    },
+    {
+      "kind": "img",
+      "src": "Rectangle_346249807_1-36653.svg",
+      "x": 9,
+      "y": 555,
+      "w": 372,
+      "h": 448
+    },
+    {
+      "kind": "img",
+      "src": "image_1253653_1-32670.png",
+      "x": 282,
+      "y": 550,
+      "w": 80,
+      "h": 80
+    },
+    {
+      "kind": "rect",
+      "x": 17,
+      "y": 615,
+      "w": 356,
+      "h": 382,
+      "bg": "#ffffff",
+      "opacity": 1,
+      "border": null,
+      "radius": 24
+    },
+    {
+      "kind": "img",
+      "src": "Reward_Card_1-32672.png",
+      "x": 27,
+      "y": 627,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162755_1-32673.png",
+      "x": 112,
+      "y": 627,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Reward_Card_1-36658.png",
+      "x": 197,
+      "y": 627,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162759_1-36659.png",
+      "x": 282,
+      "y": 627,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162746_1-36660.png",
+      "x": 27,
+      "y": 748,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162747_1-36661.png",
+      "x": 112,
+      "y": 748,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162749_1-36662.png",
+      "x": 197,
+      "y": 748,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162750_1-36663.png",
+      "x": 282,
+      "y": 748,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162762_1-36664.png",
+      "x": 27,
+      "y": 869,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162758_1-36665.png",
+      "x": 112,
+      "y": 869,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162760_1-36666.png",
+      "x": 197,
+      "y": 869,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162761_1-36667.png",
+      "x": 282,
+      "y": 869,
+      "w": 80,
+      "h": 116
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-36669.svg",
+      "x": 126,
+      "y": 585,
+      "w": 14,
+      "h": 10
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-36670.svg",
+      "x": 136,
+      "y": 584,
+      "w": 8,
+      "h": 8
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-36671.svg",
+      "x": 68,
+      "y": 596,
+      "w": 79,
+      "h": 14
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6819_1-36673.svg",
+      "x": 35,
+      "y": 583,
+      "w": 24,
+      "h": 16
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-36674.svg",
+      "x": 28,
+      "y": 600,
+      "w": 19,
+      "h": 7
+    },
+    {
+      "kind": "img",
+      "src": "Star_33_1-36675.svg",
+      "x": 26,
+      "y": 581,
+      "w": 19,
+      "h": 19
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-36676.svg",
+      "x": 24,
+      "y": 599,
+      "w": 9,
+      "h": 9
+    },
+    {
+      "kind": "text",
+      "x": 48,
+      "y": 586,
+      "w": 82,
+      "h": 19,
+      "text": "奖励预览",
+      "fontFamily": "YouSheBiaoTiHei",
+      "fontSize": 22,
+      "fontWeight": 400,
+      "color": "#222222",
+      "runs": [
+        {
+          "text": "奖励",
+          "color": "#222222"
+        },
+        {
+          "text": "预览",
+          "color": "#ff6a12"
+        }
+      ],
+      "align": "justified",
+      "alignVertical": "top",
+      "lineHeight": 19,
+      "letterSpacing": 0,
+      "stroke": {
+        "color": "#ffffff",
+        "width": 1
+      }
+    },
+    {
+      "kind": "img",
+      "src": "Rectangle_346249808_1-36679.svg",
+      "x": 9,
+      "y": 1015,
+      "w": 372,
+      "h": 998
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-36681.svg",
+      "x": 164,
+      "y": 1015,
+      "w": 218,
+      "h": 93
+    },
+    {
+      "kind": "img",
+      "src": "Subtract_1-36850.svg",
+      "x": 8,
+      "y": 1015,
+      "w": 218,
+      "h": 93
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-37021.svg",
+      "x": 234,
+      "y": 1032,
+      "w": 14,
+      "h": 10
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-37022.svg",
+      "x": 244,
+      "y": 1031,
+      "w": 8,
+      "h": 8
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-37023.svg",
+      "x": 176,
+      "y": 1043,
+      "w": 79,
+      "h": 14
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6819_1-37025.svg",
+      "x": 143,
+      "y": 1030,
+      "w": 24,
+      "h": 16
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-37026.svg",
+      "x": 136,
+      "y": 1047,
+      "w": 19,
+      "h": 7
+    },
+    {
+      "kind": "img",
+      "src": "Star_33_1-37027.svg",
+      "x": 134,
+      "y": 1028,
+      "w": 19,
+      "h": 19
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-37028.svg",
+      "x": 132,
+      "y": 1046,
+      "w": 9,
+      "h": 9
+    },
+    {
+      "kind": "text",
+      "x": 156,
+      "y": 1033,
+      "w": 82,
+      "h": 19,
+      "text": "活动详情",
+      "fontFamily": "YouSheBiaoTiHei",
+      "fontSize": 22,
+      "fontWeight": 400,
+      "color": "#222222",
+      "runs": [
+        {
+          "text": "活动",
+          "color": "#222222"
+        },
+        {
+          "text": "详情",
+          "color": "#ff6a12"
+        }
+      ],
+      "align": "justified",
+      "alignVertical": "top",
+      "lineHeight": 19,
+      "letterSpacing": 0,
+      "stroke": {
+        "color": "#ffffff",
+        "width": 1
+      }
+    },
+    {
+      "kind": "img",
+      "src": "Frame_1410162754_1-37030.svg",
+      "x": 17,
+      "y": 1065,
+      "w": 356,
+      "h": 765
+    },
+    {
+      "kind": "rect",
+      "x": 17,
+      "y": 1844,
+      "w": 356,
+      "h": 160,
+      "bg": "#ffffff",
+      "opacity": 1,
+      "border": null,
+      "radius": 24
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-37120.svg",
+      "x": 234,
+      "y": 1864,
+      "w": 14,
+      "h": 10
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-37121.svg",
+      "x": 244,
+      "y": 1863,
+      "w": 8,
+      "h": 8
+    },
+    {
+      "kind": "img",
+      "src": "Union_1-37122.svg",
+      "x": 176,
+      "y": 1875,
+      "w": 79,
+      "h": 14
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6819_1-37124.svg",
+      "x": 143,
+      "y": 1862,
+      "w": 24,
+      "h": 16
+    },
+    {
+      "kind": "img",
+      "src": "Vector_6820_1-37125.svg",
+      "x": 136,
+      "y": 1879,
+      "w": 19,
+      "h": 7
+    },
+    {
+      "kind": "img",
+      "src": "Star_33_1-37126.svg",
+      "x": 134,
+      "y": 1860,
+      "w": 19,
+      "h": 19
+    },
+    {
+      "kind": "img",
+      "src": "Star_34_1-37127.svg",
+      "x": 132,
+      "y": 1878,
+      "w": 9,
+      "h": 9
+    },
+    {
+      "kind": "text",
+      "x": 156,
+      "y": 1865,
+      "w": 82,
+      "h": 19,
+      "text": "活动细则",
+      "fontFamily": "YouSheBiaoTiHei",
+      "fontSize": 22,
+      "fontWeight": 400,
+      "color": "#222222",
+      "runs": [
+        {
+          "text": "活动",
+          "color": "#222222"
+        },
+        {
+          "text": "细则",
+          "color": "#ff6a12"
+        }
+      ],
+      "align": "justified",
+      "alignVertical": "top",
+      "lineHeight": 19,
+      "letterSpacing": 0,
+      "stroke": {
+        "color": "#ffffff",
+        "width": 1
+      }
+    },
+    {
+      "kind": "text",
+      "x": 27,
+      "y": 1904,
+      "w": 336,
+      "h": 80,
+      "text": "1、所获彩金无游戏限制,一倍流水即可提交出款。\n2、任何非法套利会员,春光直播平台有权拒发该优惠;\n3、**直播平台拥有本次活动的最终解释权,以及在无通知的情况下修改、终止活动的权利, 适用于所有优惠。",
+      "fontFamily": "PingFang SC",
+      "fontSize": 14,
+      "fontWeight": 400,
+      "color": "#222222",
+      "runs": null,
+      "align": "left",
+      "alignVertical": "top",
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "stroke": null
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410162696_1-37132.svg",
+      "x": 45,
+      "y": 993,
+      "w": 9,
+      "h": 31
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410162695_1-37136.svg",
+      "x": 336,
+      "y": 993,
+      "w": 9,
+      "h": 31
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410107165_1-32194.png",
+      "x": 1,
+      "y": 2917,
+      "w": 389,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Home_Indicator_1-33157.svg",
+      "x": 1,
+      "y": 2055,
+      "w": 389,
+      "h": 21
+    },
+    {
+      "kind": "img",
+      "src": "Group_1410107166_1-37142.svg",
+      "x": 356,
+      "y": 185,
+      "w": 34,
+      "h": 81
+    }
+  ]
+}

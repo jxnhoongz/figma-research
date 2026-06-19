@@ -1,22 +1,42 @@
 import { useState } from 'react'
 import { BobiLevelTheme1 } from './screens/BobiLevelTheme1/BobiLevelTheme1'
 import { MoonFestival } from './screens/MoonFestival/MoonFestival'
+import { Section3 } from './screens/Section3/Section3'
 import { THEMES } from './lib/themes'
 import { cn } from './lib/cn'
 
 /**
- * App shell with top-level navigation between the two replicated sections:
- * 波币大闯关 (section 2) and 中秋大转盘 (section 5). The per-theme switcher only
- * applies to the bobi screen, whose kit SVGs recolor via `--theme-accent`.
+ * App shell with top-level navigation between the replicated sections:
+ * 波币大闯关 (section 2), 中秋大转盘 (section 5) and 点击领取 (section 3). The
+ * per-theme switcher swaps each screen's variant scene; section 3 ships 8 themes,
+ * the others 6, so the switcher's theme list is chosen per page.
  */
 const PAGES = [
   { id: 'bobi', label: '波币大闯关' },
   { id: 'moon', label: '中秋大转盘' },
+  { id: 'section3', label: '点击领取' },
+] as const
+
+// Section 3's 8 distinct palettes (accent swatch only drives the switcher dot;
+// each theme swaps its whole scene). Themes 6–8 share the violet accent but are
+// genuinely different frames in the export.
+const SECTION3_THEMES = [
+  { id: 'theme1', label: 'Theme 1', accent: '#81ccd1' },
+  { id: 'theme2', label: 'Theme 2', accent: '#62b4ff' },
+  { id: 'theme3', label: 'Theme 3', accent: '#985de9' },
+  { id: 'theme4', label: 'Theme 4', accent: '#fc8aa3' },
+  { id: 'theme5', label: 'Theme 5', accent: '#807aff' },
+  { id: 'theme6', label: 'Theme 6', accent: '#9a41fe' },
+  { id: 'theme7', label: 'Theme 7', accent: '#9a41fe' },
+  { id: 'theme8', label: 'Theme 8', accent: '#9a41fe' },
 ] as const
 
 export default function App() {
   const [page, setPage] = useState<(typeof PAGES)[number]['id']>('bobi')
   const [themeId, setThemeId] = useState(THEMES[0].id)
+  const themeList = page === 'section3' ? SECTION3_THEMES : THEMES
+  // Clamp the active theme to one the current page actually has.
+  const activeTheme = themeList.some((t) => t.id === themeId) ? themeId : themeList[0].id
 
   return (
     <div className="min-h-screen bg-neutral-100 pb-8">
@@ -55,8 +75,8 @@ export default function App() {
           data-testid="theme-switcher"
           className="flex flex-wrap justify-center gap-2 bg-white/70 px-3 pb-3 backdrop-blur"
         >
-          {THEMES.map((t) => {
-            const selected = t.id === themeId
+          {themeList.map((t) => {
+            const selected = t.id === activeTheme
             return (
               <button
                 key={t.id}
@@ -83,10 +103,14 @@ export default function App() {
         </div>
       }
 
-      {page === 'bobi' ? (
-        <BobiLevelTheme1 themeId={themeId} className="mx-auto mt-4 w-[390px] shadow-xl" />
-      ) : (
-        <MoonFestival themeId={themeId} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      {page === 'bobi' && (
+        <BobiLevelTheme1 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      )}
+      {page === 'moon' && (
+        <MoonFestival themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      )}
+      {page === 'section3' && (
+        <Section3 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
       )}
     </div>
   )
