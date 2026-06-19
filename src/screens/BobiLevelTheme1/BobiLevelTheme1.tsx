@@ -17,6 +17,7 @@ import { cn } from '../../lib/cn'
 import { getTheme, themeVars } from '../../lib/themes'
 import mainTexture from '../../assets/section2/decor/main-container-texture.svg'
 import bottomDeco from '../../assets/section2/decor/bottom-deco.svg'
+import giftBox from '../../assets/section2/decor/gift-box.png'
 
 /**
  * 波币大闯关 theme1 screen, rebuilt 1:1 with the real section2 SVG assets.
@@ -168,7 +169,7 @@ export function BobiLevelTheme1({
         backgroundColor: 'var(--theme-bg)',
         color: 'var(--theme-accent)',
       }}
-      className={cn('flex w-[390px] flex-col pb-0', className)}
+      className={cn('relative flex w-[390px] flex-col pb-0', className)}
     >
       <NavHeader title="波币大闯关" />
       <Banner title="波币大闯关" src={theme.banner} />
@@ -266,6 +267,15 @@ export function BobiLevelTheme1({
           </ul>
         </div>
       </section>
+
+      {/* Group 1410107165 — the gift-box decoration, screen bottom-right
+          (70×75 @ x310 y1518 of the 390×1611 screen). */}
+      <img
+        src={giftBox}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[10px] bottom-[18px] h-[75px] w-[70px] object-contain"
+      />
     </div>
   )
 }

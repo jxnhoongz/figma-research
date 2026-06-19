@@ -112,7 +112,9 @@ export function StepCard({
 
         {/* Step Info 234×55: pad T6/B6/L12, primary-align MAX so the info
             content sits left and the reward wedge sits right. */}
-        <div className="absolute inset-y-0 right-0 left-3 flex items-center justify-between gap-2.5 py-1.5">
+        {/* Step Info: content starts at x+23 from the card body (Step Info @x+11
+            + its L12 pad), reward wedge pinned right. */}
+        <div className="absolute inset-y-0 right-0 left-[23px] flex items-center justify-between gap-2.5 py-1.5">
           {/* Step Info Content 128×39. Active card = two stat lines only (NO
               title); regular card = title (19px) + "!" badge + requirement (12px). */}
           {active && stats?.length ? (
