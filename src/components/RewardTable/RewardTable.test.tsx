@@ -84,19 +84,20 @@ describe('RewardTable', () => {
     )
   })
 
-  it('drives the header off the theme accent (bg-table-header → --theme-accent)', () => {
+  it('drives the header off the theme accent (bg-theme-accent → --theme-accent)', () => {
     render(<RewardTable columns={columns} rows={rows} />)
-    // The header row uses the accent-wired token class; index.css maps
-    // --color-table-header → var(--theme-accent), so the header recolors on
-    // theme switch rather than staying a frozen teal.
+    // The header row uses the DIRECT accent utility (bg-theme-accent →
+    // var(--theme-accent)), resolved at point-of-use so it recolors on theme
+    // switch. (The old `bg-table-header` token captured the var at :root and
+    // stayed a frozen teal — that was the bug.)
     const headerRow = screen.getByText('日累计充值').closest('tr')
-    expect(headerRow).toHaveClass('bg-table-header')
-    // Cell dividers + striped rows also follow the accent (token classes), so
-    // the WHOLE table recolors cohesively, not just the header.
+    expect(headerRow).toHaveClass('bg-theme-accent')
+    // Cell dividers + striped rows also follow the accent directly, so the
+    // WHOLE table recolors cohesively, not just the header.
     const header = screen.getByText('日累计充值')
-    expect(header).toHaveClass('border-table-border')
+    expect(header).toHaveClass('border-theme-tint')
     const stripeRow = screen.getByTestId('reward-row-r2')
-    expect(stripeRow).toHaveClass('bg-table-stripe')
+    expect(stripeRow).toHaveClass('bg-theme-tint')
   })
 
   it('throws when a row has the wrong number of cells', () => {

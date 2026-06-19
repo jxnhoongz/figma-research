@@ -59,7 +59,7 @@ export function RewardTable({ columns, rows, className }: RewardTableProps) {
     <table
       data-testid="reward-table"
       className={cn(
-        'border-table-border w-full table-fixed border-collapse overflow-hidden rounded-table border text-[11px]',
+        'border-theme-tint w-full table-fixed border-collapse overflow-hidden rounded-table border text-[11px]',
         className,
       )}
     >
@@ -71,13 +71,13 @@ export function RewardTable({ columns, rows, className }: RewardTableProps) {
         </colgroup>
       ) : null}
       <thead>
-        <tr className="bg-table-header">
+        <tr className="bg-theme-accent">
           {columns.map((col) => (
             <th
               key={col.id}
               scope="col"
               className={cn(
-                'text-table-header-text border-table-border h-10 border px-1 font-medium',
+                'text-table-header-text border-theme-tint h-10 border px-1 font-medium',
                 col.align === 'left' ? 'text-left' : 'text-center',
               )}
             >
@@ -102,7 +102,7 @@ export function RewardTable({ columns, rows, className }: RewardTableProps) {
               data-testid={`reward-row-${row.id}`}
               data-stripe={stripe}
               data-highlight={rowHighlighted ? 'true' : 'false'}
-              className={stripe === 'even' ? 'bg-table-stripe' : 'bg-table-cell'}
+              className={stripe === 'even' ? 'bg-theme-tint' : 'bg-table-cell'}
             >
               {row.cells.map((value, cellIndex) => {
                 const col = columns[cellIndex]
@@ -112,7 +112,7 @@ export function RewardTable({ columns, rows, className }: RewardTableProps) {
                     key={col.id}
                     data-highlight={isHi ? 'true' : undefined}
                     className={cn(
-                      'border-table-border h-10 border px-0.5 whitespace-nowrap',
+                      'border-theme-tint h-10 border px-0.5 whitespace-nowrap',
                       col.align === 'left' ? 'text-left' : 'text-center',
                       // The blue highlight cell is fw-400 (PingFang HK in Figma);
                       // every other cell is fw-500.

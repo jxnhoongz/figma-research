@@ -44,6 +44,16 @@ describe('App theme switcher', () => {
     )
   })
 
+  it('drives the bottom 活动详情 section off the theme accent so it recolors', () => {
+    render(<App />)
+    // The section must use the DIRECT accent utility (resolved at point-of-use)
+    // rather than `bg-screen` (an @theme token that froze the accent at :root
+    // and stayed teal on theme switch).
+    const section = screen.getByTestId('info-section')
+    expect(section).toHaveClass('bg-theme-accent')
+    expect(section.className).not.toContain('bg-screen')
+  })
+
   it('marks 昨日闯关 (left) as the active tab, 今日闯关 inactive', () => {
     render(<App />)
     expect(screen.getByRole('tab', { name: '昨日闯关' })).toHaveAttribute(

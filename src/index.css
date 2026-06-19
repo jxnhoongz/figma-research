@@ -20,10 +20,11 @@
 
   /* Solid colors. Token names chosen so the generated utility matches the
      class names used by components (e.g. text-text-brown, text-text-amount).
-     The screen + table-header follow the live theme accent (set per-theme via
-     --theme-bg / --theme-accent on the screen wrapper), falling back to the
-     theme1 teal when no theme var is present. */
-  --color-screen: var(--theme-bg, #81ccd1);
+     NOTE: per-theme-accent surfaces (screen frame, table header/stripe/border)
+     do NOT live here — an `@theme` token like `var(--theme-bg)` captures the
+     var at :root and never recolors. Those use the DIRECT `.bg-theme-accent` /
+     `.bg-theme-tint` / `.border-theme-tint` utilities in @layer components,
+     which resolve the var at point-of-use (see `.bg-pattern-leaf`). */
   --color-on-dark: #ffffff;
   --color-text-brown: #7a3201;
   --color-text-amount: #e55f2b;
@@ -52,20 +53,14 @@
   --color-active-muted: rgba(229, 120, 17, 0.6);
 
   /* Rewards table (活动详情, Frame 1410107570 / node 1:1197+).
-     The whole table now follows the live theme accent so it recolors on theme
-     switch (was: header tied to accent but stripe/border frozen teal, so the
-     body never recolored). Header = solid accent + white text; striped rows =
-     a ~12% accent tint mixed toward white; cell borders = a ~35% accent tint;
-     body text #444; first-tier 彩金 value highlighted blue (#0943D5).
-     `color-mix` derives the tints from the single accent var; the static hex
-     after `--theme-accent` is the theme1 fallback. */
-  --color-table-accent: var(--theme-accent, #81ccd1);
-  --color-table-header: var(--color-table-accent);
+     STATIC parts only. The accent-driven surfaces (header bg, striped rows,
+     cell borders) recolor per theme and so live as DIRECT utilities
+     (.bg-theme-accent / .bg-theme-tint / .border-theme-tint) — NOT as @theme
+     tokens, which would freeze the accent at :root. Header text white; cells
+     white; body text #444; first-tier 彩金 value highlighted blue (#0943D5). */
   --color-table-header-text: #ffffff;
   --color-table-cell: #ffffff;
-  --color-table-stripe: color-mix(in srgb, var(--color-table-accent) 14%, #ffffff);
   --color-table-text: #444444;
-  --color-table-border: color-mix(in srgb, var(--color-table-accent) 35%, #ffffff);
   --color-table-highlight: #0943d5;
 
   /* Radii */
@@ -190,6 +185,31 @@
   .bg-pattern-leaf {
     background-color: var(--theme-accent, #81ccd1);
     background-image: var(--pattern-leaf);
+  }
+  /* Theme-accent surfaces that MUST recolor per theme. These reference
+     `--theme-accent` DIRECTLY (resolved at point-of-use, where the per-theme
+     override set on the screen wrapper is in scope) — unlike an `@theme` token
+     such as `--color-screen: var(--theme-bg)`, whose var is captured at :root
+     and so never recolors. The 闯关排列 `bg-pattern-leaf` already used this
+     direct pattern; these mirror it for the 活动详情 frame + rewards table.
+     `--theme-accent-tint`/`--theme-accent-border` derive 14%/35% accent over
+     white so the striped rows + cell borders follow the accent too. */
+  .bg-theme-accent {
+    background-color: var(--theme-accent, #81ccd1);
+  }
+  .bg-theme-tint {
+    background-color: color-mix(
+      in srgb,
+      var(--theme-accent, #81ccd1) 14%,
+      #ffffff
+    );
+  }
+  .border-theme-tint {
+    border-color: color-mix(
+      in srgb,
+      var(--theme-accent, #81ccd1) 35%,
+      #ffffff
+    );
   }
   .font-display {
     font-family: var(--font-display);

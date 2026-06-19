@@ -229,7 +229,10 @@ export function BobiLevelTheme1({
 
       {/* 活动详情 section (Frame 1410107935): teal-tile frame with the star
           title, a white inner panel (intro + rewards table), and terms. */}
-      <section className="bg-screen relative mt-2.5 px-2.5 pt-2.5 pb-2.5">
+      <section
+        data-testid="info-section"
+        className="bg-theme-accent relative mt-2.5 px-2.5 pt-2.5 pb-2.5"
+      >
         {/* Bottom-left halftone decoration (node 1:1312/1:1313). */}
         <img
           src={bottomHalftone}
