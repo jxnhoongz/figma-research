@@ -24,27 +24,28 @@ export function SectionHeader({
 }) {
   return (
     <div className={cn('flex justify-center', className)}>
-      {/* 100×35 header frame — children at their exact absolute offsets. */}
+      {/* 100×35 header frame. Figma child z-order (back→front): underline, star,
+          text — so the title sits ON TOP of both. */}
       <div data-testid="section-header" className="relative h-[35px] w-[100px]">
-        <img
-          src={star}
-          alt=""
-          aria-hidden="true"
-          className="absolute top-[2px] left-px h-[31px] w-[30px]"
-        />
-        <h2
-          data-testid="section-title"
-          style={{ paintOrder: 'stroke', WebkitTextStroke: '2px #ffffff' }}
-          className="font-display absolute top-[8px] left-[11px] text-[22px] leading-none font-normal whitespace-nowrap text-[#222222]"
-        >
-          {title}
-        </h2>
         <img
           src={underline}
           alt=""
           aria-hidden="true"
-          className="absolute top-[21px] left-[36px] h-[12px] w-[69px]"
+          className="absolute top-[21px] left-[36px] z-0 h-[12px] w-[69px]"
         />
+        <img
+          src={star}
+          alt=""
+          aria-hidden="true"
+          className="absolute top-[2px] left-px z-[1] h-[31px] w-[30px]"
+        />
+        <h2
+          data-testid="section-title"
+          style={{ paintOrder: 'stroke', WebkitTextStroke: '2px #ffffff' }}
+          className="font-display absolute top-[8px] left-[11px] z-[2] text-[22px] leading-none font-normal whitespace-nowrap text-[#222222]"
+        >
+          {title}
+        </h2>
       </div>
     </div>
   )
