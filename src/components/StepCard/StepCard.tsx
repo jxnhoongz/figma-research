@@ -80,9 +80,6 @@ export function StepCard({
 }: StepCardProps) {
   const variant = active ? 'active' : 'default'
   const Chrome = STEP_CARD[CHROME_KEY[status]][side]
-  // The card body is white in every variant; only the right reward wedge is
-  // colored. Active step uses orange-accent text, frosted steps use dark text.
-  const activeText = status === 'active'
 
   return (
     // Step Block: 306 wide = icon 51 + gap 10 + content 245. Fixed px so the
@@ -116,46 +113,48 @@ export function StepCard({
         {/* Step Info 234×55: pad T6/B6/L12, primary-align MAX so the info
             content sits left and the reward wedge sits right. */}
         <div className="absolute inset-y-0 right-0 left-3 flex items-center justify-between gap-2.5 py-1.5">
-          {/* Step Info Content 128×39: title + requirement (or active stats). */}
-          <div className="flex min-w-0 flex-col justify-center">
-            <span
-              className={cn(
-                'truncate text-[13px] leading-tight font-bold',
-                activeText ? 'text-active-amount' : 'text-step-text',
-              )}
-            >
-              {title}
-            </span>
-
-            {active && stats?.length ? (
-              <dl className="mt-0.5 flex flex-col gap-y-0">
-                {stats.map((s) => (
-                  <div key={s.label} className="flex items-baseline gap-1">
-                    <dt className="text-step-muted text-[9px]">{s.label}</dt>
-                    <dd className="text-active-amount text-[11px] font-bold">
-                      {s.value}
-                      {s.unit ? (
-                        <span className="ml-0.5 text-[9px] font-bold">
-                          {s.unit}
-                        </span>
-                      ) : null}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            ) : (
-              <span className="text-step-muted truncate text-[10px] leading-tight">
+          {/* Step Info Content 128×39. Active card = two stat lines only (NO
+              title); regular card = title (19px) + "!" badge + requirement (12px). */}
+          {active && stats?.length ? (
+            <dl className="flex min-w-0 flex-col justify-center gap-0.5">
+              {stats.map((s) => (
+                <div key={s.label} className="flex items-baseline gap-1">
+                  <dt className="text-active-muted text-[10px]">{s.label}</dt>
+                  <dd className="text-active-amount text-[16px] leading-none font-bold">
+                    {s.value}
+                    {s.unit ? (
+                      <span className="ml-0.5 text-[10px] font-bold">{s.unit}</span>
+                    ) : null}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <div className="flex min-w-0 flex-col justify-center gap-1">
+              {/* Step Title Container 75×25: title 第X关 (19px) + "!" badge (17px). */}
+              <div className="flex items-center gap-1">
+                <span className="font-display text-step-text text-[19px] leading-none">
+                  {title}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="text-step-muted grid size-[17px] shrink-0 place-items-center rounded-full bg-black/10 text-[11px] leading-none font-bold"
+                >
+                  !
+                </span>
+              </div>
+              <span className="text-step-muted truncate text-[12px] leading-none">
                 {requirement}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Step Card 84×43: reward wedge — statusText + amount, pad L18/R18. */}
           <div className="flex w-[84px] shrink-0 flex-col items-center justify-center gap-0.5 px-2 text-center">
-            <span className="text-on-dark text-[10px] leading-tight font-semibold drop-shadow-sm">
+            <span className="font-display text-on-dark text-[14px] leading-none drop-shadow-sm">
               {statusText}
             </span>
-            <span className="text-on-dark text-[13px] leading-tight font-bold drop-shadow-sm">
+            <span className="text-on-dark text-[12px] leading-none font-bold drop-shadow-sm">
               {amount}
             </span>
             {claimable ? (
