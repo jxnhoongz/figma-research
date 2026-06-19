@@ -8,9 +8,9 @@ describe('SectionHeader', () => {
     expect(screen.getByText('闯关排列')).toBeInTheDocument()
   })
 
-  it('renders a star + underline decoration (two aria-hidden svgs)', () => {
+  it('renders the real star + underline decoration assets (two aria-hidden imgs)', () => {
     const { container } = render(<SectionHeader title="活动详情" />)
-    const decos = container.querySelectorAll('svg[aria-hidden="true"]')
+    const decos = container.querySelectorAll('img[aria-hidden="true"]')
     expect(decos.length).toBe(2)
   })
 
