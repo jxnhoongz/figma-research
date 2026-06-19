@@ -11,6 +11,7 @@ import {
   type RewardColumn,
   type RewardRow,
 } from '../../components/RewardTable/RewardTable'
+import { SectionHeader } from '../../components/SectionHeader/SectionHeader'
 import { TAB_ICON } from '../../components/svg'
 import { cn } from '../../lib/cn'
 import { getTheme, themeVars } from '../../lib/themes'
@@ -89,6 +90,15 @@ const STEPS: Step[] = [
     amount: '彩金 88元',
     side: 'right',
   },
+  {
+    id: 's5',
+    status: 'locked',
+    title: '第五关',
+    requirement: '累计充值 10万元+',
+    statusText: '未解锁',
+    amount: '彩金 188元',
+    side: 'left',
+  },
 ]
 
 /**
@@ -145,7 +155,8 @@ export function BobiLevelTheme1({
   className?: string
   themeId?: string
 }) {
-  const [activeTab, setActiveTab] = useState(TABS[1].id)
+  // Active tab is 昨日闯关 (LEFT, TABS[0]) — the big decorated tab in Figma.
+  const [activeTab, setActiveTab] = useState(TABS[0].id)
   const theme = getTheme(themeId)
 
   return (
@@ -191,13 +202,14 @@ export function BobiLevelTheme1({
                 footer={<ClaimButton label="可领取" amount="3888" currency="元" />}
               >
                 {STEPS.map((step) => (
+                  // Status icon is ALWAYS on the left of every block (spec #5).
+                  // Only the card's pointer tab (Polygon 2) alternates, driven
+                  // by `side` inside StepCard — never flip the whole row.
                   <li
                     key={step.id}
                     className={cn(
                       'flex',
-                      step.side === 'right'
-                        ? 'flex-row-reverse pl-1.5'
-                        : 'pr-1.5',
+                      step.side === 'right' ? 'pl-1.5' : 'pr-1.5',
                     )}
                   >
                     <div className="w-full">
@@ -233,15 +245,9 @@ export function BobiLevelTheme1({
           className="pointer-events-none absolute -top-12 left-0 h-24 w-24 object-contain opacity-90"
         />
 
-        {/* 活动详情 title with star (node 1:1198). */}
-        <div className="relative flex items-center justify-center gap-1 pb-2.5">
-          <span aria-hidden="true" className="text-step-star text-[26px] leading-none">
-            ✦
-          </span>
-          <h2 className="font-display text-[22px] leading-none font-normal text-[#222222]">
-            活动详情
-          </h2>
-        </div>
+        {/* 活动详情 title — IDENTICAL star + underline header as 闯关排列
+            (Frame 1410107939, same component as 1410107569). */}
+        <SectionHeader title="活动详情" className="relative pb-2.5" />
 
         {/* White inner panel (node 1:1202). */}
         <div className="rounded-card bg-white p-2.5">
