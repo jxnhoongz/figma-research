@@ -64,7 +64,7 @@ async function walk(node, files) {
     }
     if (DECOR_TYPES.includes(node.type)) {
       const b = node.absoluteBoundingBox;
-      if (b && b.width * b.height >= 1500) {
+      if (b && b.width * b.height >= 500) {
         await exportSvg(node, files);
         return; // decorative piece exported whole — don't dig into sub-vectors
       }
