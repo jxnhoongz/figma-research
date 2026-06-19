@@ -57,13 +57,28 @@ async function exportPng(node, files) {
   const png = await node.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: PNG_SCALE } });
   files.push({ path: `png/${safeName(node)}.png`, kind: "base64", data: figma.base64Encode(png) });
 }
+// Export the node whole; if the preferred format fails, fall back to the other.
 async function exportWhole(node, files) {
-  if (deepHasImage(node)) await exportPng(node, files);
-  else await exportSvg(node, files);
+  try {
+    if (deepHasImage(node)) await exportPng(node, files);
+    else await exportSvg(node, files);
+  } catch (e) {
+    if (deepHasImage(node)) await exportSvg(node, files);
+    else await exportPng(node, files);
+  }
+}
+
+function exportable(node) {
+  // Hidden layers and zero-area nodes can't be rendered — exportAsync throws.
+  if (node.visible === false) return false;
+  const b = node.absoluteBoundingBox;
+  if (b && (b.width < 1 || b.height < 1)) return false;
+  return true;
 }
 
 async function walk(node, files) {
   try {
+    if (!exportable(node)) return; // skip hidden / zero-size subtrees
     if (node.type === "COMPONENT_SET") {
       for (const c of node.children) await walk(c, files); // fan out to variants
       return;
@@ -104,7 +119,8 @@ async function walk(node, files) {
       for (const c of node.children) await walk(c, files);
     }
   } catch (e) {
-    errors.push(`${node.name || node.id}: ${e.message}`);
+    const why = (e && (e.message || e.toString())) || String(e);
+    errors.push(`${node.name || node.id} <${node.type}>: ${why}`);
   }
 }
 
