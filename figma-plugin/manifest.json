@@ -1,6 +1,6 @@
 {
-  "name": "Section2 Exporter",
-  "id": "figma-learning-section2-exporter",
+  "name": "Figma Section Exporter",
+  "id": "figma-learning-section-exporter",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",

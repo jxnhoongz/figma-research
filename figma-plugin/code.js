@@ -1,73 +1,104 @@
-// Section2 Exporter — runs in the Figma PLUGIN sandbox (local, no REST API, no
-// token, no rate limit). Exports the structured manifest (JSON_REST_V1, same
-// shape as the REST /nodes endpoint) PLUS every asset, classified SVG vs PNG.
-// Sends the bundle to the UI iframe, which downloads it as one JSON file.
+// Figma Section Exporter — runs in the Figma PLUGIN sandbox (local: no REST API,
+// no token, no rate limit). For the selected node(s) it produces ONE bundle that
+// contains everything needed to replicate ANY screen inside the selection:
+//
+//   • structure/  — JSON_REST_V1 of each selected root (full tree, same shape as
+//                   the REST /nodes endpoint: positions, sizes, layout, z-order,
+//                   text styles, fills, component/instance refs)
+//   • svg/, png/  — every asset, classified + DEDUPED:
+//       - component masters        → whole (PNG if raster, else SVG), once per key
+//       - instances                → deduped to their master component
+//       - decorative groups/vectors→ whole (PNG if raster, else SVG)
+//       - standalone image fills   → PNG, once per imageRef
+//
+// Dedup makes a whole-section export efficient: 6 themed screens no longer emit
+// 6× the same asset. Export the WHOLE SECTION once; replicate any screen from it.
 
-figma.showUI(__html__, { width: 360, height: 260 });
+figma.showUI(__html__, { width: 380, height: 300 });
+
+const PNG_SCALE = 2; // 2× retina — crisp enough for 1:1, half the bytes of 3×.
+const DECOR_MIN_AREA = 500; // skip sub-pixel vector noise; capture real decor.
+const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
+
+const seen = new Set();
+const errors = [];
+const stats = { components: 0, instances: 0, decor: 0, images: 0, deduped: 0 };
 
 function safeName(node) {
-  const base = (node.name || node.type || "node")
-    .trim()
-    .replace(/[^\w.\-一-鿿]+/g, "_")
-    .slice(0, 60);
+  const base = (node.name || node.type || "node").trim().replace(/[^\w.\-一-鿿]+/g, "_").slice(0, 60);
   return `${base}_${node.id.replace(/[:;]/g, "-")}`;
 }
-
 function hasImageFill(node) {
-  const fills = node.fills;
-  return Array.isArray(fills) && fills.some((f) => f.type === "IMAGE");
+  return Array.isArray(node.fills) && node.fills.some((f) => f.type === "IMAGE");
 }
-
-// A node is "raster" for our purposes if it (or any descendant) paints a photo.
+function firstImageRef(node) {
+  const f = (Array.isArray(node.fills) ? node.fills : []).find((x) => x.type === "IMAGE" && x.imageHash);
+  return f ? f.imageHash : null;
+}
 function deepHasImage(node) {
   if (hasImageFill(node)) return true;
-  if ("children" in node) return node.children.some(deepHasImage);
-  return false;
+  return "children" in node ? node.children.some(deepHasImage) : false;
+}
+function area(node) {
+  const b = node.absoluteBoundingBox;
+  return b ? b.width * b.height : 0;
+}
+// Once-only guard. Returns false if this key was already exported.
+function first(key) {
+  if (seen.has(key)) { stats.deduped++; return false; }
+  seen.add(key);
+  return true;
 }
 
 async function exportSvg(node, files) {
-  const svg = await node.exportAsync({ format: "SVG_STRING" });
-  files.push({ path: `svg/${safeName(node)}.svg`, kind: "text", data: svg });
+  files.push({ path: `svg/${safeName(node)}.svg`, kind: "text", data: await node.exportAsync({ format: "SVG_STRING" }) });
 }
-
 async function exportPng(node, files) {
-  const png = await node.exportAsync({
-    format: "PNG",
-    constraint: { type: "SCALE", value: 3 },
-  });
+  const png = await node.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: PNG_SCALE } });
   files.push({ path: `png/${safeName(node)}.png`, kind: "base64", data: figma.base64Encode(png) });
 }
+async function exportWhole(node, files) {
+  if (deepHasImage(node)) await exportPng(node, files);
+  else await exportSvg(node, files);
+}
 
-const errors = [];
-
-// Decorative vector art (leaf patterns, title graphics, stars, ribbons) lives in
-// plain GROUP/VECTOR nodes, not components — capture those too, whole.
-const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
-
-// Walk: component SETs fan out to their variants; each COMPONENT exports whole
-// (PNG if photo, else SVG); image-fill nodes → PNG; significant decorative
-// vector/group art → SVG (exported whole, not dug into).
 async function walk(node, files) {
   try {
     if (node.type === "COMPONENT_SET") {
-      for (const c of node.children) await walk(c, files);
+      for (const c of node.children) await walk(c, files); // fan out to variants
       return;
     }
     if (node.type === "COMPONENT") {
-      if (deepHasImage(node)) await exportPng(node, files);
-      else await exportSvg(node, files);
-      return; // keep the component whole — don't dig into its vectors
+      if (!first("comp:" + (node.key || node.id))) return;
+      stats.components++;
+      await exportWhole(node, files);
+      return; // whole — don't recurse
+    }
+    if (node.type === "INSTANCE") {
+      // Visual = its master (exported) + the structure JSON's overrides. Export
+      // the first instance of each unique component (covers single-screen
+      // exports too), dedupe the rest.
+      const mc = node.mainComponent;
+      if (!first("comp:" + (mc && mc.key ? mc.key : node.id))) return;
+      stats.instances++;
+      await exportWhole(node, files);
+      return; // whole — don't recurse
+    }
+    if (DECOR_TYPES.includes(node.type) && area(node) >= DECOR_MIN_AREA) {
+      const raster = deepHasImage(node);
+      const key = raster
+        ? "img:" + (firstImageRef(node) || node.id)
+        : "decor:" + (node.name || node.type) + ":" + Math.round(area(node));
+      if (!first(key)) return;
+      stats.decor++;
+      await exportWhole(node, files);
+      return; // decorative piece exported whole — don't dig into sub-vectors
     }
     if (hasImageFill(node)) {
+      if (!first("img:" + (firstImageRef(node) || node.id))) return;
+      stats.images++;
       await exportPng(node, files);
       return;
-    }
-    if (DECOR_TYPES.includes(node.type)) {
-      const b = node.absoluteBoundingBox;
-      if (b && b.width * b.height >= 500) {
-        await exportSvg(node, files);
-        return; // decorative piece exported whole — don't dig into sub-vectors
-      }
     }
     if ("children" in node) {
       for (const c of node.children) await walk(c, files);
@@ -80,26 +111,26 @@ async function walk(node, files) {
 async function run() {
   const sel = figma.currentPage.selection;
   if (!sel.length) {
-    figma.ui.postMessage({ type: "error", msg: "Select a frame / section / component set first, then run again." });
+    figma.ui.postMessage({ type: "error", msg: "Select a section / screen / frame first, then run again." });
     return;
   }
   const files = [];
   for (const root of sel) {
     figma.ui.postMessage({ type: "log", msg: `Exporting "${root.name}"…` });
-    // (a) structured manifest — identical shape to REST /v1/files/:key/nodes
     try {
-      const json = await root.exportAsync({ format: "JSON_REST_V1" });
-      files.push({ path: `structure/${safeName(root)}.json`, kind: "text", data: JSON.stringify(json) });
+      files.push({
+        path: `structure/${safeName(root)}.json`,
+        kind: "text",
+        data: JSON.stringify(await root.exportAsync({ format: "JSON_REST_V1" })),
+      });
     } catch (e) {
       figma.ui.postMessage({ type: "log", msg: "JSON_REST_V1 failed: " + e.message });
     }
-    // (b) assets
     await walk(root, files);
   }
-  if (errors.length) {
-    files.push({ path: "errors.log", kind: "text", data: errors.join("\n") });
-  }
-  figma.ui.postMessage({ type: "done", files, count: files.length });
+  if (errors.length) files.push({ path: "errors.log", kind: "text", data: errors.join("\n") });
+  files.push({ path: "export-stats.json", kind: "text", data: JSON.stringify(stats, null, 2) });
+  figma.ui.postMessage({ type: "done", files, count: files.length, stats });
 }
 
 run();
