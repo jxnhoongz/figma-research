@@ -22,6 +22,15 @@ describe('SectionHeader', () => {
     expect(h.className).toContain('text-[#222222]')
   })
 
+  it('paints the white OUTSIDE stroke on the title (paint-order: stroke)', () => {
+    render(<SectionHeader title="活动详情" />)
+    const h = screen.getByText('活动详情')
+    // Structure JSON: TEXT node has #222222 fill + 1px OUTSIDE #ffffff stroke.
+    // text-stroke is centred so 2px yields ~1px showing outside the dark fill.
+    expect(h.style.paintOrder).toBe('stroke')
+    expect(h.style.webkitTextStroke).toContain('#ffffff')
+  })
+
   it('renders IDENTICAL structure for both 闯关排列 and 活动详情', () => {
     const a = render(<SectionHeader title="闯关排列" />)
     const aHtml = a.container.innerHTML.replace('闯关排列', 'TITLE')

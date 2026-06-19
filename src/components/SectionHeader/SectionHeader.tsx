@@ -38,7 +38,19 @@ export function SectionHeader({
             aria-hidden="true"
             className="absolute top-1/2 -left-5 h-[31px] w-[30px] -translate-y-1/2"
           />
-          <h2 className="font-display relative text-[22px] leading-none font-normal text-[#222222]">
+          {/* Title TEXT node: #222222 fill + 1px OUTSIDE #ffffff stroke
+              (strokeWeight 1, strokeAlign OUTSIDE). text-stroke is centred, so a
+              2px stroke under paint-order:stroke yields ~1px of white showing
+              outside the dark fill. Both literals are exact semantic values from
+              the structure JSON, so they stay as hex (not themeable). */}
+          <h2
+            data-testid="section-title"
+            style={{
+              paintOrder: 'stroke',
+              WebkitTextStroke: '2px #ffffff',
+            }}
+            className="font-display relative text-[22px] leading-none font-normal text-[#222222]"
+          >
             {title}
           </h2>
         </div>
