@@ -40,8 +40,13 @@ async function exportPng(node, files) {
 
 const errors = [];
 
+// Decorative vector art (leaf patterns, title graphics, stars, ribbons) lives in
+// plain GROUP/VECTOR nodes, not components — capture those too, whole.
+const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "ELLIPSE", "GROUP"];
+
 // Walk: component SETs fan out to their variants; each COMPONENT exports whole
-// (PNG if it's a photo, else SVG); stray image-fill nodes export as PNG.
+// (PNG if photo, else SVG); image-fill nodes → PNG; significant decorative
+// vector/group art → SVG (exported whole, not dug into).
 async function walk(node, files) {
   try {
     if (node.type === "COMPONENT_SET") {
@@ -55,6 +60,14 @@ async function walk(node, files) {
     }
     if (hasImageFill(node)) {
       await exportPng(node, files);
+      return;
+    }
+    if (DECOR_TYPES.includes(node.type)) {
+      const b = node.absoluteBoundingBox;
+      if (b && b.width * b.height >= 1500) {
+        await exportSvg(node, files);
+        return; // decorative piece exported whole — don't dig into sub-vectors
+      }
     }
     if ("children" in node) {
       for (const c of node.children) await walk(c, files);
