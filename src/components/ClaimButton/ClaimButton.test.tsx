@@ -10,16 +10,16 @@ describe('ClaimButton', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the real exported claim asset as an img (not a CSS button)', () => {
+  it('renders the real exported claim assets (tray + pill) as decorative imgs', () => {
     const { container } = render(
       <ClaimButton label="可领取" amount="3888" currency="元" />,
     )
-    const img = container.querySelector('img')
-    expect(img).not.toBeNull()
-    // The baked SVG (claim-content.svg = the real Claim_Content_1-1188 export).
-    expect(img?.getAttribute('src')).toMatch(/claim-content\.svg/)
+    // Claim Button Container = Rectangle 346245410 tray + Claim_Content pill,
+    // both real exported SVGs (vite may inline them as data URIs in test).
+    const imgs = container.querySelectorAll('img')
+    expect(imgs.length).toBe(2)
+    imgs.forEach((img) => expect(img).toHaveAttribute('aria-hidden', 'true'))
     // The art is decorative; the accessible name lives on the button itself.
-    expect(img).toHaveAttribute('aria-hidden', 'true')
     expect(
       screen.getByRole('button', { name: '可领取 3888元' }),
     ).toBeInTheDocument()

@@ -69,8 +69,7 @@ export function StepsContainer({
                 tiles), absolute behind, themed via currentColor. */}
             <MapPath
               aria-hidden="true"
-              preserveAspectRatio="none"
-              className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+              className="pointer-events-none absolute top-7 left-1/2 z-0 w-[306px] -translate-x-1/2"
             />
 
             {/* Overlay Content: 306 wide, vertical gap 10, pad T8/B8, counter
