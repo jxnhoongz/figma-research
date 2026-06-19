@@ -202,30 +202,23 @@ export function BobiLevelTheme1({
                 footer={<ClaimButton label="可领取" amount="3888" currency="元" />}
               >
                 {STEPS.map((step) => (
-                  // Status icon is ALWAYS on the left of every block (spec #5).
-                  // Only the card's pointer tab (Polygon 2) alternates, driven
-                  // by `side` inside StepCard — never flip the whole row.
-                  <li
-                    key={step.id}
-                    className={cn(
-                      'flex',
-                      step.side === 'right' ? 'pl-1.5' : 'pr-1.5',
-                    )}
-                  >
-                    <div className="w-full">
-                      <StepCard
-                        status={step.status}
-                        title={step.title}
-                        requirement={step.requirement}
-                        statusText={step.statusText}
-                        amount={step.amount}
-                        side={step.side}
-                        active={step.active}
-                        claimable={step.claimable}
-                        claimed={step.claimed}
-                        stats={step.stats}
-                      />
-                    </div>
+                  // Each Step Block is a fixed 306px row (icon 51 + gap 10 +
+                  // card 245). Status icon is ALWAYS left; only the card's
+                  // pointer tab (Polygon 2) alternates via `side` inside
+                  // StepCard — the whole row is never flipped.
+                  <li key={step.id} className="flex justify-center">
+                    <StepCard
+                      status={step.status}
+                      title={step.title}
+                      requirement={step.requirement}
+                      statusText={step.statusText}
+                      amount={step.amount}
+                      side={step.side}
+                      active={step.active}
+                      claimable={step.claimable}
+                      claimed={step.claimed}
+                      stats={step.stats}
+                    />
                   </li>
                 ))}
               </StepsContainer>
