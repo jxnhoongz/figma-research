@@ -1,6 +1,23 @@
 @import "tailwindcss";
 
+/* 优设标题黑 (YouSheBiaoTiHei) — the Figma display face for 闯关排列 / 活动详情 /
+   第X关 / tab labels. Best-effort webfont from a public CDN; if it fails to load
+   the `--font-display` stack below falls back to a heavy system sans so the
+   exact size/weight/color from the structure JSON still apply. */
+@font-face {
+  font-family: "YouSheBiaoTiHei";
+  font-display: swap;
+  src: url("https://db.onlinewebfonts.com/t/396385b48ad7cb2df0fea7b96a899414.woff2")
+      format("woff2"),
+    url("https://db.onlinewebfonts.com/t/396385b48ad7cb2df0fea7b96a899414.woff")
+      format("woff");
+}
+
 @theme {
+  /* Display face (优设标题黑) for titles + step headings. */
+  --font-display: "YouSheBiaoTiHei", "PingFang SC", system-ui, sans-serif;
+  --font-amount: "DIN Alternate", "PingFang SC", system-ui, sans-serif;
+
   /* Solid colors. Token names chosen so the generated utility matches the
      class names used by components (e.g. text-text-brown, text-text-amount).
      The screen + table-header follow the live theme accent (set per-theme via
@@ -13,6 +30,14 @@
   /* 活动详情 body paragraph (node 1:1201 region): neutral dark, NOT brown. */
   --color-text-body: #222222;
   --color-divider: rgba(255, 255, 255, 0.25);
+
+  /* 闯关排列 title star burst (node 1:987, orange). */
+  --color-step-star: #ff8a1f;
+
+  /* Main Container (node 1:974/1:975): a soft yellow under-glow (#fcf4a9)
+     behind a near-white rounded card (white + faint peach/blue radial tints). */
+  --color-main-glow: #fcf4a9;
+  --color-main-card: #ffffff;
 
   /* Nav header (Frame 1410102067): white bar, navy title #110940. */
   --color-nav: #ffffff;
@@ -59,6 +84,20 @@
   --grad-banner: linear-gradient(180deg, #762aaa, #541b87);
   --grad-card: linear-gradient(-30deg, #84c3ba 8%, #a4f5c8 67%, #45a5aa);
 
+  /* Main Container inner card (node 1:977): white base with a top-right peach
+     glow (#FFE1BD) and a bottom blue glow (#E4EFFE), per the bg SVG radials. */
+  --grad-main-card: radial-gradient(
+      120% 90% at 60% 0%,
+      rgba(255, 225, 189, 0.9) 0%,
+      rgba(255, 225, 189, 0) 55%
+    ),
+    radial-gradient(
+      90% 30% at 80% 100%,
+      rgba(228, 239, 254, 0.9) 0%,
+      rgba(228, 239, 254, 0) 100%
+    ),
+    #ffffff;
+
   /* Step card surfaces (Component 38).
      - Default: white 75% frosted glass over the #81CCD1 screen.
      - Active: orange gradient (fill_BUKX6N) with a rainbow stroke (fill_ISJD4H). */
@@ -85,30 +124,42 @@
     rgba(255, 255, 255, 0.8) 100%
   );
 
-  /* Map pattern-bg approximation: layered radial "tiles" of teal so the
-     content area reads as a patterned map rather than flat fill. No exported
-     asset exists for the winding path, so this is a CSS stand-in. */
-  --pattern-map: radial-gradient(
-      circle at 18% 12%,
-      rgba(255, 255, 255, 0.12) 0 2px,
-      transparent 3px
+  /* "Component 32" inner step-list surface (node 1:981 / 1:1020). A flat tile of
+     the theme accent with a faint white polka-dot "leaf pattern" overlay
+     (mirrors the decorative `pattern` group 1:1021, which is 18 scattered leaf
+     vectors with no single export — approximated as a soft dotted field so the
+     area reads as patterned, not flat). The serpentine road tiles + cards sit
+     on top of this. */
+  --pattern-leaf: radial-gradient(
+      circle at 12% 18%,
+      rgba(255, 255, 255, 0.16) 0 3px,
+      transparent 4px
     ),
     radial-gradient(
-      circle at 72% 28%,
-      rgba(255, 255, 255, 0.1) 0 2px,
-      transparent 3px
+      circle at 78% 9%,
+      rgba(255, 255, 255, 0.13) 0 3px,
+      transparent 4px
     ),
     radial-gradient(
-      circle at 40% 60%,
-      rgba(255, 255, 255, 0.1) 0 2px,
-      transparent 3px
+      circle at 33% 47%,
+      rgba(255, 255, 255, 0.12) 0 3px,
+      transparent 4px
     ),
     radial-gradient(
-      circle at 88% 78%,
-      rgba(255, 255, 255, 0.1) 0 2px,
-      transparent 3px
+      circle at 90% 62%,
+      rgba(255, 255, 255, 0.12) 0 3px,
+      transparent 4px
     ),
-    linear-gradient(180deg, #8ad2d6 0%, #76c4c9 100%);
+    radial-gradient(
+      circle at 52% 82%,
+      rgba(255, 255, 255, 0.12) 0 3px,
+      transparent 4px
+    ),
+    radial-gradient(
+      circle at 16% 88%,
+      rgba(255, 255, 255, 0.1) 0 3px,
+      transparent 4px
+    );
 }
 
 @layer components {
@@ -124,6 +175,9 @@
   .bg-card-grad {
     background-image: var(--grad-card);
   }
+  .bg-main-card {
+    background-image: var(--grad-main-card);
+  }
   .bg-steps-container {
     background-image: var(--grad-steps-container);
   }
@@ -133,8 +187,15 @@
   .bg-active-card {
     background-image: var(--grad-active-card);
   }
-  .bg-pattern-map {
-    background-image: var(--pattern-map);
+  .bg-pattern-leaf {
+    background-color: var(--theme-accent, #81ccd1);
+    background-image: var(--pattern-leaf);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-amount {
+    font-family: var(--font-amount);
   }
   /* Rainbow gradient border for the active step card. A padding-box/border-box
      mask paints the gradient on the 1px border only (fill_ISJD4H). */

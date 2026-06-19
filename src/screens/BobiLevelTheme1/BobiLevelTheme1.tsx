@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { NavHeader } from '../../components/NavHeader/NavHeader'
 import { Banner } from '../../components/Banner/Banner'
 import { TabSwitch } from '../../components/TabSwitch/TabSwitch'
-import { Button } from '../../components/Button/Button'
 import { type Status } from '../../components/StatusIcon/StatusIcon'
 import { StepCard, type StepStat, type StepSide } from '../../components/StepCard/StepCard'
 import { StepsContainer } from '../../components/StepsContainer/StepsContainer'
+import { ClaimButton } from '../../components/ClaimButton/ClaimButton'
 import {
   RewardTable,
   type RewardColumn,
@@ -14,8 +14,8 @@ import {
 import { TAB_ICON } from '../../components/svg'
 import { cn } from '../../lib/cn'
 import { getTheme, themeVars } from '../../lib/themes'
-import decoBottom1 from '../../assets/bobi-theme1/deco-bottom-1.png'
-import decoBottom2 from '../../assets/bobi-theme1/deco-bottom-2.png'
+import mainTexture from '../../assets/section2/decor/main-container-texture.svg'
+import bottomHalftone from '../../assets/section2/decor/bottom-halftone.svg'
 
 /**
  * 波币大闯关 theme1 screen, rebuilt 1:1 with the real section2 SVG assets.
@@ -77,7 +77,7 @@ const STEPS: Step[] = [
     // on the card — matches Figma, which shows only 当前关卡 + 彩金 on the wedge.
     stats: [
       { label: '日计充值', value: '3,756', unit: '元' },
-      { label: '有效投', value: '65,422', unit: '元' },
+      { label: '有效投', value: '65,422', unit: '(0倍)' },
     ],
   },
   {
@@ -162,95 +162,106 @@ export function BobiLevelTheme1({
       <NavHeader title="波币大闯关" />
       <Banner title="波币大闯关" src={theme.banner} />
 
-      <TabSwitch
-        tabs={TABS}
-        active={activeTab}
-        onChange={setActiveTab}
-        artByActive={TAB_ART}
-        className="mx-4 mt-3"
-      />
+      {/* Main Container (node 1:973/1:974): a soft-yellow under-glow behind a
+          near-white rounded card holding the tab switch + 闯关排列 module. */}
+      <div className="px-1.5 pt-1.5">
+        <div className="bg-main-glow rounded-card p-1">
+          <div className="bg-main-card rounded-card relative overflow-hidden p-2">
+            {/* Faint top texture (node 1:978). */}
+            <img
+              src={mainTexture}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-2 right-0 h-32 w-[70%] object-cover opacity-40"
+            />
 
-      {/* 闯关排列 container (Figma "Steps List" frame): a frosted box wrapping
-          ALL step cards, with the serpentine map path as a background layer
-          behind them. Cards alternate sides and overlap the path. */}
-      <StepsContainer title="闯关排列">
-        {STEPS.map((step) => (
-          <li
-            key={step.id}
-            className={cn(
-              'flex',
-              step.side === 'right' ? 'justify-end pl-2' : 'justify-start pr-2',
-            )}
-          >
-            <div className="w-[92%]">
-              <StepCard
-                status={step.status}
-                title={step.title}
-                requirement={step.requirement}
-                statusText={step.statusText}
-                amount={step.amount}
-                side={step.side}
-                active={step.active}
-                claimable={step.claimable}
-                claimed={step.claimed}
-                stats={step.stats}
+            <div className="relative flex flex-col gap-2">
+              <TabSwitch
+                tabs={TABS}
+                active={activeTab}
+                onChange={setActiveTab}
+                artByActive={TAB_ART}
               />
+
+              {/* 闯关排列 module (Component 32): serpentine road + overlapping
+                  step cards + the real 可领取 claim CTA. */}
+              <StepsContainer
+                title="闯关排列"
+                className="rounded-card"
+                footer={<ClaimButton label="可领取" amount="3888" currency="元" />}
+              >
+                {STEPS.map((step) => (
+                  <li
+                    key={step.id}
+                    className={cn(
+                      'flex',
+                      step.side === 'right'
+                        ? 'flex-row-reverse pl-1.5'
+                        : 'pr-1.5',
+                    )}
+                  >
+                    <div className="w-full">
+                      <StepCard
+                        status={step.status}
+                        title={step.title}
+                        requirement={step.requirement}
+                        statusText={step.statusText}
+                        amount={step.amount}
+                        side={step.side}
+                        active={step.active}
+                        claimable={step.claimable}
+                        claimed={step.claimed}
+                        stats={step.stats}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </StepsContainer>
             </div>
-          </li>
-        ))}
-
-        {/* Bottom claim CTA (Figma: big orange 可领取 3888元 pill below 第四关). */}
-        <li className="flex justify-center pt-1">
-          <Button
-            size="lg"
-            className="rounded-full px-10 text-base font-bold shadow-md"
-          >
-            可领取 <span className="ml-1">3888元</span>
-          </Button>
-        </li>
-      </StepsContainer>
-
-      {/* 活动详情 info panel. */}
-      <section className="bg-card-grad rounded-card mx-2 mt-2 px-4 pt-4 pb-6">
-        <div className="flex justify-center">
-          <span className="bg-cta text-on-dark rounded-full px-6 py-1 text-sm font-bold shadow-sm">
-            活动详情
-          </span>
+          </div>
         </div>
-        <p className="text-text-body mt-3 text-xs leading-relaxed">
-          {INFO_DETAIL}
-        </p>
-        <div className="mt-3">
-          <RewardTable columns={REWARD_COLUMNS} rows={REWARD_ROWS} />
-        </div>
-
-        {/* 示例 + 活动规则 terms block (Figma copy below the table). */}
-        <p className="text-text-body mt-4 text-xs leading-relaxed">
-          {INFO_EXAMPLE}
-        </p>
-        <p className="text-text-body mt-3 text-xs leading-relaxed">活动规则：</p>
-        <ul className="text-text-body mt-1 list-disc space-y-2 pl-5 text-xs leading-relaxed">
-          {INFO_RULES.map((rule, i) => (
-            <li key={i}>{rule}</li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Decorative illustrations anchored at the very bottom. */}
-      <div className="relative h-[110px]">
-        <img
-          src={decoBottom1}
-          alt=""
-          aria-hidden="true"
-          className="absolute bottom-0 left-0 h-[110px] object-contain"
-        />
-        <img
-          src={decoBottom2}
-          alt=""
-          aria-hidden="true"
-          className="absolute right-0 bottom-0 h-[110px] object-contain"
-        />
       </div>
+
+      {/* 活动详情 section (Frame 1410107935): teal-tile frame with the star
+          title, a white inner panel (intro + rewards table), and terms. */}
+      <section className="bg-screen relative mt-2.5 px-2.5 pt-2.5 pb-2.5">
+        {/* Bottom-left halftone decoration (node 1:1312/1:1313). */}
+        <img
+          src={bottomHalftone}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-12 left-0 h-24 w-24 object-contain opacity-90"
+        />
+
+        {/* 活动详情 title with star (node 1:1198). */}
+        <div className="relative flex items-center justify-center gap-1 pb-2.5">
+          <span aria-hidden="true" className="text-step-star text-[26px] leading-none">
+            ✦
+          </span>
+          <h2 className="font-display text-[22px] leading-none font-normal text-[#222222]">
+            活动详情
+          </h2>
+        </div>
+
+        {/* White inner panel (node 1:1202). */}
+        <div className="rounded-card bg-white p-2.5">
+          <p className="text-text-body text-sm leading-relaxed">{INFO_DETAIL}</p>
+          <div className="mt-2.5">
+            <RewardTable columns={REWARD_COLUMNS} rows={REWARD_ROWS} />
+          </div>
+
+          {/* 示例 + 活动规则 terms block (node 1:1311). */}
+          <p className="text-text-body mt-3 text-sm leading-relaxed">
+            {INFO_EXAMPLE}
+          </p>
+          <p className="text-text-body mt-3 text-sm leading-relaxed">活动规则：</p>
+          <ul className="text-text-body mt-1 list-disc space-y-2 pl-5 text-sm leading-relaxed">
+            {INFO_RULES.map((rule, i) => (
+              <li key={i}>{rule}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   )
 }

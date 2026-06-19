@@ -24,6 +24,18 @@ describe('StepsContainer', () => {
     expect(container).toContainElement(screen.getByTestId('c2'))
   })
 
+  it('renders the claim footer below the step list when provided', () => {
+    render(
+      <StepsContainer
+        title="闯关排列"
+        footer={<button data-testid="claim">claim</button>}
+      >
+        <li>card</li>
+      </StepsContainer>,
+    )
+    expect(screen.getByTestId('claim')).toBeInTheDocument()
+  })
+
   it('renders the serpentine map path as an aria-hidden background layer', () => {
     const { container } = render(
       <StepsContainer title="闯关排列">

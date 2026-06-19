@@ -1,56 +1,87 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { MapPath } from '../svg'
+import headerDeco from '../../assets/section2/decor/steps-header-deco.svg'
 
 interface StepsContainerProps {
-  /** Pill header label (Figma "等级可领" text = 闯关排列). */
+  /** Header label (Figma node 1:988 = 闯关排列). */
   title: string
-  /** The step cards, rendered on top of the serpentine map path. */
+  /** The step blocks, overlaid on the serpentine road. */
   children: ReactNode
+  /** The claim CTA rendered below the last step (Figma 1:1186). */
+  footer?: ReactNode
   className?: string
 }
 
 /**
- * 闯关排列 container — Figma "Steps List" frame (1:1020). A frosted white box
- * (3px translucent-white border, 20px radius) that wraps ALL step cards. Inside
- * it the real serpentine map path (`MapPath`, the 8-tile start+mid…+end stack)
- * is an absolute BACKGROUND layer; the cards overlay it in front, overlapping
- * the path. The "闯关排列" pill is the frame header, straddling the top edge.
- * The path is `MapPath` — the 8 real map-pattern tiles assembled in the exact
- * serpentine order from the structure JSON (no mirror-approximations).
+ * Mirrors Figma "Component 32" (node 1:981) — the 闯关排列 module. It is a flat
+ * tile of the theme accent (with the decorative leaf-dot `pattern`, 1:1021),
+ * laid out vertically with a NEGATIVE 20px gap so the header and the step list
+ * tuck together (`Component 32` itemSpacing -20).
  *
- * This frame is NOT a registered Figma component (it's a plain copy-pasted
- * frame), so it was missing from the component-master extraction — captured here
- * from the actual screen structure. Purely presentational.
+ * Two parts:
+ *  1. Steps Header (1:982): the faint chevron decoration (`steps-header-deco`,
+ *     the exported 1:989 "Steps Container" art) behind the centered 闯关排列
+ *     title (display face, with the orange star burst 1:987).
+ *  2. Steps List (1:1020): the real serpentine road (`MapPath`, the stacked
+ *     Map pattern-bg tiles 1:1049+) as an absolute background, with the step
+ *     Blocks overlapping it. Cards overlap each other by ~20px (Step Blocks at a
+ *     ~70px pitch inside 60px rows) so the list reads as a continuous trail.
+ *
+ * This frame is NOT a registered Figma component, so it was missing from the
+ * component-master extraction — modeled here from the screen structure.
  */
-export function StepsContainer({ title, children, className }: StepsContainerProps) {
+export function StepsContainer({
+  title,
+  children,
+  footer,
+  className,
+}: StepsContainerProps) {
   return (
     <div
       data-testid="steps-container"
-      className={cn('relative mx-3 mt-5', className)}
+      className={cn(
+        'bg-pattern-leaf relative overflow-hidden px-3 pt-2 pb-2',
+        className,
+      )}
     >
-      {/* Header pill, straddling the top border of the frame. */}
-      <div className="absolute -top-4 left-1/2 z-20 -translate-x-1/2">
-        <span className="bg-cta text-on-dark rounded-full px-6 py-1 text-sm font-bold whitespace-nowrap shadow-sm">
+      {/* Steps Header (1:982): chevron decoration + 闯关排列 title. */}
+      <div className="relative flex h-16 items-center justify-center">
+        <img
+          src={headerDeco}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-1/2 w-[300px] -translate-x-1/2 -translate-y-1/2 opacity-70"
+        />
+        <h2 className="font-display relative z-10 flex items-center gap-1 text-[22px] leading-none font-normal text-[#222222]">
+          <span aria-hidden="true" className="text-step-star text-[26px] leading-none">
+            ✦
+          </span>
           {title}
-        </span>
+        </h2>
       </div>
 
-      {/* Frosted frame body. */}
-      <div className="bg-steps-container relative overflow-hidden rounded-card border-[3px] border-white/60 px-3 pt-7 pb-4">
-        {/* Serpentine map path: absolute BACKGROUND layer, behind the cards.
-            Themed via currentColor (inherits --theme-accent from the screen).
-            Stretched (preserveAspectRatio=none) to fill the card stack so each
-            serpentine lane sits under its card and the connector arcs peek out
-            on alternating sides. */}
+      {/* Steps List (1:1020): serpentine road behind the overlapping cards. */}
+      <div className="relative -mt-5">
+        {/* Real serpentine road tiles (Map pattern-bg), absolute background,
+            inheriting the theme accent through currentColor. */}
         <MapPath
           aria-hidden="true"
           preserveAspectRatio="none"
           className="pointer-events-none absolute inset-0 z-0 h-full w-full"
         />
 
-        {/* Step cards, overlapping the path in front. */}
-        <ol className="relative z-10 flex flex-col gap-3">{children}</ol>
+        {/* Step Blocks. The negative inter-card margin reproduces Component 32's
+            -20px gap so consecutive cards overlap. */}
+        <ol className="relative z-10 flex flex-col [&>li:not(:first-child)]:-mt-2">
+          {children}
+        </ol>
+
+        {footer ? (
+          <div className="relative z-10 mt-1 flex justify-center pb-1">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>
   )
