@@ -51,3 +51,22 @@ foundation for emitting componentized, data-driven code (vs the flat scene the
 renderer uses today). Pure analysis; no code emission yet. Shares fill/box
 helpers with the scene generator via `scripts/lib/figma.mjs`. Spec:
 `docs/superpowers/specs/2026-06-22-semantic-ir-foundation-design.md`.
+
+The plugin also emits `chrome.json` (`instanceId → text-less image path`): each
+text-bearing instance rendered with its TEXT hidden, so a generated component can
+overlay live data-driven text on a clean background (the basis for editable
+cards). Additive — `manifest.json` and the scene pipeline are unchanged. Spec:
+`docs/superpowers/specs/2026-06-22-plugin-chrome-export-design.md`.
+
+## Manual validation: chrome export
+
+The plugin runs in the Figma sandbox and has no automated test. After changing
+chrome-export logic, the user validates by re-exporting:
+
+1. Reload the plugin in Figma (Plugins → Development), run it on the Section 3 frame.
+2. Unpack the bundle; confirm `chrome.json` exists and maps the 9 reward-card
+   instance ids to `chrome/…` paths.
+3. Open one `chrome/…` image: the card background + icon are present and the
+   **text is gone**.
+4. Confirm `manifest.json` is unchanged and a regenerated scene
+   (`build-section-scene.mjs`) is byte-identical to before (the change is additive).

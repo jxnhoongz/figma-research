@@ -32,6 +32,7 @@ Figma plugin (local: no REST API, no token, no rate limit)
   └─ exports ONE bundle: structure/<root>.json (full JSON_REST_V1 tree)
                           + svg/ + png/ (deduped assets)
                           + manifest.json (nodeId → asset path)
+                          + chrome/ + chrome.json (text-less instance images, for data-driven components)
   ↓ scripts/import-figma-export.mjs        unpack bundle to disk
   ↓ scripts/build-section-scene.mjs        per screen → scene.json + copied assets
   ↓ src/components/SceneRenderer           generic, data-driven renderer
