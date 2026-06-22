@@ -64,9 +64,13 @@ The plugin runs in the Figma sandbox and has no automated test. After changing
 chrome-export logic, the user validates by re-exporting:
 
 1. Reload the plugin in Figma (Plugins → Development), run it on the Section 3 frame.
-2. Unpack the bundle; confirm `chrome.json` exists and maps the 9 reward-card
-   instance ids to `chrome/…` paths.
-3. Open one `chrome/…` image: the card background + icon are present and the
-   **text is gone**.
-4. Confirm `manifest.json` is unchanged and a regenerated scene
-   (`build-section-scene.mjs`) is byte-identical to before (the change is additive).
+2. Unpack the bundle; confirm `chrome.json` exists and maps the reward-card and
+   button instance ids to `chrome/…` paths.
+3. Open a reward-card `chrome/…` image: background + icon present, **text gone**.
+4. **Reflow:** open the button (`立即领取`) chrome image — the coin icon sits in
+   its real position (next to where the amount goes), **not** re-centered.
+5. **Dedup:** `export-stats.json` shows a higher `deduped` count and fewer files
+   in `svg/` than a pre-dedup export; spot-check that two identical icons now map
+   to the SAME path in `manifest.json`. (Asset filenames in `manifest.json` /
+   regenerated scenes may change vs the pre-dedup export — they still render
+   identically, since only visually-identical SVGs are merged.)
