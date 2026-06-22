@@ -4,6 +4,7 @@ import { MoonFestival } from './screens/MoonFestival/MoonFestival'
 import { Section3 } from './screens/Section3/Section3'
 import { Section6 } from './screens/Section6/Section6'
 import { Section7 } from './screens/Section7/Section7'
+import { Section3Structured } from './screens/Section3Structured/Section3Structured'
 import { THEMES } from './lib/themes'
 import { cn } from './lib/cn'
 
@@ -17,6 +18,7 @@ const PAGES = [
   { id: 'bobi', label: '波币大闯关' },
   { id: 'moon', label: '中秋大转盘' },
   { id: 'section3', label: '点击领取' },
+  { id: 'section3s', label: '点击领取 (structured)' },
   { id: 'section6', label: '升级模式' },
   { id: 'section7', label: '领取彩金' },
 ] as const
@@ -115,6 +117,9 @@ export default function App() {
       )}
       {page === 'section3' && (
         <Section3 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
+      )}
+      {page === 'section3s' && (
+        <Section3Structured className="mx-auto mt-4 w-[820px] rounded-xl bg-white shadow-xl" />
       )}
       {page === 'section6' && (
         <Section6 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
