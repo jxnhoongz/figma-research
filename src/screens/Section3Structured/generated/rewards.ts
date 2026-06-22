@@ -7,13 +7,13 @@ export interface RewardItem {
 }
 
 export const rewards: RewardItem[] = [
-  { id: "1:33671", bakedImage: "png-Frame_1410162759_1-33671.png", chromeImage: "chrome-Frame_1410162759_1-33671.png", fields: { "text1": "28", "text2": "¥", "text3": "投注", "text4": "5万+" } },
-  { id: "1:33672", bakedImage: "png-Frame_1410162746_1-33672.png", chromeImage: "chrome-Frame_1410162746_1-33672.png", fields: { "text1": "88", "text2": "¥", "text3": "投注", "text4": "50万+" } },
-  { id: "1:33673", bakedImage: "png-Frame_1410162747_1-33673.png", chromeImage: "chrome-Frame_1410162747_1-33673.png", fields: { "text1": "188", "text2": "¥", "text3": "投注", "text4": "100万+" } },
-  { id: "1:33674", bakedImage: "png-Frame_1410162749_1-33674.png", chromeImage: "chrome-Frame_1410162747_1-33673.png", fields: { "text1": "588", "text2": "¥", "text3": "投注", "text4": "300万+" } },
-  { id: "1:33675", bakedImage: "png-Frame_1410162750_1-33675.png", chromeImage: "chrome-Frame_1410162750_1-33675.png", fields: { "text1": "1888", "text2": "¥", "text3": "投注", "text4": "500万+" } },
-  { id: "1:33676", bakedImage: "png-Frame_1410162762_1-33676.png", chromeImage: "chrome-Frame_1410162762_1-33676.png", fields: { "text1": "3888", "text2": "¥", "text3": "投注", "text4": "1000万+" } },
-  { id: "1:33677", bakedImage: "png-Frame_1410162758_1-33677.png", chromeImage: "chrome-Frame_1410162758_1-33677.png", fields: { "text1": "4888", "text2": "¥", "text3": "投注", "text4": "5000万+" } },
-  { id: "1:33678", bakedImage: "png-Frame_1410162760_1-33678.png", chromeImage: "chrome-Frame_1410162758_1-33677.png", fields: { "text1": "5888", "text2": "¥", "text3": "投注", "text4": "7000万+" } },
-  { id: "1:33679", bakedImage: "png-Frame_1410162761_1-33679.png", chromeImage: "chrome-Frame_1410162761_1-33679.png", fields: { "text1": "8888", "text2": "¥", "text3": "投注", "text4": "9000万+" } },
+  { id: "1:33671", bakedImage: "png-Frame_1410162759_1-33671.png", chromeImage: "chrome-Frame_1410162759_1-33671.png", fields: { "amount": "28", "currency": "¥", "text3": "投注", "requirement": "5万+" } },
+  { id: "1:33672", bakedImage: "png-Frame_1410162746_1-33672.png", chromeImage: "chrome-Frame_1410162746_1-33672.png", fields: { "amount": "88", "currency": "¥", "text3": "投注", "requirement": "50万+" } },
+  { id: "1:33673", bakedImage: "png-Frame_1410162747_1-33673.png", chromeImage: "chrome-Frame_1410162747_1-33673.png", fields: { "amount": "188", "currency": "¥", "text3": "投注", "requirement": "100万+" } },
+  { id: "1:33674", bakedImage: "png-Frame_1410162749_1-33674.png", chromeImage: "chrome-Frame_1410162747_1-33673.png", fields: { "amount": "588", "currency": "¥", "text3": "投注", "requirement": "300万+" } },
+  { id: "1:33675", bakedImage: "png-Frame_1410162750_1-33675.png", chromeImage: "chrome-Frame_1410162750_1-33675.png", fields: { "amount": "1888", "currency": "¥", "text3": "投注", "requirement": "500万+" } },
+  { id: "1:33676", bakedImage: "png-Frame_1410162762_1-33676.png", chromeImage: "chrome-Frame_1410162762_1-33676.png", fields: { "amount": "3888", "currency": "¥", "text3": "投注", "requirement": "1000万+" } },
+  { id: "1:33677", bakedImage: "png-Frame_1410162758_1-33677.png", chromeImage: "chrome-Frame_1410162758_1-33677.png", fields: { "amount": "4888", "currency": "¥", "text3": "投注", "requirement": "5000万+" } },
+  { id: "1:33678", bakedImage: "png-Frame_1410162760_1-33678.png", chromeImage: "chrome-Frame_1410162758_1-33677.png", fields: { "amount": "5888", "currency": "¥", "text3": "投注", "requirement": "7000万+" } },
+  { id: "1:33679", bakedImage: "png-Frame_1410162761_1-33679.png", chromeImage: "chrome-Frame_1410162761_1-33679.png", fields: { "amount": "8888", "currency": "¥", "text3": "投注", "requirement": "9000万+" } },
 ]

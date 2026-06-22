@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { rewards, type RewardItem } from './generated/rewards'
-import { RewardGrid } from './generated/RewardGrid'
+import { RewardGrid, GRID_GAP, GRID_PADDING, GRID_WIDTH } from './generated/RewardGrid'
+import { CARD_W, CARD_H } from './generated/RewardCard'
 
 // Bundle the generated card images (chrome + baked); resolve filename → URL.
 const urls = import.meta.glob('./generated/img/*', {
@@ -62,12 +63,17 @@ export function Section3Structured({ className }: { className?: string }) {
         />
       </div>
 
-      <div className="flex gap-6 p-3">
+      <div className="flex gap-6 p-3" style={{ zoom: 1.4 } as React.CSSProperties}>
         <section>
           <h3 className="mb-2 text-xs font-semibold text-neutral-500">Baked (v1) — frozen pixels</h3>
-          <div data-testid="baked-grid" className="flex flex-wrap gap-2" style={{ width: 360 }}>
+          <div
+            data-testid="baked-grid"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: GRID_GAP, padding: GRID_PADDING, width: GRID_WIDTH }}
+          >
             {items.map((r) =>
-              r.bakedImage ? <img key={r.id} src={assetUrl(r.bakedImage)} alt="" /> : null,
+              r.bakedImage ? (
+                <img key={r.id} src={assetUrl(r.bakedImage)} alt="" style={{ width: CARD_W, height: CARD_H }} />
+              ) : null,
             )}
           </div>
         </section>

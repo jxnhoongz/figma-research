@@ -2,6 +2,10 @@
 import { RewardCard } from './RewardCard'
 import type { RewardItem } from './rewards'
 
+export const GRID_GAP = 0
+export const GRID_PADDING = 0
+export const GRID_WIDTH = 390
+
 export function RewardGrid({
   items,
   assetUrl,
@@ -10,7 +14,7 @@ export function RewardGrid({
   assetUrl: (f: string) => string | undefined
 }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, padding: 0, width: 390 }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: GRID_GAP, padding: GRID_PADDING, width: GRID_WIDTH }}>
       {items.map((r) => (
         <RewardCard key={r.id} chrome={(r.chromeImage && assetUrl(r.chromeImage)) || ''} fields={r.fields} />
       ))}

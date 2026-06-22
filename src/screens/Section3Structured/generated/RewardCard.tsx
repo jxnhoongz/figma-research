@@ -6,42 +6,36 @@ export const CARD_H = 116
 
 const SLOTS = [
     {
-      "key": "text1",
+      "key": "amount",
       "x": 24,
       "y": 69,
       "w": 20,
       "h": 23,
       "style": {
         "fontFamily": "DIN Alternate",
-        "fontPostScriptName": "DINAlternate-Bold",
-        "fontStyle": "Bold",
-        "fontWeight": 700,
         "fontSize": 20,
-        "align": "center",
-        "alignVertical": "center",
-        "letterSpacing": 0,
-        "lineHeight": 23,
+        "fontWeight": 700,
         "color": "#5a8f92",
+        "align": "center",
+        "lineHeight": 23,
+        "letterSpacing": 0,
         "stroke": null
       }
     },
     {
-      "key": "text2",
+      "key": "currency",
       "x": 44,
       "y": 75,
       "w": 12,
       "h": 17,
       "style": {
         "fontFamily": "PingFang SC",
-        "fontPostScriptName": "PingFangSC-Semibold",
-        "fontStyle": "Semibold",
-        "fontWeight": 600,
         "fontSize": 12,
-        "align": "center",
-        "alignVertical": "center",
-        "letterSpacing": 0,
-        "lineHeight": 17,
+        "fontWeight": 600,
         "color": "#5a8f92",
+        "align": "center",
+        "lineHeight": 17,
+        "letterSpacing": 0,
         "stroke": null
       }
     },
@@ -53,35 +47,29 @@ const SLOTS = [
       "h": 14,
       "style": {
         "fontFamily": "PingFang SC",
-        "fontPostScriptName": "PingFangSC-Regular",
-        "fontStyle": "Regular",
-        "fontWeight": 400,
         "fontSize": 10,
-        "align": "center",
-        "alignVertical": "top",
-        "letterSpacing": 0,
-        "lineHeight": 14,
+        "fontWeight": 400,
         "color": "#416669",
+        "align": "center",
+        "lineHeight": 14,
+        "letterSpacing": 0,
         "stroke": null
       }
     },
     {
-      "key": "text4",
+      "key": "requirement",
       "x": 40,
       "y": 94,
       "w": 23,
       "h": 14,
       "style": {
         "fontFamily": "PingFang SC",
-        "fontPostScriptName": "PingFangSC-Regular",
-        "fontStyle": "Regular",
-        "fontWeight": 400,
         "fontSize": 10,
-        "align": "center",
-        "alignVertical": "top",
-        "letterSpacing": 0,
-        "lineHeight": 14,
+        "fontWeight": 400,
         "color": "#416669",
+        "align": "center",
+        "lineHeight": 14,
+        "letterSpacing": 0,
         "stroke": null
       }
     }
