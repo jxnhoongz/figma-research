@@ -124,6 +124,40 @@ is no automated test for this slice; the next time the plugin is bundled, the
 `qualifiesForChrome` / text-descendant logic should get unit tests. This is a
 known gap, not an oversight.
 
+## Sibling requirement: faithful text metadata (verified present; captured downstream)
+
+The text-less chrome is only half of an editable card — the overlaid text must
+render **identically** to the baked text it replaces. Verified against the real
+Section 3 export: the plugin already exports the *complete* text metadata in the
+structure JSON (`JSON_REST_V1`), so nothing is lost at export time. The hard
+requirement is that the IR `content` role (and the emitter) **capture the full
+set**, not the current subset. The complete overlay-text spec each `content`
+node must carry:
+
+- **Font:** `fontFamily`, `fontPostScriptName`, `fontStyle`/italic, `fontWeight`,
+  `fontSize`.
+- **Layout:** `textAlignHorizontal`, `textAlignVertical`, `letterSpacing`,
+  `lineHeight` (px + unit), `textCase`, `textDecoration` (when present).
+- **Color:** the **composited** fill colour (layer ALL fills with their
+  opacities — base + translucent overlays — not `fills[0]`), and **per-character
+  colour runs** from `characterStyleOverrides` + `styleOverrideTable` (two-tone
+  text), plus node/fill `opacity`.
+- **Stroke:** stroke paint colour, `strokeWeight`, `strokeAlign` (for outlined
+  text).
+- **Box:** position (instance-relative) + size, so overlays land exactly where
+  the baked text was.
+
+Implementation note: reuse the proven scene-generator helpers — `compositeFills`
+and `findScreen`/`makeBox` are already in `scripts/lib/figma.mjs`; `textRuns`
+(per-character runs) and the stroke/line-height/letter-spacing reads already
+exist in `build-section-scene.mjs` and should be lifted into the shared lib when
+the emitter needs them. (Bonus, out of scope: `boundVariables` on a colour is a
+design-token alias — a future hook for mapping text colours to tokens.)
+
+This requirement is **captured here so it isn't lost**, but it is *implemented in
+the emitter sub-project* (the consumer of the metadata), not in this plugin
+slice — this slice changes no text export (the metadata is already complete).
+
 ## Out of scope (next sub-project)
 
 The emitter that consumes `chrome.json` + the IR to generate `<RewardCard>` +
