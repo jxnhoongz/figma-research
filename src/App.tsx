@@ -119,7 +119,7 @@ export default function App() {
         <Section3 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
       )}
       {page === 'section3s' && (
-        <Section3Structured className="mx-auto mt-4 w-[820px] rounded-xl bg-white shadow-xl" />
+        <Section3Structured className="mx-auto mt-4 w-[760px] rounded-xl bg-white p-2 shadow-xl" />
       )}
       {page === 'section6' && (
         <Section6 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
