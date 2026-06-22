@@ -105,19 +105,27 @@ interactive). Everything meaningful gets a structured role.
 `visible === false` or `w<1||h<1`, matching the scene generator):
 
 1. `node.type === "TEXT"` → **`content`** (leaf; capture text + style).
-2. `node.type` is `INSTANCE` or `COMPONENT` → **`component`** (see dual-capture
+2. interactive heuristic matches → **`interactive`** (capture `kind`, `label`;
+   keep `asset.src` if baked; recurse children). **Checked before component** so
+   a CTA/tab — which is usually an instance — isn't mis-tagged as a component.
+   Guard: the heuristic only fires on `INSTANCE`/`COMPONENT` nodes or baked nodes
+   (in manifest), so a *container* whose name merely contains a keyword (e.g. a
+   section named `点击领取`) is NOT treated as a button.
+3. `node.type` is `INSTANCE` or `COMPONENT` → **`component`** (see dual-capture
    below; recurse into children to tag nested content).
-3. interactive heuristic matches (name regex OR clickable instance) →
-   **`interactive`** (capture `kind`, `label`; recurse children).
 4. `node.id` in `manifest` (plugin baked it) → **`asset`** (leaf; capture
    `src`; do not descend — its subtree is in the image).
 5. container type (`FRAME`/`GROUP`/`SECTION`) not in manifest → **`layout`**
    (capture layout info; recurse children).
 6. fallback: in manifest → `asset`; else skip (no renderable contribution).
 
-Order matters: TEXT, component, and interactive are checked **before** the
+Order matters: TEXT, interactive, and component are checked **before** the
 manifest/asset test, so a meaningful node that also happens to be baked is still
 structured.
+
+**Interactive heuristic:** `/(button|btn|cta|tab|claim|submit|领取|立即|提交)/i`
+on the node/component name, **AND** the node is an `INSTANCE`/`COMPONENT` or is
+in the manifest (the guard above).
 
 ### Dual-capture (the key design move)
 
