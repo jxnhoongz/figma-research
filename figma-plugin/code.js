@@ -206,8 +206,9 @@ function visibleTextDescendants(node) {
 // downstream component can overlay live, data-driven text on a clean
 // background. Best-effort + additive: on render failure, skip (the instance is
 // simply absent from chrome.json — its full bake already succeeded, so we never
-// pollute failed.json). ALWAYS restores visibility in `finally` — the document
-// must never be left mutated.
+// pollute failed.json). Hides text via opacity (not visibility) so auto-layout
+// instances don't reflow, and ALWAYS restores each text's saved opacity in
+// `finally` — the document must never be left mutated.
 async function exportChrome(node, files) {
   const texts = visibleTextDescendants(node);
   if (!texts.length) return; // qualifying rule: only text-bearing instances
