@@ -33,8 +33,10 @@ const DECOR_TYPES = ["VECTOR", "BOOLEAN_OPERATION", "STAR", "LINE", "POLYGON", "
 // to re-derive any signature.
 const seenHash = new Map(); // contentHash → asset path
 const manifest = {}; // nodeId → asset path (incl. deduped nodes → shared path)
+const chromeSeen = new Map(); // contentHash → text-less chrome asset path
+const chromeManifest = {}; // instanceId → chrome asset path (TEXT hidden)
 const failures = []; // structured, identifiable: { id, name, type, box, fills, visible, reason }
-const stats = { components: 0, instances: 0, decor: 0, grids: 0, images: 0, deduped: 0, failed: 0 };
+const stats = { components: 0, instances: 0, decor: 0, grids: 0, images: 0, deduped: 0, chrome: 0, chromeDeduped: 0, failed: 0 };
 
 // Record an export failure with everything needed to identify and backfill the
 // node later (by id, via the REST images endpoint, or by reconstructing simple
@@ -169,6 +171,46 @@ async function emitWhole(node, files, onNew) {
   manifest[node.id] = path; // every exported node maps to its (shared) asset
 }
 
+// All visible TEXT descendants of a node (including inside nested instances).
+function visibleTextDescendants(node) {
+  const out = [];
+  (function rec(n) {
+    if (n.type === "TEXT" && n.visible !== false) out.push(n);
+    if ("children" in n && n.children) n.children.forEach(rec);
+  })(node);
+  return out;
+}
+
+// Render a text-less "chrome" image of an instance (its TEXT hidden) so a
+// downstream component can overlay live, data-driven text on a clean
+// background. Best-effort + additive: on render failure, skip (the instance is
+// simply absent from chrome.json — its full bake already succeeded, so we never
+// pollute failed.json). ALWAYS restores visibility in `finally` — the document
+// must never be left mutated.
+async function exportChrome(node, files) {
+  const texts = visibleTextDescendants(node);
+  if (!texts.length) return; // qualifying rule: only text-bearing instances
+  for (const t of texts) t.visible = false;
+  try {
+    const r = await renderWhole(node);
+    const h = r.ext + ":" + hashStr(r.data);
+    let path = chromeSeen.get(h);
+    if (path) {
+      stats.chromeDeduped++;
+    } else {
+      path = `chrome/${safeName(node)}.${r.ext}`;
+      files.push({ path, kind: r.kind, data: r.data });
+      chromeSeen.set(h, path);
+      stats.chrome++;
+    }
+    chromeManifest[node.id] = path;
+  } catch (e) {
+    // best-effort: leave this instance out of chrome.json
+  } finally {
+    for (const t of texts) t.visible = true;
+  }
+}
+
 function exportable(node) {
   // Hidden layers and zero-area nodes can't be rendered — exportAsync throws.
   if (node.visible === false) return false;
@@ -193,6 +235,9 @@ async function walk(node, files) {
     }
     if (node.type === "INSTANCE") {
       await emitWhole(node, files, () => stats.instances++);
+      // Additive: also render a text-less "chrome" variant so the instance can
+      // become a data-driven component downstream. No-op if it has no text.
+      await exportChrome(node, files);
       return; // whole — don't recurse
     }
     if (DECOR_TYPES.includes(node.type) && area(node) >= DECOR_MIN_AREA) {
@@ -244,6 +289,7 @@ async function run() {
   // nodeId → asset path for every exported node. The generator reads this and
   // never re-derives a dedup key, so plugin and generator can't drift.
   files.push({ path: "manifest.json", kind: "text", data: JSON.stringify(manifest) });
+  files.push({ path: "chrome.json", kind: "text", data: JSON.stringify(chromeManifest) });
   if (failures.length) {
     // Every asset that failed to export locally — node id (fetch via REST
     // images?ids=) + box + fills so simple fills can be reconstructed from JSON.
