@@ -14,7 +14,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
-import { exportable, hex, compositeFills, gradientCss, bgFromFills, makeBox, findScreen } from "./lib/figma.mjs";
+import { exportable, hex, compositeFills, makeBox, findScreen } from "./lib/figma.mjs";
 
 const [, , exportDir, screenName, destAssets, scenePath] = process.argv;
 if (!exportDir || !screenName || !destAssets || !scenePath) {
@@ -45,6 +45,55 @@ const failedSet = new Set(
 // Never approximate an ellipse / boolean / vector with a rect (that turns a
 // circle into a square, a "+" union into crossing bars) — those are SVG assets.
 const RECT_BG_TYPES = ["RECTANGLE", "FRAME", "COMPONENT", "INSTANCE", "SECTION"];
+
+// --- fill → CSS helpers ---
+// Colour → CSS, honouring the colour's own alpha times an extra layer opacity.
+// Translucent paints (e.g. a white gradient sheen over a solid base) MUST keep
+// their alpha or they occlude everything beneath them.
+const rgba = (c, op = 1) => {
+  const a = (c.a === undefined ? 1 : c.a) * op;
+  if (a >= 0.999) return hex(c);
+  const to = (v) => Math.round(v * 255);
+  return `rgba(${to(c.r)}, ${to(c.g)}, ${to(c.b)}, ${a.toFixed(3)})`;
+};
+
+function gradientCss(f) {
+  const op = f.opacity === undefined ? 1 : f.opacity;
+  const stops = (f.gradientStops || []).map((s) => `${rgba(s.color, op)} ${Math.round(s.position * 100)}%`).join(", ");
+  if (f.type === "GRADIENT_RADIAL") return `radial-gradient(circle, ${stops})`;
+  const [p0, p1] = f.gradientHandlePositions || [{ x: 0, y: 0 }, { x: 0, y: 1 }];
+  const ang = Math.round((Math.atan2(p1.x - p0.x, -(p1.y - p0.y)) * 180) / Math.PI);
+  return `linear-gradient(${ang}deg, ${stops})`;
+}
+// One Figma paint → one CSS background layer (solids become a flat gradient so
+// they can stack in the `background` shorthand).
+function fillToCssLayer(f) {
+  if (f.type === "SOLID") {
+    const c = rgba(f.color, f.opacity === undefined ? 1 : f.opacity);
+    return `linear-gradient(${c}, ${c})`;
+  }
+  if (f.type.startsWith("GRADIENT")) return gradientCss(f);
+  return null;
+}
+// Resolve a node's paints to one CSS `background`. Figma stacks fills bottom→top
+// (index 0 = bottom); CSS `background: A, B` paints A on top — so we LAYER all
+// fills (reversed) instead of picking one. This keeps a solid base visible under
+// a translucent gradient sheen, and reproduces darker/lighter table bands
+// (base + translucent black/white overlay) without flattening either away.
+function bgFromFills(n) {
+  const fills = (Array.isArray(n.fills) ? n.fills : []).filter((x) => x.visible !== false && x.type !== "IMAGE");
+  if (!fills.length) return null;
+  // Fast path: a single opaque solid is just a flat colour.
+  const only = fills[0];
+  if (fills.length === 1 && only.type === "SOLID" && (only.opacity ?? 1) >= 0.999 && (only.color.a ?? 1) >= 0.999)
+    return { bg: hex(only.color), opacity: 1 };
+  const layers = [];
+  for (let i = fills.length - 1; i >= 0; i--) {
+    const l = fillToCssLayer(fills[i]);
+    if (l) layers.push(l);
+  }
+  return layers.length ? { bg: layers.join(", "), opacity: 1 } : null;
+}
 
 // A frame's SOLID stroke becomes a CSS border — this is how table grid lines are
 // encoded. CRITICAL: honour `individualStrokeWeights` (per-side widths). Table

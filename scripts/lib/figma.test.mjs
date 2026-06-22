@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { exportable, area, hex, compositeFills, bgFromFills, makeBox, findScreen } from './figma.mjs'
+import { exportable, area, hex, compositeFills, makeBox, findScreen } from './figma.mjs'
 
 const solid = (r, g, b, opacity) => ({ type: 'SOLID', color: { r, g, b }, ...(opacity !== undefined ? { opacity } : {}) })
 
@@ -27,11 +27,6 @@ describe('figma helpers', () => {
   it('area multiplies the bounding box', () => {
     expect(area({ absoluteBoundingBox: { width: 4, height: 5 } })).toBe(20)
     expect(area({})).toBe(0)
-  })
-
-  it('bgFromFills picks the first visible non-image fill', () => {
-    expect(bgFromFills({ fills: [solid(1, 0, 0)] })).toEqual({ bg: '#ff0000', opacity: 1 })
-    expect(bgFromFills({ fills: [] })).toBeNull()
   })
 
   it('makeBox normalises to the given origin', () => {

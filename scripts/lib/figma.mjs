@@ -38,22 +38,6 @@ export function compositeFills(fills) {
   return `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${a.toFixed(3)})`;
 }
 
-export function gradientCss(f) {
-  const stops = (f.gradientStops || []).map((s) => `${hex(s.color)} ${Math.round(s.position * 100)}%`).join(", ");
-  if (f.type === "GRADIENT_RADIAL") return `radial-gradient(circle, ${stops})`;
-  const [p0, p1] = f.gradientHandlePositions || [{ x: 0, y: 0 }, { x: 0, y: 1 }];
-  const ang = Math.round((Math.atan2(p1.x - p0.x, -(p1.y - p0.y)) * 180) / Math.PI);
-  return `linear-gradient(${ang}deg, ${stops})`;
-}
-
-export function bgFromFills(n) {
-  const f = (Array.isArray(n.fills) ? n.fills : []).find((x) => x.visible !== false && x.type !== "IMAGE");
-  if (!f) return null;
-  if (f.type === "SOLID") return { bg: hex(f.color), opacity: f.opacity ?? 1 };
-  if (f.type.startsWith("GRADIENT")) return { bg: gradientCss(f), opacity: f.opacity ?? 1 };
-  return null;
-}
-
 // Box normalised to a screen origin (ox, oy). Returns null when the node has no
 // absolute box.
 export const makeBox = (ox, oy) => (n) => {
