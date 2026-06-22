@@ -41,30 +41,75 @@
                 "id": "1:5", "name": "Card", "type": "INSTANCE", "componentId": "C:1",
                 "absoluteBoundingBox": { "x": 20, "y": 70, "width": 80, "height": 100 },
                 "children": [
-                  { "id": "1:5:t", "name": "amount", "type": "TEXT", "characters": "28¥",
-                    "absoluteBoundingBox": { "x": 40, "y": 130, "width": 40, "height": 16 },
-                    "style": { "fontSize": 14, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
-                    "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                  {
+                    "id": "1:5:row", "name": "amountRow", "type": "FRAME",
+                    "layoutMode": "HORIZONTAL", "itemSpacing": 2,
+                    "absoluteBoundingBox": { "x": 30, "y": 120, "width": 50, "height": 20 },
+                    "children": [
+                      { "id": "1:5:amt", "name": "amount", "type": "TEXT", "characters": "28",
+                        "absoluteBoundingBox": { "x": 30, "y": 122, "width": 24, "height": 16 },
+                        "style": { "fontSize": 16, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] },
+                      { "id": "1:5:yen", "name": "currency", "type": "TEXT", "characters": "¥",
+                        "absoluteBoundingBox": { "x": 56, "y": 124, "width": 12, "height": 14 },
+                        "style": { "fontSize": 12, "fontWeight": 700, "textAlignHorizontal": "LEFT" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                    ]
+                  },
+                  { "id": "1:5:req", "name": "requirement", "type": "TEXT", "characters": "投注 5万+",
+                    "absoluteBoundingBox": { "x": 20, "y": 145, "width": 60, "height": 12 },
+                    "style": { "fontSize": 10, "fontWeight": 400, "textAlignHorizontal": "CENTER" },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.5, "g": 0.5, "b": 0.5 } }] }
                 ]
               },
               {
                 "id": "1:6", "name": "Card", "type": "INSTANCE", "componentId": "C:1",
                 "absoluteBoundingBox": { "x": 110, "y": 70, "width": 80, "height": 100 },
                 "children": [
-                  { "id": "1:6:t", "name": "amount", "type": "TEXT", "characters": "88¥",
-                    "absoluteBoundingBox": { "x": 130, "y": 130, "width": 40, "height": 16 },
-                    "style": { "fontSize": 14, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
-                    "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                  {
+                    "id": "1:6:row", "name": "amountRow", "type": "FRAME",
+                    "layoutMode": "HORIZONTAL", "itemSpacing": 2,
+                    "absoluteBoundingBox": { "x": 120, "y": 120, "width": 50, "height": 20 },
+                    "children": [
+                      { "id": "1:6:amt", "name": "amount", "type": "TEXT", "characters": "88",
+                        "absoluteBoundingBox": { "x": 120, "y": 122, "width": 24, "height": 16 },
+                        "style": { "fontSize": 16, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] },
+                      { "id": "1:6:yen", "name": "currency", "type": "TEXT", "characters": "¥",
+                        "absoluteBoundingBox": { "x": 146, "y": 124, "width": 12, "height": 14 },
+                        "style": { "fontSize": 12, "fontWeight": 700, "textAlignHorizontal": "LEFT" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                    ]
+                  },
+                  { "id": "1:6:req", "name": "requirement", "type": "TEXT", "characters": "投注 50万+",
+                    "absoluteBoundingBox": { "x": 110, "y": 145, "width": 60, "height": 12 },
+                    "style": { "fontSize": 10, "fontWeight": 400, "textAlignHorizontal": "CENTER" },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.5, "g": 0.5, "b": 0.5 } }] }
                 ]
               },
               {
                 "id": "1:7", "name": "Card", "type": "INSTANCE", "componentId": "C:1",
                 "absoluteBoundingBox": { "x": 200, "y": 70, "width": 80, "height": 100 },
                 "children": [
-                  { "id": "1:7:t", "name": "amount", "type": "TEXT", "characters": "188¥",
-                    "absoluteBoundingBox": { "x": 220, "y": 130, "width": 40, "height": 16 },
-                    "style": { "fontSize": 14, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
-                    "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                  {
+                    "id": "1:7:row", "name": "amountRow", "type": "FRAME",
+                    "layoutMode": "HORIZONTAL", "itemSpacing": 2,
+                    "absoluteBoundingBox": { "x": 210, "y": 120, "width": 50, "height": 20 },
+                    "children": [
+                      { "id": "1:7:amt", "name": "amount", "type": "TEXT", "characters": "188",
+                        "absoluteBoundingBox": { "x": 210, "y": 122, "width": 24, "height": 16 },
+                        "style": { "fontSize": 16, "fontWeight": 700, "textAlignHorizontal": "CENTER" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] },
+                      { "id": "1:7:yen", "name": "currency", "type": "TEXT", "characters": "¥",
+                        "absoluteBoundingBox": { "x": 236, "y": 124, "width": 12, "height": 14 },
+                        "style": { "fontSize": 12, "fontWeight": 700, "textAlignHorizontal": "LEFT" },
+                        "fills": [{ "type": "SOLID", "color": { "r": 0.9, "g": 0.3, "b": 0.2 } }] }
+                    ]
+                  },
+                  { "id": "1:7:req", "name": "requirement", "type": "TEXT", "characters": "投注 100万+",
+                    "absoluteBoundingBox": { "x": 200, "y": 145, "width": 60, "height": 12 },
+                    "style": { "fontSize": 10, "fontWeight": 400, "textAlignHorizontal": "CENTER" },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.5, "g": 0.5, "b": 0.5 } }] }
                 ]
               }
             ]

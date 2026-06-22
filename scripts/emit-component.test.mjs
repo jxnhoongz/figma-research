@@ -18,18 +18,26 @@ describe('extractComponent', () => {
     expect(model.card).toEqual({ w: 80, h: 100 })
   })
 
-  it('derives one slot keyed by the meaningful layer name, card-relative', () => {
-    expect(model.slots).toHaveLength(1)
-    const s = model.slots[0]
-    expect(s.key).toBe('amount')          // layer "amount" is a valid identifier ≠ its text
-    expect(s.x).toBe(20)                   // 40 (content) - 20 (card origin)
-    expect(s.style.fontWeight).toBe(700)
+  it('emits a flex group slot for the auto-layout amount row', () => {
+    const group = model.slots.find((s) => s.kind === 'group')
+    expect(group).toBeTruthy()
+    expect(group.direction).toBe('row')
+    expect(group.gap).toBe(2)
+    expect(group.x).toBe(10) // 30 (row) - 20 (card origin)
+    expect(group.children.map((c) => c.key)).toEqual(['amount', 'currency'])
   })
 
-  it('extracts per-card data with flattened image filenames + field values', () => {
-    expect(model.items.map((i) => i.fields.amount)).toEqual(['28¥', '88¥', '188¥'])
-    expect(model.items[0].bakedImage).toBe('png-Card_1-5.png')
-    expect(model.items[0].chromeImage).toBe('chrome-Card_1-5.png')
+  it('emits a top-level text slot for the requirement', () => {
+    const req = model.slots.find((s) => s.kind === 'text' && s.key === 'requirement')
+    expect(req).toBeTruthy()
+    expect(req.style.fontWeight).toBe(400)
+  })
+
+  it('keys per-card fields from all text slots and exposes gridBox', () => {
+    expect(model.items.map((i) => i.fields.amount)).toEqual(['28', '88', '188'])
+    expect(model.items[0].fields.currency).toBe('¥')
+    expect(model.items[0].fields.requirement).toBe('投注 5万+')
+    expect(model.gridBox).toEqual({ x: 10, y: 60, w: 370, h: 120 })
   })
 })
 
@@ -55,7 +63,9 @@ describe('field naming', () => {
 
 describe('slot style is trimmed to PositionedText props', () => {
   it('drops alignVertical / fontPostScriptName / fontStyle from slots', () => {
-    const s = model.slots[0].style
+    const textSlot = model.slots.find((s) => s.kind === 'text') ||
+      model.slots.flatMap((s) => s.kind === 'group' ? s.children : []).find((s) => s.kind === 'text')
+    const s = textSlot.style
     expect(s).toHaveProperty('fontFamily')
     expect(s).toHaveProperty('color')
     expect(s).not.toHaveProperty('alignVertical')
@@ -78,7 +88,7 @@ describe('codegen', () => {
     const out = genRewardsTs(model)
     expect(out).toContain('export interface RewardItem')
     expect(out).toContain('export const rewards: RewardItem[]')
-    expect(out).toContain('"amount": "28¥"')
+    expect(out).toContain('"amount": "28"')
     expect(out).toContain('chrome-Card_1-5.png')
   })
 

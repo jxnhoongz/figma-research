@@ -58,6 +58,50 @@ function pickStyle(s) {
   };
 }
 
+// Key for a group slot: a valid-identifier layer name, else "group", de-duped.
+function groupKey(name, used) {
+  const s = (name || "").trim();
+  const base = /^[A-Za-z$_][A-Za-z0-9$_]*$/.test(s) ? s : "group";
+  let key = base;
+  let n = 2;
+  while (used.has(key)) key = base + n++;
+  used.add(key);
+  return key;
+}
+
+// Walk a component instance's IR subtree into a slot tree, preserving Figma
+// auto-layout rows as flex `group` slots (so they grow and never overlap).
+function buildSlots(node, origin, used, ctr) {
+  const slots = [];
+  for (const c of node.children || []) {
+    if (c.role === "content") {
+      slots.push({
+        kind: "text",
+        key: fieldKey(c.name, c.content.text, ctr.i++, used),
+        x: c.box.x - origin.x,
+        y: c.box.y - origin.y,
+        w: c.box.w,
+        h: c.box.h,
+        style: pickStyle(c.content.style),
+      });
+    } else if (c.role === "layout" && c.layout && c.layout.mode === "flex") {
+      slots.push({
+        kind: "group",
+        key: groupKey(c.name, used),
+        x: c.box.x - origin.x,
+        y: c.box.y - origin.y,
+        direction: c.layout.direction || "row",
+        gap: c.layout.gap || 0,
+        children: buildSlots(c, origin, used, ctr),
+      });
+    } else if (c.role === "layout") {
+      slots.push(...buildSlots(c, origin, used, ctr)); // non-flex: passthrough
+    }
+    // nested asset/component → skip (chrome covers them)
+  }
+  return slots;
+}
+
 // "png/Card_1-5.png" -> "png-Card_1-5.png" (avoid basename collisions in one dir)
 const flat = (p) => (p ? p.replace(/\//g, "-") : null);
 
@@ -71,21 +115,22 @@ export function extractComponent(ir, chrome = {}, manifest = {}) {
 
   const first = instances[0];
   const used = new Set();
-  const firstContent = collect(first, "content");
-  const slots = firstContent.map((c, i) => ({
-    key: fieldKey(c.name, c.content.text, i, used),
-    x: c.box.x - first.box.x,
-    y: c.box.y - first.box.y,
-    w: c.box.w,
-    h: c.box.h,
-    style: pickStyle(c.content.style),
-  }));
+  const slots = buildSlots(first, first.box, used, { i: 0 });
+
+  // All text-slot keys in pre-order — the per-card field keys.
+  const textKeys = [];
+  (function w(ss) {
+    for (const s of ss) {
+      if (s.kind === "text") textKeys.push(s.key);
+      else if (s.kind === "group") w(s.children);
+    }
+  })(slots);
 
   const items = instances.map((inst) => {
-    const cs = collect(inst, "content");
+    const cs = collect(inst, "content"); // flat content, pre-order (same shape across instances)
     const fields = {};
-    slots.forEach((s, i) => {
-      fields[s.key] = cs[i] ? cs[i].content.text : "";
+    textKeys.forEach((k, i) => {
+      fields[k] = cs[i] ? cs[i].content.text : "";
     });
     return {
       id: inst.id,
@@ -95,20 +140,22 @@ export function extractComponent(ir, chrome = {}, manifest = {}) {
     };
   });
 
-  // Grid layout = the FIRST layout node that directly holds component children.
+  // Grid layout + its screen-relative box (FIRST layout node holding components).
   let grid = { gap: 0, padding: 0, width: null };
+  let gridBox = null;
   let foundGrid = false;
   (function w(n) {
     if (foundGrid) return;
     if (n.role === "layout" && (n.children || []).some((c) => c.role === "component")) {
       grid = { gap: n.layout?.gap || 0, padding: n.layout?.padding?.left || 0, width: n.box.w };
+      gridBox = { x: n.box.x, y: n.box.y, w: n.box.w, h: n.box.h };
       foundGrid = true;
       return;
     }
     (n.children || []).forEach(w);
   })(ir.root);
 
-  return { key, card: { w: first.box.w, h: first.box.h }, grid, slots, items };
+  return { key, card: { w: first.box.w, h: first.box.h }, grid, gridBox, slots, items };
 }
 
 // --- codegen (deterministic string templates) ---
