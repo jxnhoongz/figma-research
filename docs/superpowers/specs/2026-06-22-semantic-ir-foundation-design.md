@@ -38,6 +38,29 @@ intermediate representation (IR)** — a tree that tags every node with a role a
 captures the data later phases need. No code generation, no data files, no app
 changes. Pure, testable foundation.
 
+## Why an IR (codegen-agnostic + LLM-friendly)
+
+The IR is the clean handoff that makes the *next* phases tractable, by either a
+deterministic emitter or an LLM:
+
+- **Compact & semantic.** Raw `JSON_REST_V1` for one screen is ~12k noisy nodes
+  (geometry, vectors, style mixins) — too large and low-level to reason over.
+  The IR is a small role-tagged tree with only what matters, so a whole screen
+  fits comfortably in an LLM context window and a prompt can be reliable.
+- **Roles map 1:1 to codegen decisions.** `component`→a React component,
+  `content`→a prop, `layout`→a container, `interactive`→a hook, `asset`→an
+  `<img>`. Little ambiguity left for the emitter (LLM or template) to resolve.
+- **Separates data / structure / chrome.** Content is already pulled out from
+  pixels, so "what's the component vs what's the data" is explicit rather than
+  inferred from a screenshot.
+- **Codegen-agnostic.** Because the IR is this clean, P7 can be a *deterministic*
+  template emitter (reliable, no model needed) OR an LLM emitter (flexible) — the
+  IR supports both. This is a strength: we don't *depend* on an LLM, but the IR
+  is an ideal LLM input if we want one.
+
+Design implication: keep the IR **lean** (don't dump every Figma field) and the
+schema **stable/documented** — both serve token budget and prompt reliability.
+
 ## Non-goals (explicitly deferred)
 
 - No `.tsx` / component emission (P7).
