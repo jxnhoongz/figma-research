@@ -12,12 +12,27 @@ import { exportable, makeBox, findScreen, textStyle, textRuns } from "./lib/figm
 const INTERACTIVE_RE = /(button|btn|cta|tab|claim|submit|领取|立即|提交)/i;
 const isContainer = (t) => t === "FRAME" || t === "GROUP" || t === "SECTION";
 
+// Figma axis-alignment → CSS flex value. primaryAxisAlignItems maps to
+// justify-content (main axis); counterAxisAlignItems to align-items (cross axis).
+function axisAlign(v) {
+  switch (v) {
+    case "CENTER": return "center";
+    case "MAX": return "flex-end";
+    case "SPACE_BETWEEN": return "space-between";
+    case "BASELINE": return "baseline";
+    case "MIN": return "flex-start";
+    default: return "flex-start";
+  }
+}
+
 function layoutInfo(n) {
   if (!n.layoutMode || n.layoutMode === "NONE") return { mode: "absolute" };
   return {
     mode: "flex",
     direction: n.layoutMode === "HORIZONTAL" ? "row" : "column",
     gap: n.itemSpacing || 0,
+    justify: axisAlign(n.primaryAxisAlignItems),
+    align: axisAlign(n.counterAxisAlignItems),
     padding: {
       top: n.paddingTop || 0,
       right: n.paddingRight || 0,

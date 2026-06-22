@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildIR } from './build-ir.mjs'
-import { extractComponent, genRewardsTs, genRewardCardTsx, genRewardGridTsx, valueKey, fieldKey } from './emit-component.mjs'
+import { extractComponent, genRewardsTs, genRewardCardTsx, genRewardGridTsx, valueKey, fieldKey, buildSlots } from './emit-component.mjs'
 
 const fx = (f) => JSON.parse(readFileSync(join('scripts/__fixtures__', f), 'utf8'))
 const doc = fx('reward-grid.structure.json').document
@@ -38,6 +38,59 @@ describe('extractComponent', () => {
     expect(model.items[0].fields.currency).toBe('¥')
     expect(model.items[0].fields.requirement).toBe('投注 5万+')
     expect(model.gridBox).toEqual({ x: 10, y: 60, w: 370, h: 120 })
+  })
+})
+
+describe('buildSlots: only leaf text rows become flex groups', () => {
+  // Mirrors the real reward card: a flex-VERTICAL column holding [icon, amountRow,
+  // labelRow]. The icon is a non-text node the emitter skips. If the column itself
+  // became a flex group, dropping the icon would collapse the stack and pull the
+  // amount row up onto the icon. It must instead pass through so the rows keep
+  // their real card-relative y (69, 94).
+  const card = {
+    box: { x: 0, y: 0, w: 80, h: 116 },
+    children: [
+      {
+        role: 'layout', name: 'col', box: { x: 0, y: 17, w: 80, h: 91 },
+        layout: { mode: 'flex', direction: 'column', gap: 0, justify: 'flex-start', align: 'center' },
+        children: [
+          { role: 'asset', name: 'icon', box: { x: 15, y: 17, w: 50, h: 50 }, asset: { src: 'icon.png' } },
+          {
+            role: 'layout', name: 'amountRow', box: { x: 0, y: 69, w: 80, h: 23 },
+            layout: { mode: 'flex', direction: 'row', gap: 0, justify: 'center', align: 'flex-end' },
+            children: [
+              { role: 'content', name: 'amount', box: { x: 24, y: 69, w: 20, h: 23 }, content: { text: '28', style: {} } },
+              { role: 'content', name: '¥', box: { x: 44, y: 75, w: 12, h: 17 }, content: { text: '¥', style: {} } },
+            ],
+          },
+          {
+            role: 'layout', name: 'labelRow', box: { x: 0, y: 94, w: 80, h: 14 },
+            layout: { mode: 'flex', direction: 'row', gap: 0, justify: 'center', align: 'flex-start' },
+            children: [
+              { role: 'content', name: '投注', box: { x: 18, y: 94, w: 20, h: 14 }, content: { text: '投注', style: {} } },
+              { role: 'content', name: '5万+', box: { x: 40, y: 94, w: 23, h: 14 }, content: { text: '5万+', style: {} } },
+            ],
+          },
+        ],
+      },
+    ],
+  }
+  const slots = buildSlots(card, card.box, new Set(), { i: 0 })
+
+  it('passes the column through — top-level slots are the two rows, not one collapsed group', () => {
+    expect(slots.map((s) => s.kind)).toEqual(['group', 'group'])
+  })
+
+  it('keeps each row at its real card-relative y (no collapse onto the icon)', () => {
+    expect(slots[0].y).toBe(69) // amount row stays below the icon, not pulled to 17
+    expect(slots[1].y).toBe(94)
+  })
+
+  it('carries width + justify so the row centers in the card', () => {
+    expect(slots[0].w).toBe(80)
+    expect(slots[0].justify).toBe('center')
+    expect(slots[0].align).toBe('flex-end')
+    expect(slots[0].children.map((c) => c.key)).toEqual(['amount', 'currency'])
   })
 })
 

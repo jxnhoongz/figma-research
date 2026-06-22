@@ -71,7 +71,24 @@ function groupKey(name, used) {
 
 // Walk a component instance's IR subtree into a slot tree, preserving Figma
 // auto-layout rows as flex `group` slots (so they grow and never overlap).
-function buildSlots(node, origin, used, ctr) {
+// A flex frame becomes a single flex `group` slot ONLY when every child is text.
+// Such a leaf row (e.g. amount + ¥) is what the overlap fix needs: the row grows
+// with the value so digits never collide. A flex frame with non-text children
+// (an icon, a nested row) must NOT become a group — the emitter skips its
+// non-text children, and a flex container would then collapse and re-stack the
+// survivors from its top, pulling text off its real position. Those frames pass
+// through so their children keep absolute, card-relative coordinates.
+function isLeafTextRow(c) {
+  return (
+    c.role === "layout" &&
+    c.layout &&
+    c.layout.mode === "flex" &&
+    (c.children || []).length > 0 &&
+    (c.children || []).every((ch) => ch.role === "content")
+  );
+}
+
+export function buildSlots(node, origin, used, ctr) {
   const slots = [];
   for (const c of node.children || []) {
     if (c.role === "content") {
@@ -84,18 +101,23 @@ function buildSlots(node, origin, used, ctr) {
         h: c.box.h,
         style: pickStyle(c.content.style),
       });
-    } else if (c.role === "layout" && c.layout && c.layout.mode === "flex") {
+    } else if (isLeafTextRow(c)) {
       slots.push({
         kind: "group",
         key: groupKey(c.name, used),
         x: c.box.x - origin.x,
         y: c.box.y - origin.y,
+        w: c.box.w,
+        h: c.box.h,
         direction: c.layout.direction || "row",
         gap: c.layout.gap || 0,
+        justify: c.layout.justify || "flex-start",
+        align: c.layout.align || "baseline",
         children: buildSlots(c, origin, used, ctr),
       });
     } else if (c.role === "layout") {
-      slots.push(...buildSlots(c, origin, used, ctr)); // non-flex: passthrough
+      // non-flex OR flex-with-non-text-children → passthrough (absolute children)
+      slots.push(...buildSlots(c, origin, used, ctr));
     }
     // nested asset/component → skip (chrome covers them)
   }
@@ -203,9 +225,22 @@ import { PositionedText, textStyleCss } from '../../../components/PositionedText
 export const CARD_W = ${model.card.w}
 export const CARD_H = ${model.card.h}
 
+type TextSlot = { kind: 'text'; key: string; x: number; y: number; w: number; h: number; style: any }
 type Slot =
-  | { kind: 'text'; key: string; x: number; y: number; w: number; h: number; style: any }
-  | { kind: 'group'; key: string; x: number; y: number; direction: 'row' | 'column'; gap: number; children: Slot[] }
+  | TextSlot
+  | {
+      kind: 'group'
+      key: string
+      x: number
+      y: number
+      w: number
+      h: number
+      direction: 'row' | 'column'
+      gap: number
+      justify: string
+      align: string
+      children: TextSlot[]
+    }
 
 const SLOTS: Slot[] = ${slots}
 
@@ -216,24 +251,29 @@ function renderSlot(s: Slot, fields: Record<string, string>, ov: Overrides) {
   const left = s.x + (o.x ?? 0)
   const top = s.y + (o.y ?? 0)
   if (s.kind === 'group') {
+    // A leaf flex row positioned at its real card-relative spot. Width + justify
+    // come from the Figma auto-layout frame, so the row centers in the card and
+    // grows with the value (long numbers never overlap).
     return (
       <div
         key={s.key}
-        style={{ position: 'absolute', left, top, display: 'flex', flexDirection: s.direction, gap: s.gap, alignItems: 'baseline' }}
+        style={{
+          position: 'absolute',
+          left,
+          top,
+          width: s.w,
+          display: 'flex',
+          flexDirection: s.direction,
+          gap: s.gap,
+          justifyContent: s.justify,
+          alignItems: s.align,
+        }}
       >
-        {s.children.map((c) =>
-          c.kind === 'text' ? (
-            <span key={c.key} style={textStyleCss(c.style)}>{fields[c.key] ?? ''}</span>
-          ) : c.kind === 'group' ? (
-            <div key={c.key} style={{ display: 'flex', flexDirection: c.direction, gap: c.gap, alignItems: 'baseline' }}>
-              {c.children.map((cc) =>
-                cc.kind === 'text' ? (
-                  <span key={cc.key} style={textStyleCss(cc.style)}>{fields[cc.key] ?? ''}</span>
-                ) : null,
-              )}
-            </div>
-          ) : null,
-        )}
+        {s.children.map((c) => (
+          <span key={c.key} style={textStyleCss(c.style)}>
+            {fields[c.key] ?? ''}
+          </span>
+        ))}
       </div>
     )
   }

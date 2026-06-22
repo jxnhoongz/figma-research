@@ -8,7 +8,7 @@ export interface RewardItem {
 
 export const gridBox = {"x":17,"y":615,"w":356,"h":382}
 
-export const slotKeys: string[] = ["group","group2","amount","currency","group3","text3","requirement"]
+export const slotKeys: string[] = ["group","amount","currency","group2","text3","requirement"]
 
 export const rewards: RewardItem[] = [
   { id: "1:33671", bakedImage: "png-Frame_1410162759_1-33671.png", chromeImage: "chrome-Frame_1410162759_1-33671.png", fields: { "amount": "28", "currency": "¥", "text3": "投注", "requirement": "5万+" } },

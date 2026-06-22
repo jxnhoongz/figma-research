@@ -4,110 +4,121 @@ import { PositionedText, textStyleCss } from '../../../components/PositionedText
 export const CARD_W = 80
 export const CARD_H = 116
 
+type TextSlot = { kind: 'text'; key: string; x: number; y: number; w: number; h: number; style: any }
 type Slot =
-  | { kind: 'text'; key: string; x: number; y: number; w: number; h: number; style: any }
-  | { kind: 'group'; key: string; x: number; y: number; direction: 'row' | 'column'; gap: number; children: Slot[] }
+  | TextSlot
+  | {
+      kind: 'group'
+      key: string
+      x: number
+      y: number
+      w: number
+      h: number
+      direction: 'row' | 'column'
+      gap: number
+      justify: string
+      align: string
+      children: TextSlot[]
+    }
 
 const SLOTS: Slot[] = [
     {
       "kind": "group",
       "key": "group",
       "x": 0,
-      "y": 17,
-      "direction": "column",
-      "gap": 2,
+      "y": 69,
+      "w": 80,
+      "h": 23,
+      "direction": "row",
+      "gap": 0,
+      "justify": "center",
+      "align": "flex-end",
       "children": [
         {
-          "kind": "group",
-          "key": "group2",
-          "x": 0,
+          "kind": "text",
+          "key": "amount",
+          "x": 24,
           "y": 69,
-          "direction": "row",
-          "gap": 0,
-          "children": [
-            {
-              "kind": "text",
-              "key": "amount",
-              "x": 24,
-              "y": 69,
-              "w": 20,
-              "h": 23,
-              "style": {
-                "fontFamily": "DIN Alternate",
-                "fontSize": 20,
-                "fontWeight": 700,
-                "color": "#5a8f92",
-                "align": "center",
-                "lineHeight": 23,
-                "letterSpacing": 0,
-                "stroke": null
-              }
-            },
-            {
-              "kind": "text",
-              "key": "currency",
-              "x": 44,
-              "y": 75,
-              "w": 12,
-              "h": 17,
-              "style": {
-                "fontFamily": "PingFang SC",
-                "fontSize": 12,
-                "fontWeight": 600,
-                "color": "#5a8f92",
-                "align": "center",
-                "lineHeight": 17,
-                "letterSpacing": 0,
-                "stroke": null
-              }
-            }
-          ]
+          "w": 20,
+          "h": 23,
+          "style": {
+            "fontFamily": "DIN Alternate",
+            "fontSize": 20,
+            "fontWeight": 700,
+            "color": "#5a8f92",
+            "align": "center",
+            "lineHeight": 23,
+            "letterSpacing": 0,
+            "stroke": null
+          }
         },
         {
-          "kind": "group",
-          "key": "group3",
-          "x": 0,
+          "kind": "text",
+          "key": "currency",
+          "x": 44,
+          "y": 75,
+          "w": 12,
+          "h": 17,
+          "style": {
+            "fontFamily": "PingFang SC",
+            "fontSize": 12,
+            "fontWeight": 600,
+            "color": "#5a8f92",
+            "align": "center",
+            "lineHeight": 17,
+            "letterSpacing": 0,
+            "stroke": null
+          }
+        }
+      ]
+    },
+    {
+      "kind": "group",
+      "key": "group2",
+      "x": 0,
+      "y": 94,
+      "w": 80,
+      "h": 14,
+      "direction": "row",
+      "gap": 2,
+      "justify": "center",
+      "align": "flex-start",
+      "children": [
+        {
+          "kind": "text",
+          "key": "text3",
+          "x": 18,
           "y": 94,
-          "direction": "row",
-          "gap": 2,
-          "children": [
-            {
-              "kind": "text",
-              "key": "text3",
-              "x": 18,
-              "y": 94,
-              "w": 20,
-              "h": 14,
-              "style": {
-                "fontFamily": "PingFang SC",
-                "fontSize": 10,
-                "fontWeight": 400,
-                "color": "#416669",
-                "align": "center",
-                "lineHeight": 14,
-                "letterSpacing": 0,
-                "stroke": null
-              }
-            },
-            {
-              "kind": "text",
-              "key": "requirement",
-              "x": 40,
-              "y": 94,
-              "w": 23,
-              "h": 14,
-              "style": {
-                "fontFamily": "PingFang SC",
-                "fontSize": 10,
-                "fontWeight": 400,
-                "color": "#416669",
-                "align": "center",
-                "lineHeight": 14,
-                "letterSpacing": 0,
-                "stroke": null
-              }
-            }
-          ]
+          "w": 20,
+          "h": 14,
+          "style": {
+            "fontFamily": "PingFang SC",
+            "fontSize": 10,
+            "fontWeight": 400,
+            "color": "#416669",
+            "align": "center",
+            "lineHeight": 14,
+            "letterSpacing": 0,
+            "stroke": null
+          }
+        },
+        {
+          "kind": "text",
+          "key": "requirement",
+          "x": 40,
+          "y": 94,
+          "w": 23,
+          "h": 14,
+          "style": {
+            "fontFamily": "PingFang SC",
+            "fontSize": 10,
+            "fontWeight": 400,
+            "color": "#416669",
+            "align": "center",
+            "lineHeight": 14,
+            "letterSpacing": 0,
+            "stroke": null
+          }
         }
       ]
     }
@@ -120,24 +131,29 @@ function renderSlot(s: Slot, fields: Record<string, string>, ov: Overrides) {
   const left = s.x + (o.x ?? 0)
   const top = s.y + (o.y ?? 0)
   if (s.kind === 'group') {
+    // A leaf flex row positioned at its real card-relative spot. Width + justify
+    // come from the Figma auto-layout frame, so the row centers in the card and
+    // grows with the value (long numbers never overlap).
     return (
       <div
         key={s.key}
-        style={{ position: 'absolute', left, top, display: 'flex', flexDirection: s.direction, gap: s.gap, alignItems: 'baseline' }}
+        style={{
+          position: 'absolute',
+          left,
+          top,
+          width: s.w,
+          display: 'flex',
+          flexDirection: s.direction,
+          gap: s.gap,
+          justifyContent: s.justify,
+          alignItems: s.align,
+        }}
       >
-        {s.children.map((c) =>
-          c.kind === 'text' ? (
-            <span key={c.key} style={textStyleCss(c.style)}>{fields[c.key] ?? ''}</span>
-          ) : c.kind === 'group' ? (
-            <div key={c.key} style={{ display: 'flex', flexDirection: c.direction, gap: c.gap, alignItems: 'baseline' }}>
-              {c.children.map((cc) =>
-                cc.kind === 'text' ? (
-                  <span key={cc.key} style={textStyleCss(cc.style)}>{fields[cc.key] ?? ''}</span>
-                ) : null,
-              )}
-            </div>
-          ) : null,
-        )}
+        {s.children.map((c) => (
+          <span key={c.key} style={textStyleCss(c.style)}>
+            {fields[c.key] ?? ''}
+          </span>
+        ))}
       </div>
     )
   }
