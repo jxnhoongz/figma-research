@@ -1,4 +1,5 @@
 import { cn } from '../../lib/cn'
+import { PositionedText } from '../PositionedText/PositionedText'
 
 /**
  * Generic, data-driven renderer for a "scene" produced by
@@ -47,19 +48,6 @@ export interface SceneTextNode {
   stroke?: { color: string; width: number } | null
 }
 
-// Figma font family → CSS stack. The first entry is the exact face (loaded via
-// @font-face in index.css when it isn't a system font); the rest are fallbacks
-// so size/weight/colour still land if the face is unavailable.
-const FONT_STACKS: Record<string, string> = {
-  YouSheBiaoTiHei: '"YouSheBiaoTiHei", "PingFang SC", system-ui, sans-serif',
-  'PingFang SC': '"PingFang SC", system-ui, sans-serif',
-  'DIN Alternate': '"DIN Alternate", "PingFang SC", system-ui, sans-serif',
-  'SF Pro': 'system-ui, -apple-system, sans-serif',
-}
-function fontStack(family: string | null): string | undefined {
-  if (!family) return undefined
-  return FONT_STACKS[family] ?? `"${family}", system-ui, sans-serif`
-}
 export type SceneNode = SceneRectNode | SceneImgNode | SceneTextNode
 
 export interface Scene {
@@ -130,46 +118,24 @@ export function SceneRenderer({
             />
           )
         }
-        // Our system font renders a hair wider than Figma's measured box, which
-        // wraps tight single-line labels (活动详情 → 活动详/情). Add symmetric
-        // slack so the box keeps its centre but stops mis-wrapping; real
-        // multi-line copy (contains \n) keeps its exact width.
-        const slack = n.text.includes('\n') ? 0 : Math.ceil(n.fontSize * 0.6)
         return (
-          <div
+          <PositionedText
             key={i}
-            data-testid="scene-text"
-            style={{
-              ...pos,
-              left: n.x - slack / 2,
-              width: n.w + slack,
-              fontFamily: fontStack(n.fontFamily),
-              fontSize: n.fontSize,
-              fontWeight: n.fontWeight,
-              color: n.color,
-              textAlign: n.align as 'left' | 'center' | 'right',
-              lineHeight: n.lineHeight ? `${n.lineHeight}px` : undefined,
-              letterSpacing: n.letterSpacing ? `${n.letterSpacing}px` : undefined,
-              whiteSpace: 'pre-wrap',
-              // Text outline (e.g. 活动详情's white stroke). paint-order keeps the
-              // stroke behind the fill so the glyph shape stays crisp.
-              ...(n.stroke
-                ? {
-                    WebkitTextStrokeColor: n.stroke.color,
-                    WebkitTextStrokeWidth: `${n.stroke.width}px`,
-                    paintOrder: 'stroke fill',
-                  }
-                : {}),
-            }}
-          >
-            {n.runs
-              ? n.runs.map((r, j) => (
-                  <span key={j} style={{ color: r.color }}>
-                    {r.text}
-                  </span>
-                ))
-              : n.text}
-          </div>
+            x={n.x}
+            y={n.y}
+            w={n.w}
+            h={n.h}
+            text={n.text}
+            runs={n.runs}
+            fontFamily={n.fontFamily}
+            fontSize={n.fontSize}
+            fontWeight={n.fontWeight}
+            color={n.color}
+            align={n.align}
+            lineHeight={n.lineHeight}
+            letterSpacing={n.letterSpacing}
+            stroke={n.stroke}
+          />
         )
       })}
     </div>
