@@ -47,7 +47,9 @@ describe('codegen', () => {
     expect(out).toContain("from '../../../components/PositionedText/PositionedText'")
     expect(out).toContain('const SLOTS')
     expect(out).toContain('<PositionedText')
-    expect(out).toContain("text={fields['amount']")
+    expect(out).toContain('SLOTS.map((s) =>')
+    expect(out).toContain("text={fields[s.key] ?? ''}")
+    expect(out).toContain('"key": "amount"')
   })
 
   it('RewardGrid.tsx maps items to RewardCard', () => {
