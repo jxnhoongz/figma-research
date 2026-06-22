@@ -21,10 +21,41 @@ function collect(node, role) {
   return out;
 }
 
-function fieldKey(name, text, i) {
+// Classify a text value into a semantic field name, or null if it fits no class.
+export function valueKey(text) {
+  const t = (text || "").trim();
+  if (/^[¥￥$]$/.test(t)) return "currency";
+  if (/^\d[\d,]*$/.test(t)) return "amount";
+  if (/\d\s*[万元][+＋]?$/.test(t)) return "requirement";
+  return null;
+}
+
+// Field key for a content node: a valid-identifier layer name (≠ its text), else
+// a value-based name, else positional — de-duped within the card via `used`.
+export function fieldKey(name, text, i, used) {
   const s = (name || "").trim();
-  const valid = /^[A-Za-z_][A-Za-z0-9_]*$/.test(s);
-  return valid && s !== text ? s : "text" + (i + 1);
+  const valid = /^[A-Za-z$_][A-Za-z0-9$_]*$/.test(s);
+  const base = (valid && s !== text && s) || valueKey(text) || "text" + (i + 1);
+  let key = base;
+  let n = 2;
+  while (used && used.has(key)) key = base + n++;
+  if (used) used.add(key);
+  return key;
+}
+
+// Keep only the style fields PositionedText consumes (drop alignVertical /
+// fontPostScriptName / fontStyle residue from the IR).
+function pickStyle(s) {
+  return {
+    fontFamily: s.fontFamily,
+    fontSize: s.fontSize,
+    fontWeight: s.fontWeight,
+    color: s.color,
+    align: s.align,
+    lineHeight: s.lineHeight,
+    letterSpacing: s.letterSpacing,
+    stroke: s.stroke,
+  };
 }
 
 // "png/Card_1-5.png" -> "png-Card_1-5.png" (avoid basename collisions in one dir)
@@ -39,19 +70,22 @@ export function extractComponent(ir, chrome = {}, manifest = {}) {
   if (instances.length < 2) return null;
 
   const first = instances[0];
-  const slots = collect(first, "content").map((c, i) => ({
-    key: fieldKey(c.name, c.content.text, i),
+  const used = new Set();
+  const firstContent = collect(first, "content");
+  const slots = firstContent.map((c, i) => ({
+    key: fieldKey(c.name, c.content.text, i, used),
     x: c.box.x - first.box.x,
     y: c.box.y - first.box.y,
     w: c.box.w,
     h: c.box.h,
-    style: c.content.style,
+    style: pickStyle(c.content.style),
   }));
 
   const items = instances.map((inst) => {
+    const cs = collect(inst, "content");
     const fields = {};
-    collect(inst, "content").forEach((c, i) => {
-      fields[fieldKey(c.name, c.content.text, i)] = c.content.text;
+    slots.forEach((s, i) => {
+      fields[s.key] = cs[i] ? cs[i].content.text : "";
     });
     return {
       id: inst.id,
@@ -61,11 +95,14 @@ export function extractComponent(ir, chrome = {}, manifest = {}) {
     };
   });
 
-  // Grid layout = the first layout node that directly holds component children.
+  // Grid layout = the FIRST layout node that directly holds component children.
   let grid = { gap: 0, padding: 0, width: null };
+  let foundGrid = false;
   (function w(n) {
+    if (foundGrid) return;
     if (n.role === "layout" && (n.children || []).some((c) => c.role === "component")) {
       grid = { gap: n.layout?.gap || 0, padding: n.layout?.padding?.left || 0, width: n.box.w };
+      foundGrid = true;
       return;
     }
     (n.children || []).forEach(w);
@@ -140,6 +177,10 @@ export function genRewardGridTsx(model) {
 import { RewardCard } from './RewardCard'
 import type { RewardItem } from './rewards'
 
+export const GRID_GAP = ${model.grid.gap}
+export const GRID_PADDING = ${model.grid.padding}
+export const GRID_WIDTH = ${model.grid.width ?? "undefined"}
+
 export function RewardGrid({
   items,
   assetUrl,
@@ -148,7 +189,7 @@ export function RewardGrid({
   assetUrl: (f: string) => string | undefined
 }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: ${model.grid.gap}, padding: ${model.grid.padding}, width: ${model.grid.width ?? "undefined"} }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: GRID_GAP, padding: GRID_PADDING, width: GRID_WIDTH }}>
       {items.map((r) => (
         <RewardCard key={r.id} chrome={(r.chromeImage && assetUrl(r.chromeImage)) || ''} fields={r.fields} />
       ))}

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildIR } from './build-ir.mjs'
-import { extractComponent, genRewardsTs, genRewardCardTsx, genRewardGridTsx } from './emit-component.mjs'
+import { extractComponent, genRewardsTs, genRewardCardTsx, genRewardGridTsx, valueKey, fieldKey } from './emit-component.mjs'
 
 const fx = (f) => JSON.parse(readFileSync(join('scripts/__fixtures__', f), 'utf8'))
 const doc = fx('reward-grid.structure.json').document
@@ -30,6 +30,46 @@ describe('extractComponent', () => {
     expect(model.items.map((i) => i.fields.amount)).toEqual(['28¥', '88¥', '188¥'])
     expect(model.items[0].bakedImage).toBe('png-Card_1-5.png')
     expect(model.items[0].chromeImage).toBe('chrome-Card_1-5.png')
+  })
+})
+
+describe('field naming', () => {
+  it('valueKey classifies common reward values', () => {
+    expect(valueKey('28')).toBe('amount')
+    expect(valueKey('1,000')).toBe('amount')
+    expect(valueKey('¥')).toBe('currency')
+    expect(valueKey('5万+')).toBe('requirement')
+    expect(valueKey('1000元+')).toBe('requirement')
+    expect(valueKey('投注')).toBeNull() // generic label → no value class
+  })
+
+  it('fieldKey prefers a valid layer name, falls back to value, then positional, de-duped', () => {
+    const used = new Set()
+    expect(fieldKey('label', '投注', 0, used)).toBe('label') // valid name ≠ text
+    expect(fieldKey('5万+', '5万+', 1, used)).toBe('requirement') // name == text → value
+    expect(fieldKey('', '28', 2, used)).toBe('amount')
+    expect(fieldKey('', '188', 3, used)).toBe('amount2') // de-dup
+    expect(fieldKey('', '投注', 4, used)).toBe('text5') // no class → positional
+  })
+})
+
+describe('slot style is trimmed to PositionedText props', () => {
+  it('drops alignVertical / fontPostScriptName / fontStyle from slots', () => {
+    const s = model.slots[0].style
+    expect(s).toHaveProperty('fontFamily')
+    expect(s).toHaveProperty('color')
+    expect(s).not.toHaveProperty('alignVertical')
+    expect(s).not.toHaveProperty('fontPostScriptName')
+    expect(s).not.toHaveProperty('fontStyle')
+  })
+})
+
+describe('RewardGrid exports layout constants', () => {
+  it('emits GRID_GAP / GRID_PADDING / GRID_WIDTH', () => {
+    const out = genRewardGridTsx(model)
+    expect(out).toContain('export const GRID_GAP')
+    expect(out).toContain('export const GRID_PADDING')
+    expect(out).toContain('export const GRID_WIDTH')
   })
 })
 
