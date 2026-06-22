@@ -2,6 +2,8 @@
 // composited colour (or per-character runs), optional outline stroke, and a
 // symmetric single-line slack so CJK labels don't mis-wrap. Shared by
 // SceneRenderer (scene text) and generated components (card overlays).
+import type React from 'react'
+
 export interface TextRun {
   text: string
   color: string
@@ -34,6 +36,33 @@ function fontStack(family: string | null): string | undefined {
   return FONT_STACKS[family] ?? `"${family}", system-ui, sans-serif`
 }
 
+// The font/colour/stroke CSS for Figma text (no positioning) — shared by
+// PositionedText and generated flex-group spans so both render identically.
+export function textStyleCss(s: {
+  fontFamily: string | null
+  fontSize: number
+  fontWeight: number
+  color: string
+  letterSpacing: number
+  stroke?: { color: string; width: number } | null
+}): React.CSSProperties {
+  return {
+    fontFamily: fontStack(s.fontFamily),
+    fontSize: s.fontSize,
+    fontWeight: s.fontWeight,
+    color: s.color,
+    letterSpacing: s.letterSpacing ? `${s.letterSpacing}px` : undefined,
+    whiteSpace: 'pre',
+    ...(s.stroke
+      ? {
+          WebkitTextStrokeColor: s.stroke.color,
+          WebkitTextStrokeWidth: `${s.stroke.width}px`,
+          paintOrder: 'stroke fill',
+        }
+      : {}),
+  }
+}
+
 export function PositionedText(n: PositionedTextProps) {
   const slack = n.text.includes('\n') ? 0 : Math.ceil(n.fontSize * 0.6)
   return (
@@ -44,21 +73,10 @@ export function PositionedText(n: PositionedTextProps) {
         left: n.x - slack / 2,
         top: n.y,
         width: n.w + slack,
-        fontFamily: fontStack(n.fontFamily),
-        fontSize: n.fontSize,
-        fontWeight: n.fontWeight,
-        color: n.color,
+        ...textStyleCss(n),
         textAlign: n.align as 'left' | 'center' | 'right',
         lineHeight: n.lineHeight ? `${n.lineHeight}px` : undefined,
-        letterSpacing: n.letterSpacing ? `${n.letterSpacing}px` : undefined,
         whiteSpace: 'pre-wrap',
-        ...(n.stroke
-          ? {
-              WebkitTextStrokeColor: n.stroke.color,
-              WebkitTextStrokeWidth: `${n.stroke.width}px`,
-              paintOrder: 'stroke fill',
-            }
-          : {}),
       }}
     >
       {n.runs

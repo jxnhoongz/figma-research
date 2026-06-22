@@ -9,14 +9,16 @@ export const GRID_WIDTH = 390
 export function RewardGrid({
   items,
   assetUrl,
+  slotOverrides,
 }: {
   items: RewardItem[]
   assetUrl: (f: string) => string | undefined
+  slotOverrides?: Record<string, { x?: number; y?: number }>
 }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: GRID_GAP, padding: GRID_PADDING, width: GRID_WIDTH }}>
       {items.map((r) => (
-        <RewardCard key={r.id} chrome={(r.chromeImage && assetUrl(r.chromeImage)) || ''} fields={r.fields} />
+        <RewardCard key={r.id} chrome={(r.chromeImage && assetUrl(r.chromeImage)) || ''} fields={r.fields} slotOverrides={slotOverrides} />
       ))}
     </div>
   )

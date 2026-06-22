@@ -92,14 +92,13 @@ describe('codegen', () => {
     expect(out).toContain('chrome-Card_1-5.png')
   })
 
-  it('RewardCard.tsx imports PositionedText and renders a slot per field', () => {
+  it('RewardCard.tsx renders text + group slots and accepts slotOverrides', () => {
     const out = genRewardCardTsx(model)
     expect(out).toContain("from '../../../components/PositionedText/PositionedText'")
-    expect(out).toContain('const SLOTS')
-    expect(out).toContain('<PositionedText')
-    expect(out).toContain('SLOTS.map((s) =>')
-    expect(out).toContain("text={fields[s.key] ?? ''}")
-    expect(out).toContain('"key": "amount"')
+    expect(out).toContain('slotOverrides')
+    expect(out).toContain("kind === 'group'") // group branch
+    expect(out).toContain('<PositionedText')   // text branch
+    expect(out).toContain('flexDirection')
   })
 
   it('RewardGrid.tsx maps items to RewardCard', () => {
