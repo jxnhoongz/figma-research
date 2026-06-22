@@ -2,9 +2,9 @@
 import { RewardCard } from './RewardCard'
 import type { RewardItem } from './rewards'
 
-export const GRID_GAP = 0
-export const GRID_PADDING = 0
-export const GRID_WIDTH = 390
+export const GRID_GAP = 5
+export const GRID_PADDING = 10
+export const GRID_WIDTH = 356
 
 export function RewardGrid({
   items,

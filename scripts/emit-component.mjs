@@ -146,7 +146,10 @@ export function extractComponent(ir, chrome = {}, manifest = {}) {
   let foundGrid = false;
   (function w(n) {
     if (foundGrid) return;
-    if (n.role === "layout" && (n.children || []).some((c) => c.role === "component")) {
+    if (
+      n.role === "layout" &&
+      (n.children || []).some((c) => c.role === "component" && c.component.key === key)
+    ) {
       grid = { gap: n.layout?.gap || 0, padding: n.layout?.padding?.left || 0, width: n.box.w };
       gridBox = { x: n.box.x, y: n.box.y, w: n.box.w, h: n.box.h };
       foundGrid = true;

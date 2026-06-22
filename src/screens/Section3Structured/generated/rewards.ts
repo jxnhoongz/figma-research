@@ -6,7 +6,7 @@ export interface RewardItem {
   fields: Record<string, string>
 }
 
-export const gridBox = {"x":0,"y":0,"w":390,"h":2076}
+export const gridBox = {"x":17,"y":615,"w":356,"h":382}
 
 export const slotKeys: string[] = ["group","group2","amount","currency","group3","text3","requirement"]
 
