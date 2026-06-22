@@ -22,3 +22,6 @@ figma-export/
 # Raw screen recordings (huge, often >100MB → can't push). The committed demo
 # is the compressed mp4 in demo/; keep originals local.
 demo/*.mov
+
+# SDD scratch (subagent briefs/reports/diffs)
+.superpowers/
