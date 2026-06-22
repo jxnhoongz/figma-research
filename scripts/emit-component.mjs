@@ -269,11 +269,19 @@ function renderSlot(s: Slot, fields: Record<string, string>, ov: Overrides) {
           alignItems: s.align,
         }}
       >
-        {s.children.map((c) => (
-          <span key={c.key} style={textStyleCss(c.style)}>
-            {fields[c.key] ?? ''}
-          </span>
-        ))}
+        {s.children.map((c) => {
+          // A child sits in flex flow, so its override nudges it relatively
+          // (keeps its laid-out slot; siblings don't reflow).
+          const co = ov[c.key] || {}
+          return (
+            <span
+              key={c.key}
+              style={{ ...textStyleCss(c.style), position: 'relative', left: co.x ?? 0, top: co.y ?? 0 }}
+            >
+              {fields[c.key] ?? ''}
+            </span>
+          )
+        })}
       </div>
     )
   }
