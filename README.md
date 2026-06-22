@@ -38,6 +38,10 @@ Figma plugin (local: no REST API, no token, no rate limit)
 React screen
 ```
 
+> **Structured mode (WIP):** `scripts/build-ir.mjs` produces a semantic IR
+> (role-tagged tree) from the same export — the foundation for componentized,
+> data-driven, API-ready output. See the limitations section.
+
 **Why it's fast and faithful:**
 
 - **Positioning is correct by construction.** Every node's exact

@@ -42,3 +42,12 @@ SVG ids so multiple instances never collide. A parent that sets
 `--theme-accent`/`--theme-bg` (also driving `--color-screen` + `--color-table-header`).
 The switcher UI lives in `src/App.tsx`. Semantic colors (locked grey, current
 gold, CTA orange) are baked into the SVGs and never theme.
+
+## Structured mode (experimental) — `build-ir.mjs`
+
+`scripts/build-ir.mjs <unpackDir> "<screen id|name>" ir.json` turns an export
+into a semantic IR (roles: layout/component/content/interactive/asset) — the
+foundation for emitting componentized, data-driven code (vs the flat scene the
+renderer uses today). Pure analysis; no code emission yet. Shares fill/box
+helpers with the scene generator via `scripts/lib/figma.mjs`. Spec:
+`docs/superpowers/specs/2026-06-22-semantic-ir-foundation-design.md`.
