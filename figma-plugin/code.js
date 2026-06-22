@@ -131,6 +131,27 @@ function hashStr(s) {
   return (h >>> 0).toString(36);
 }
 
+// Normalised SVG dedup key: strip random element ids + their references and
+// sub-pixel coordinate jitter, so visually-identical SVGs (which differ only in
+// that noise across exports) collapse to one file. Used ONLY for the dedup hash
+// — the stored file is always the original SVG. Genuinely different art keeps
+// its distinct geometry/colours and never collides.
+function svgDedupKey(data) {
+  return data
+    .replace(/\sid="[^"]*"/g, "")
+    .replace(/url\(#[^)]*\)/g, "url()")
+    .replace(/(xlink:)?href="#[^"]*"/g, "")
+    .replace(/-?\d+\.\d+/g, (m) => (+m).toFixed(1))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Content-hash key for a rendered asset. SVGs hash their normalised form (above)
+// so near-duplicates dedup; PNGs hash exact bytes.
+function contentKey(r) {
+  return r.ext + ":" + hashStr(r.ext === "svg" ? svgDedupKey(r.data) : r.data);
+}
+
 // Render a node WHOLE in its natural format (PNG if it contains a raster, else
 // SVG); on failure fall back to the other format. Returns { kind, ext, data }.
 async function renderWhole(node) {
@@ -158,7 +179,7 @@ async function emitWhole(node, files, onNew) {
     recordFailure(node, e);
     return;
   }
-  const h = r.ext + ":" + hashStr(r.data);
+  const h = contentKey(r);
   let path = seenHash.get(h);
   if (path) {
     stats.deduped++; // byte-identical to an already-exported asset
@@ -190,10 +211,14 @@ function visibleTextDescendants(node) {
 async function exportChrome(node, files) {
   const texts = visibleTextDescendants(node);
   if (!texts.length) return; // qualifying rule: only text-bearing instances
-  for (const t of texts) t.visible = false;
+  // Hide via opacity, NOT visibility: an opacity-0 node keeps its auto-layout
+  // slot, so siblings (icons) don't reflow. visible=false removes it from the
+  // layout flow and re-centers the rest (the button-coin bug).
+  const prevOpacity = texts.map((t) => t.opacity);
+  for (const t of texts) t.opacity = 0;
   try {
     const r = await renderWhole(node);
-    const h = r.ext + ":" + hashStr(r.data);
+    const h = contentKey(r);
     let path = chromeSeen.get(h);
     if (path) {
       stats.chromeDeduped++;
@@ -207,7 +232,7 @@ async function exportChrome(node, files) {
   } catch (e) {
     // best-effort: leave this instance out of chrome.json
   } finally {
-    for (const t of texts) t.visible = true;
+    texts.forEach((t, i) => (t.opacity = prevOpacity[i]));
   }
 }
 
