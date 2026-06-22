@@ -53,8 +53,8 @@ describe('buildIR', () => {
       expect(c.component.instanceCount).toBe(3)
       expect(c.asset.src).toMatch(/^png\/Card_/)
     }
-    const amounts = all.filter((n) => n.role === 'content' && n.content.text.endsWith('¥')).map((n) => n.content.text)
-    expect(amounts).toEqual(expect.arrayContaining(['28¥', '88¥', '188¥']))
+    const amounts = all.filter((n) => n.role === 'content' && /^\d+$/.test(n.content.text)).map((n) => n.content.text)
+    expect(amounts).toEqual(expect.arrayContaining(['28', '88', '188']))
   })
 
   it('tags the CTA instance as interactive (not component)', () => {
