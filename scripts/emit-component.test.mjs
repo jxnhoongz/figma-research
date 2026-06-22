@@ -84,6 +84,13 @@ describe('RewardGrid exports layout constants', () => {
 })
 
 describe('codegen', () => {
+  it('rewards.ts exports gridBox and slotKeys', () => {
+    const out = genRewardsTs(model)
+    expect(out).toContain('export const gridBox =')
+    expect(out).toContain('export const slotKeys')
+    expect(out).toContain('"amount"') // a known slot key appears in slotKeys/data
+  })
+
   it('rewards.ts exports a typed RewardItem array with the data', () => {
     const out = genRewardsTs(model)
     expect(out).toContain('export interface RewardItem')

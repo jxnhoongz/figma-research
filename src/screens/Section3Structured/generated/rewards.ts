@@ -6,6 +6,10 @@ export interface RewardItem {
   fields: Record<string, string>
 }
 
+export const gridBox = {"x":0,"y":0,"w":390,"h":2076}
+
+export const slotKeys: string[] = ["group","group2","amount","currency","group3","text3","requirement"]
+
 export const rewards: RewardItem[] = [
   { id: "1:33671", bakedImage: "png-Frame_1410162759_1-33671.png", chromeImage: "chrome-Frame_1410162759_1-33671.png", fields: { "amount": "28", "currency": "¥", "text3": "投注", "requirement": "5万+" } },
   { id: "1:33672", bakedImage: "png-Frame_1410162746_1-33672.png", chromeImage: "chrome-Frame_1410162746_1-33672.png", fields: { "amount": "88", "currency": "¥", "text3": "投注", "requirement": "50万+" } },
