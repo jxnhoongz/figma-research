@@ -65,6 +65,18 @@ describe('buildIR', () => {
     expect(cta.asset.src).toBe('svg/Button_1-8.svg')
   })
 
+  it('captures full text style + runs on content nodes', () => {
+    const title = all.find((n) => n.id === '1:3')
+    expect(title.role).toBe('content')
+    expect(title.content.style).toMatchObject({
+      fontFamily: 'YouSheBiaoTiHei', fontSize: 24, align: 'left', alignVertical: 'top',
+    })
+    expect(title.content.style).toHaveProperty('letterSpacing')
+    expect(title.content.style).toHaveProperty('lineHeight')
+    expect(title.content.style).toHaveProperty('stroke')
+    expect(title.content).toHaveProperty('runs') // null for single-colour text
+  })
+
   it('does NOT mistag the screen frame as interactive despite "领取" in its name', () => {
     expect(ir.root.role).toBe('layout')
   })

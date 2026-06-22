@@ -46,6 +46,52 @@ export const makeBox = (ox, oy) => (n) => {
   return { x: Math.round(b.x - ox), y: Math.round(b.y - oy), w: Math.round(b.width), h: Math.round(b.height) };
 };
 
+// Full text style for a TEXT node — everything needed to render overlay text
+// identically to Figma's baked text. Colour is composited across all fills.
+export function textStyle(node) {
+  const st = node.style || {};
+  const strokePaint = (node.strokes || []).find((x) => x.type === "SOLID" && x.visible !== false);
+  return {
+    fontFamily: st.fontFamily || null,
+    fontPostScriptName: st.fontPostScriptName || null,
+    fontStyle: st.fontStyle || null,
+    fontWeight: st.fontWeight || 400,
+    fontSize: Math.round(st.fontSize || 14),
+    align: (st.textAlignHorizontal || "LEFT").toLowerCase(),
+    alignVertical: (st.textAlignVertical || "TOP").toLowerCase(),
+    letterSpacing: st.letterSpacing ? Math.round(st.letterSpacing * 100) / 100 : 0,
+    lineHeight: st.lineHeightPx ? Math.round(st.lineHeightPx) : null,
+    color: compositeFills(node.fills) || "#000",
+    stroke:
+      strokePaint && node.strokeWeight
+        ? { color: hex(strokePaint.color), width: Math.round(node.strokeWeight * 100) / 100 }
+        : null,
+  };
+}
+
+// Per-character colour runs from Figma's characterStyleOverrides (index into
+// styleOverrideTable; 0 = base). Returns null when the whole string is one
+// colour (so single-colour text stays a plain string downstream).
+export function textRuns(node) {
+  const ov = node.characterStyleOverrides;
+  if (!Array.isArray(ov) || !ov.length) return null;
+  const tbl = node.styleOverrideTable || {};
+  const chars = Array.from(node.characters || "");
+  const colorAt = (i) => {
+    const sid = ov[i] || 0;
+    const fills = sid && tbl[sid] && tbl[sid].fills ? tbl[sid].fills : node.fills;
+    return compositeFills(fills) || "#000";
+  };
+  const runs = [];
+  for (let i = 0; i < chars.length; i++) {
+    const c = colorAt(i);
+    const last = runs[runs.length - 1];
+    if (last && last.color === c) last.text += chars[i];
+    else runs.push({ text: chars[i], color: c });
+  }
+  return new Set(runs.map((r) => r.color)).size > 1 ? runs : null;
+}
+
 // Find a node by id OR name (sibling theme frames often share a name; an id is
 // unambiguous).
 export function findScreen(node, idOrName) {

@@ -7,21 +7,10 @@
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { exportable, makeBox, findScreen, compositeFills } from "./lib/figma.mjs";
+import { exportable, makeBox, findScreen, textStyle, textRuns } from "./lib/figma.mjs";
 
 const INTERACTIVE_RE = /(button|btn|cta|tab|claim|submit|领取|立即|提交)/i;
 const isContainer = (t) => t === "FRAME" || t === "GROUP" || t === "SECTION";
-
-function textStyle(n) {
-  const st = n.style || {};
-  return {
-    fontFamily: st.fontFamily || null,
-    fontSize: Math.round(st.fontSize || 14),
-    fontWeight: st.fontWeight || 400,
-    color: compositeFills(n.fills) || "#000",
-    align: (st.textAlignHorizontal || "LEFT").toLowerCase(),
-  };
-}
 
 function layoutInfo(n) {
   if (!n.layoutMode || n.layoutMode === "NONE") return { mode: "absolute" };
@@ -83,7 +72,7 @@ export function buildIR(doc, screenIdOrName, manifest = {}) {
     const src = manifest[n.id];
 
     if (n.type === "TEXT") {
-      return { ...base, role: "content", content: { text: n.characters || "", style: textStyle(n) } };
+      return { ...base, role: "content", content: { text: n.characters || "", style: textStyle(n), runs: textRuns(n) } };
     }
     if (isInteractive(n)) {
       return {

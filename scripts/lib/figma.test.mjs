@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { exportable, area, hex, compositeFills, makeBox, findScreen } from './figma.mjs'
+import { exportable, area, hex, compositeFills, makeBox, findScreen, textStyle, textRuns } from './figma.mjs'
 
 const solid = (r, g, b, opacity) => ({ type: 'SOLID', color: { r, g, b }, ...(opacity !== undefined ? { opacity } : {}) })
 
@@ -40,5 +40,48 @@ describe('figma helpers', () => {
     expect(findScreen(doc, '1:2').name).toBe('Target')
     expect(findScreen(doc, 'A').id).toBe('1:1')
     expect(findScreen(doc, 'nope')).toBeNull()
+  })
+})
+
+const textNode = (over = {}) => ({
+  characters: '28',
+  style: { fontFamily: 'DIN Alternate', fontPostScriptName: 'DINAlternate-Bold', fontStyle: 'Bold', fontWeight: 700, fontSize: 20, textAlignHorizontal: 'CENTER', textAlignVertical: 'CENTER', letterSpacing: 0.5, lineHeightPx: 23.3 },
+  fills: [{ type: 'SOLID', color: { r: 0.5, g: 0.8, b: 0.82 } }],
+  strokes: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }],
+  strokeWeight: 1.44,
+  ...over,
+})
+
+describe('textStyle', () => {
+  it('captures the full text style incl. align V, spacing, line-height, stroke', () => {
+    const s = textStyle(textNode())
+    expect(s).toMatchObject({
+      fontFamily: 'DIN Alternate', fontPostScriptName: 'DINAlternate-Bold', fontStyle: 'Bold',
+      fontWeight: 700, fontSize: 20, align: 'center', alignVertical: 'center',
+      letterSpacing: 0.5, lineHeight: 23, color: '#80ccd1',
+    })
+    expect(s.stroke).toEqual({ color: '#ffffff', width: 1.44 })
+  })
+
+  it('returns null stroke when there is no visible stroke', () => {
+    expect(textStyle(textNode({ strokes: [] })).stroke).toBeNull()
+  })
+})
+
+describe('textRuns', () => {
+  it('returns null when every character is one colour', () => {
+    expect(textRuns(textNode())).toBeNull()
+  })
+
+  it('splits per-character colour overrides into runs', () => {
+    const n = textNode({
+      characters: 'AB',
+      characterStyleOverrides: [0, 7],
+      styleOverrideTable: { 7: { fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 } }] } },
+    })
+    expect(textRuns(n)).toEqual([
+      { text: 'A', color: '#80ccd1' },
+      { text: 'B', color: '#ff0000' },
+    ])
   })
 })
