@@ -9,6 +9,11 @@ hand-positioning** — efficiency over everything else.
 > **Demo:** [`demo/`](demo/) contains a screen recording of the running app
 > (tab nav across the replicated sections + per-theme switching).
 
+> **Pipeline + portable kit:** [`docs/figma-react-kit.md`](docs/figma-react-kit.md)
+> documents the full system (Layer 1 acquisition + the Layer 2 `replicate-screen`
+> agent skill). Run `python3 scripts/export-kit.py` to bundle the plugin, tools,
+> renderer, and skill into `figma-react-kit/` for use in a clean repo.
+
 ## What's replicated
 
 Five real promo screens, each with its theme variants, all driven from one
