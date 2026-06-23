@@ -15,6 +15,13 @@ instance whose name matches the left column, reuse the right-column component.
 | `Steps List` (frame `1:1020`, the 闯关排列 box) | `<StepsContainer>` | The frosted container frame that wraps ALL step cards. NOT a registered Figma component (a copy-pasted plain frame) — captured from the screen structure, not the master list. Props: `title: string` (header pill, 闯关排列), `children: ReactNode` (the `<li>` step cards), `className?`. Renders a frosted gradient box (`.bg-steps-container`, 3px `white/60` border, `rounded-card`) with the title pill straddling the top edge, the real serpentine map path (`<AllPieces>`) as an absolute `z-0` background layer, and the cards in a `z-10` `<ol>` overlapping it. `data-testid="steps-container"`. |
 | `Component 38`        | `<StepCard>`   | The repeated STEP CARD (Figma id 1:5062), rendered with the REAL section2 SVG chrome as the card background (rounded body + map-path pointer tab + right reward wedge) and content overlaid. Props: `status`, `title`, `requirement`, `statusText`, `amount`, `side?: 'left'\|'right'` (which way the pointer tab juts), `active?`, `claimable?`, `claimed?`, `stats?: {label,value,unit?}[]`, `onClaim?`, `className?`. `passed` chrome carries the themeable accent (`currentColor`); `current`=orange active card with stats on the white panel; `locked`/`fail`=grey. `data-testid="step-card"`, `data-variant` = `active`\|`default`, `data-side`. |
 
+## Section 3 Replicated — 点击领取 (click to claim)
+
+| Figma layer name | Code component | Key props |
+|------------------|----------------|-----------|
+| `Frame 1410162775` (progress card area) | `<ProgressCard>` | Created for Section 3 replicated. `data: ProgressData` (currentBet, nextTierGap, target, progressRatio 0–1, claimAmount), `onClaim?`, `claimed?`, `className?`. Three stat columns + progress bar + claim button. Button disables on `claimed`. `data-testid="progress-card"`, `data-variant="unclaimed\|claimed"`. |
+| `Frame 1410162776` → `Frame 1410162753` (4×3 reward card grid) | `<RewardGrid>` | Created for Section 3 replicated. `items: RewardGridItem[]` (`{id, src, alt, current?}`), `className?`. 4-column CSS grid of baked PNG reward card images. Optional `current` flag overlays a 当前 badge. `data-testid="reward-grid"`, `data-variant="grid"`. |
+
 ## Section 5 — 中秋大转盘 (Moon Festival lottery wheel)
 
 | Figma layer name | Code component | Key props |

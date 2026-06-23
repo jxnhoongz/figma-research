@@ -5,6 +5,7 @@ import { Section3 } from './screens/Section3/Section3'
 import { Section6 } from './screens/Section6/Section6'
 import { Section7 } from './screens/Section7/Section7'
 import { Section3Structured } from './screens/Section3Structured/Section3Structured'
+import { Section3Replicated } from './screens/Section3Replicated/Section3Replicated'
 import { THEMES } from './lib/themes'
 import { cn } from './lib/cn'
 
@@ -19,6 +20,7 @@ const PAGES = [
   { id: 'moon', label: '中秋大转盘' },
   { id: 'section3', label: '点击领取' },
   { id: 'section3s', label: '点击领取 (structured)' },
+  { id: 'section3r', label: '点击领取 (replicated)' },
   { id: 'section6', label: '升级模式' },
   { id: 'section7', label: '领取彩金' },
 ] as const
@@ -41,6 +43,7 @@ export default function App() {
   const [page, setPage] = useState<(typeof PAGES)[number]['id']>('bobi')
   const [themeId, setThemeId] = useState(THEMES[0].id)
   const themeList = page === 'section3' ? SECTION3_THEMES : THEMES
+  // section3r has no theme switcher; use THEMES so the switcher doesn't disappear
   // Clamp the active theme to one the current page actually has.
   const activeTheme = themeList.some((t) => t.id === themeId) ? themeId : themeList[0].id
 
@@ -120,6 +123,9 @@ export default function App() {
       )}
       {page === 'section3s' && (
         <Section3Structured className="mx-auto mt-4 w-[760px] rounded-xl bg-white p-2 shadow-xl" />
+      )}
+      {page === 'section3r' && (
+        <Section3Replicated className="mx-auto mt-4 shadow-xl" />
       )}
       {page === 'section6' && (
         <Section6 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />
