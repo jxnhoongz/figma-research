@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { SceneRenderer, type Scene } from '../../components/SceneRenderer/SceneRenderer'
-import sceneData from './scene.json'
 
-// Baked Section3Replicated assets — every decoration included by the scene.
+// Per-theme baked scenes (theme1..theme8), each a full baked fidelity base.
+const sceneModules = import.meta.glob('./scenes/*.json', { eager: true }) as Record<string, { default: Scene }>
+const sceneByTheme: Record<string, Scene> = {}
+for (const [p, m] of Object.entries(sceneModules)) sceneByTheme[p.split('/').pop()!.replace('.json', '')] = m.default
+
+// Shared asset pool — every theme's decorations (filenames are node-id-unique).
 const sceneUrls = import.meta.glob('./img/*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 const sceneByName: Record<string, string> = {}
 for (const [p, u] of Object.entries(sceneUrls)) sceneByName[p.split('/').pop()!] = u
 
-const scene = sceneData as Scene
+const DEFAULT_THEME = 'theme1'
 
-// Claim-button bounding box from scene.json (the 立即领取 gradient pill).
-// rect node: x=27 y=492 w=332 h=45
+// Claim-button bounding box (the 立即领取 gradient pill) — same across themes.
 const CLAIM_BTN = { x: 27, y: 492, w: 332, h: 45 }
 
 /**
@@ -26,9 +29,10 @@ const CLAIM_BTN = { x: 27, y: 492, w: 332, h: 45 }
  * shows a 已领取 badge. This is purely a demo seam — no network, no handler
  * passed in. Real integration = replace the local useState with a prop/callback.
  */
-export function Section3Replicated({ className }: { className?: string }) {
+export function Section3Replicated({ className, themeId = DEFAULT_THEME }: { className?: string; themeId?: string }) {
   // Mock claim state — demo only, no network.
   const [claimed, setClaimed] = useState(false)
+  const scene = sceneByTheme[themeId] ?? sceneByTheme[DEFAULT_THEME]
 
   return (
     <div

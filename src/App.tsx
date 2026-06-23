@@ -42,8 +42,7 @@ const SECTION3_THEMES = [
 export default function App() {
   const [page, setPage] = useState<(typeof PAGES)[number]['id']>('bobi')
   const [themeId, setThemeId] = useState(THEMES[0].id)
-  const themeList = page === 'section3' ? SECTION3_THEMES : THEMES
-  // section3r has no theme switcher; use THEMES so the switcher doesn't disappear
+  const themeList = page === 'section3' || page === 'section3r' ? SECTION3_THEMES : THEMES
   // Clamp the active theme to one the current page actually has.
   const activeTheme = themeList.some((t) => t.id === themeId) ? themeId : themeList[0].id
 
@@ -125,7 +124,7 @@ export default function App() {
         <Section3Structured className="mx-auto mt-4 w-[760px] rounded-xl bg-white p-2 shadow-xl" />
       )}
       {page === 'section3r' && (
-        <Section3Replicated className="mx-auto mt-4 shadow-xl" />
+        <Section3Replicated themeId={activeTheme} className="mx-auto mt-4 shadow-xl" />
       )}
       {page === 'section6' && (
         <Section6 themeId={activeTheme} className="mx-auto mt-4 w-[390px] shadow-xl" />

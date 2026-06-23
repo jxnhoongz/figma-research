@@ -25,3 +25,7 @@ demo/*.mov
 
 # SDD scratch (subagent briefs/reports/diffs)
 .superpowers/
+
+# Portable kit bundle (scripts/export-kit.py output)
+figma-react-kit/
+figma-react-kit.zip
