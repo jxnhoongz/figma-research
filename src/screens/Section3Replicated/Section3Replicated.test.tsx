@@ -3,57 +3,42 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { Section3Replicated } from './Section3Replicated'
 
 describe('Section3Replicated', () => {
-  it('renders the scene root', () => {
+  it('renders the scene-root wrapper', () => {
     render(<Section3Replicated />)
     expect(screen.getByTestId('scene-root')).toBeInTheDocument()
   })
 
-  it('renders the nav header with correct title', () => {
+  it('renders the baked SceneRenderer (scene testid)', () => {
     render(<Section3Replicated />)
-    expect(screen.getByTestId('nav-header')).toBeInTheDocument()
-    expect(screen.getByText('逢6必发')).toBeInTheDocument()
+    expect(screen.getByTestId('scene')).toBeInTheDocument()
   })
 
-  it('renders the progress card in unclaimed state', () => {
-    render(<Section3Replicated />)
-    const card = screen.getByTestId('progress-card')
-    expect(card).toBeInTheDocument()
-    expect(card).toHaveAttribute('data-variant', 'unclaimed')
-  })
-
-  it('clicking claim button transitions progress card to claimed', () => {
+  it('claim button is present and initially unclaimed', () => {
     render(<Section3Replicated />)
     const btn = screen.getByTestId('claim-btn')
-    expect(btn).toHaveTextContent('立即领取 ¥5')
+    expect(btn).toBeInTheDocument()
+    expect(btn).toHaveAttribute('data-variant', 'unclaimed')
+    expect(btn).not.toBeDisabled()
+  })
+
+  it('clicking the claim button transitions to claimed state', () => {
+    render(<Section3Replicated />)
+    const btn = screen.getByTestId('claim-btn')
     fireEvent.click(btn)
-    expect(screen.getByTestId('progress-card')).toHaveAttribute('data-variant', 'claimed')
-    expect(btn).toHaveTextContent('已领取')
+    expect(btn).toHaveAttribute('data-variant', 'claimed')
     expect(btn).toBeDisabled()
   })
 
-  it('renders the reward grid', () => {
+  it('shows 已领取 badge after claim', () => {
     render(<Section3Replicated />)
-    expect(screen.getByTestId('reward-grid')).toBeInTheDocument()
+    expect(screen.queryByTestId('claimed-badge')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByTestId('claim-btn'))
+    expect(screen.getByTestId('claimed-badge')).toHaveTextContent('已领取')
   })
 
-  it('renders 12 reward card images', () => {
+  it('scene-root is sized to the scene dimensions (390px wide)', () => {
     render(<Section3Replicated />)
-    // Banner + table + 12 reward cards = 14 images total
-    const grid = screen.getByTestId('reward-grid')
-    const cardImgs = grid.querySelectorAll('img')
-    expect(cardImgs).toHaveLength(12)
-  })
-
-  it('first reward card has a 当前 badge', () => {
-    render(<Section3Replicated />)
-    expect(screen.getByTestId('current-badge')).toHaveTextContent('当前')
-  })
-
-  it('renders activity sections', () => {
-    render(<Section3Replicated />)
-    // SectionHeader renders section-header testids
-    const headers = screen.getAllByTestId('section-header')
-    // Three headers: 奖励预览, 活动详情, 活动细则
-    expect(headers.length).toBeGreaterThanOrEqual(3)
+    const root = screen.getByTestId('scene-root')
+    expect(root).toHaveStyle({ width: '390px' })
   })
 })
