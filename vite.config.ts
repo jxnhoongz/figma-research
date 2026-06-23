@@ -9,5 +9,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    // The portable kit bundle (scripts/export-kit.py → ./figma-react-kit/) copies
+    // test files; exclude it so vitest doesn't run duplicates.
+    exclude: ['**/node_modules/**', '**/dist/**', 'figma-react-kit/**'],
   },
 })
