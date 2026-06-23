@@ -28,28 +28,38 @@ A "text always paints on top of decorative siblings" rule was considered and
 **rejected**: it would make us *deviate* from the Figma design (which deliberately
 layers the star over the text) — a patch that reduces fidelity, not a fix.
 
-### The real (cosmetic) cause: font substitution
-We lack the proprietary display font (e.g. `YouSheBiaoTiHei`), so "当前活动时间"
-renders in a fallback CJK font at a slightly different width/position. The star is
-pinned to fixed Figma coordinates, so when our glyphs shift under it, the faithful
-5px overlap *reads* as more. This is a **known limitation** (see
-`docs/research-tracks.md` — "Proprietary display fonts need sourcing or baking"),
-not a generator bug.
+### CORRECTION — it is NOT a font-substitution fallback (verified)
+An earlier draft of this note blamed font substitution. **That was wrong** —
+verified with `document.fonts` in the running app:
+- "当前活动时间" renders in **YouSheBiaoTiHei via the loaded full CDN `@font-face`**
+  (`U+0–10FFFF`), not a PingFang fallback.
+- The **local subset** `@font-face` (reliable, no-network) stays `[unloaded]` —
+  the full CDN face already covers those glyphs, so the browser never triggers
+  the subset. The CDN face is network-dependent and has **no 700 weight**, so the
+  heading is rendered **faux-bold from the 400 face** — a minor metric difference
+  from Figma's true 700, not a wholesale substitution.
 
-## Proposed fix (for Issue B's cosmetics)
+So the 5px star-over-text overlap is **faithful to Figma**; there is **no
+confirmed "ours is worse" bug**. Any perceived extra overlap is at most the
+faux-bold weight imperfection or an image-scale difference between the reference
+and our screenshot — not a paint-order or missing-font error.
 
-1. **Recommended — source the display font.** Obtain the real font (or a close
-   licensed substitute) and load it via `@font-face` in `src/index.css`. This
-   fixes **all** text fidelity (width, weight, position), not just this header,
-   and removes the shifted-glyph collision. Gate: font availability/licensing.
-2. **Fallback — bake decoration+text headers whole.** A plugin rule (like the
-   grid-panel rule) that bakes a small "decorative header" frame (text + accent
-   over it) to one asset, so text is rendered at the correct font with no
-   collision. Cost: that header loses text editability + needs a re-export.
-3. **Otherwise accept.** It is faithful; the overlap matches the design data.
+## Proposed fix (minor — the font is already sourced)
 
-Recommendation: pursue (1) when a font is available; until then **accept** — do
-not patch paint order.
+The font is already wired (subset + CDN). The only real improvement is making it
+**reliable + weight-correct** instead of leaning on the network CDN at the wrong
+weight:
+
+1. **Recommended — make the local subset win + carry the weight.** Add the missing
+   display glyphs to the local subset woff2, declare it `font-weight: 700`, and
+   give the CDN fallback a `unicode-range` that *excludes* the subset's glyphs (so
+   the reliable local face renders the headings and the CDN only fills gaps). This
+   removes the network dependency and the faux-bold. Needs the full font to
+   re-subset from.
+2. **Otherwise accept.** The overlap is faithful and the heading already renders in
+   the right family; the residual is a faux-bold weight nuance only.
+
+Do **not** patch paint order — the overlap is correct.
 
 ## Skill consequence
 
