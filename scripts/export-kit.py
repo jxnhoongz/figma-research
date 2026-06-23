@@ -97,17 +97,59 @@ def dep_versions() -> tuple[dict, dict]:
     return deps, dev
 
 
+def write_agent_entrypoints(out_root: Path) -> None:
+    """Cross-agent discovery files. The pipeline is plain Node/React, so any agent
+    can drive it — these point each runtime at the same skill procedure."""
+    agents = (
+        "# Agent instructions — figma-react-kit\n\n"
+        "This repo carries the **figma-react-kit**: a pipeline to reconstruct a\n"
+        "finished Figma screen into React. **Any** coding agent can drive it — the\n"
+        "tools are plain Node + React, with no agent-specific dependencies.\n\n"
+        "## To replicate a Figma screen\n"
+        "Read and follow **`skills/replicate-screen/SKILL.md`**. It begins with\n"
+        '"0. Adapt to the project" — it initializes a fresh app, or reads and\n'
+        "follows your existing project's structure (components / assets / screens /\n"
+        "styling), then renders a baked fidelity base and promotes structure on top.\n\n"
+        "## The pipeline (plain commands — no agent-specific tooling)\n"
+        "1. (in Figma) run `figma-plugin/` on a screen frame -> save the bundle JSON.\n"
+        "2. `node scripts/import-figma-export.mjs <bundle.json> <exportDir>`\n"
+        "3. `node scripts/build-section-scene.mjs <exportDir> \"<screenId>\" <assetsDir> <sceneOut.json>`\n"
+        "   (`<assetsDir>` = the project's shared assets location, not the screen folder)\n"
+        "4. Render via `renderer/components/SceneRenderer`, promote structure per the\n"
+        "   skill, then verify: `node scripts/verify-screen.mjs <url> <render.png> <out>`\n\n"
+        "The pipeline is deterministic; the agent supplies the synthesis judgment\n"
+        "(reuse vs create vs keep-baked). Full architecture: `docs/figma-react-kit.md`.\n\n"
+        "Claude Code loads `skills/replicate-screen/SKILL.md` as a skill automatically;\n"
+        "Codex / OpenCode / Cursor read this `AGENTS.md`; Gemini reads `GEMINI.md`\n"
+        "(below) — all point to the same procedure.\n"
+    )
+    (out_root / "AGENTS.md").write_text(agents, encoding="utf-8")
+    redirect = (
+        "# figma-react-kit\n\n"
+        "See **[`AGENTS.md`](AGENTS.md)** and **`skills/replicate-screen/SKILL.md`**\n"
+        "for how to replicate a Figma screen into React with this kit.\n"
+    )
+    (out_root / "GEMINI.md").write_text(redirect, encoding="utf-8")
+    (out_root / "CLAUDE.md").write_text(redirect, encoding="utf-8")
+
+
 def write_readme(out_root: Path) -> None:
     deps, dev = dep_versions()
     fmt = lambda m: " ".join(f"{k}@{v.lstrip('^~')}" for k, v in m.items())
     (out_root / "README.md").write_text(
         "# Figma -> React kit (capability)\n\n"
-        "Drop this kit into a repo and invoke the **replicate-screen** skill to\n"
-        "reconstruct a Figma screen into React. The kit is capability only — no\n"
-        "screens, app shell, tokens, or config. The skill's **\"0. Adapt to the\n"
-        "project\"** step initializes a fresh app OR reads and follows an existing\n"
+        "Drop this kit into a repo and have your agent follow the **replicate-screen**\n"
+        "procedure to reconstruct a Figma screen into React. The kit is capability\n"
+        "only — no screens, app shell, tokens, or config. The skill's **\"0. Adapt to\n"
+        "the project\"** step initializes a fresh app OR reads and follows an existing\n"
         "project's structure (where components / assets / screens live, the styling\n"
         "system), and installs the renderer from `renderer/`.\n\n"
+        "## Works with any coding agent\n"
+        "The pipeline is plain Node + React (no agent-specific deps). Point your\n"
+        "agent at the procedure: **Claude Code** loads `skills/replicate-screen/SKILL.md`\n"
+        "automatically; **Codex / OpenCode / Cursor** read `AGENTS.md`; **Gemini**\n"
+        "reads `GEMINI.md` — all point to the same skill. A human can run the commands\n"
+        "directly too.\n\n"
         "## Contents\n"
         "- `figma-plugin/` — the Figma exporter\n"
         "- `scripts/` — import / build-ir / build-section-scene / verify-screen / lib (+ tests)\n"
@@ -142,6 +184,7 @@ def main() -> int:
 
     print(f"Exporting kit -> {out_root}")
     lines = [copy_entry(e, out_root) for e in KIT_ENTRIES]
+    write_agent_entrypoints(out_root)  # AGENTS.md / GEMINI.md / CLAUDE.md (cross-agent)
     write_readme(out_root)
 
     manifest = "Figma -> React kit — bundled paths\n\n" + "\n".join(lines) + "\n"

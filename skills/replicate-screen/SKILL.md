@@ -21,6 +21,11 @@ result against the ground-truth render.
 
 **Announce at start:** "Using replicate-screen to reconstruct <screen>."
 
+> **Runtime-agnostic.** This is a plain procedure over plain Node/React tools — any
+> coding agent (Claude Code, Codex, OpenCode, Cursor, Gemini, …) or a human can
+> follow it. Claude loads it as a skill automatically; other agents are pointed
+> here by the kit's `AGENTS.md`.
+
 ## Prerequisites (stop with a precise message if any is missing)
 
 - The **kit** present in the repo: `figma-plugin/`, the `scripts/` tools, the

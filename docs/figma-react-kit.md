@@ -141,6 +141,20 @@ Then: drop your Figma export JSON(s), run the Layer-1 commands above to get a
 render. The clean/existing-repo run is the real generality test: how much the
 agent reuses vs creates vs keeps-baked, measured by its synthesis log.
 
+## Works with any coding agent
+
+The pipeline is plain Node + React with no agent-specific dependencies, and the
+skill is a plain markdown procedure (generic actions, no Claude-only tool calls).
+So the kit isn't Claude-only — the export ships cross-agent discovery files so
+each runtime finds the same procedure:
+
+- **Claude Code** — loads `skills/replicate-screen/SKILL.md` automatically (skill).
+- **Codex / OpenCode / Cursor** — read the generated **`AGENTS.md`** (the cross-tool standard).
+- **Gemini** — reads the generated `GEMINI.md` (redirects to the skill).
+- **A human** — can run the commands directly.
+
+All four point at the same `skills/replicate-screen/SKILL.md`.
+
 ## File inventory (what the kit ships)
 
 - `figma-plugin/` — exporter (`code.js`, `manifest.json`, `ui.html`)
@@ -151,6 +165,7 @@ agent reuses vs creates vs keeps-baked, measured by its synthesis log.
   `lib/cn.ts` (the agent installs these into the project's component location)
 - `skills/replicate-screen/` — `SKILL.md` (+ test) — **start here**
 - `templates/components.map.md` — reuse-catalog seed
+- `AGENTS.md` / `GEMINI.md` / `CLAUDE.md` — generated cross-agent entry points
 - `README.md` (+ `KIT-MANIFEST.txt`) — generated; lists the exact deps + steps
 - `docs/figma-react-kit.md` — this doc
 
