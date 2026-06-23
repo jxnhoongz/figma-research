@@ -38,6 +38,37 @@ export function compositeFills(fills) {
   return `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${a.toFixed(3)})`;
 }
 
+// Figma colour (with optional fill opacity) → CSS colour. Translucent paints
+// keep their alpha so they don't occlude everything beneath them.
+export const rgba = (c, op = 1) => {
+  const a = (c.a === undefined ? 1 : c.a) * op;
+  if (a >= 0.999) return hex(c);
+  const to = (v) => Math.round(v * 255);
+  return `rgba(${to(c.r)}, ${to(c.g)}, ${to(c.b)}, ${a.toFixed(3)})`;
+};
+
+// One Figma gradient paint → one CSS gradient. RADIAL honours the gradient
+// handles ([center, radius-handle-1, radius-handle-2]) to emit a POSITIONED,
+// SIZED ellipse. Without this, `radial-gradient(circle, …)` defaults to a
+// full-bleed circle, so a localised sheen highlight is stretched across the
+// whole element and washes it out. LINEAR derives its angle from the handles.
+export function gradientCss(f) {
+  const op = f.opacity === undefined ? 1 : f.opacity;
+  const stops = (f.gradientStops || []).map((s) => `${rgba(s.color, op)} ${Math.round(s.position * 100)}%`).join(", ");
+  const h = f.gradientHandlePositions;
+  if (f.type === "GRADIENT_RADIAL") {
+    if (!h || h.length < 3) return `radial-gradient(circle, ${stops})`;
+    const [c, r1, r2] = h;
+    const pct = (v) => Math.round(v * 100);
+    const rx = Math.max(Math.abs(r1.x - c.x), Math.abs(r2.x - c.x));
+    const ry = Math.max(Math.abs(r1.y - c.y), Math.abs(r2.y - c.y));
+    return `radial-gradient(${pct(rx)}% ${pct(ry)}% at ${pct(c.x)}% ${pct(c.y)}%, ${stops})`;
+  }
+  const [p0, p1] = h || [{ x: 0, y: 0 }, { x: 0, y: 1 }];
+  const ang = Math.round((Math.atan2(p1.x - p0.x, -(p1.y - p0.y)) * 180) / Math.PI);
+  return `linear-gradient(${ang}deg, ${stops})`;
+}
+
 // Box normalised to a screen origin (ox, oy). Returns null when the node has no
 // absolute box.
 export const makeBox = (ox, oy) => (n) => {

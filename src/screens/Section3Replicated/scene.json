@@ -353,7 +353,7 @@
       "y": 457,
       "w": 332,
       "h": 10,
-      "bg": "radial-gradient(circle, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, rgba(255, 255, 255, 0.800) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.200) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(22deg, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, rgba(255, 0, 174, 0.500) 0%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(-90deg, #ff00ae 3%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(#e9463f, #e9463f)",
+      "bg": "radial-gradient(15% 53% at 94% 88%, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(36% 8% at 53% 96%, rgba(255, 255, 255, 0.800) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.200) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(22deg, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(24% 121% at 6% -5%, rgba(255, 0, 174, 0.500) 0%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(-90deg, #ff00ae 3%, rgba(255, 0, 174, 0.000) 100%), linear-gradient(#e9463f, #e9463f)",
       "opacity": 1,
       "border": {
         "color": "#fdf7e7",
@@ -389,7 +389,7 @@
       "y": 492,
       "w": 332,
       "h": 45,
-      "bg": "radial-gradient(circle, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, rgba(255, 255, 255, 0.560) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.200) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(circle, #fddf33 0%, rgba(253, 223, 51, 0.000) 100%), radial-gradient(circle, rgba(255, 0, 0, 0.500) 0%, rgba(255, 0, 0, 0.000) 100%), radial-gradient(circle, #fddf33 0%, rgba(253, 223, 51, 0.000) 100%), linear-gradient(#fb7d06, #fb7d06)",
+      "bg": "radial-gradient(15% 53% at 94% 88%, rgba(255, 255, 255, 0.600) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(36% 4% at 53% 96%, rgba(255, 255, 255, 0.560) 0%, rgba(255, 255, 255, 0.000) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.200) 0%, rgba(255, 255, 255, 0.000) 100%), radial-gradient(31% 59% at 5% 100%, #fddf33 0%, rgba(253, 223, 51, 0.000) 100%), radial-gradient(59% 237% at 3% 100%, rgba(255, 0, 0, 0.500) 0%, rgba(255, 0, 0, 0.000) 100%), radial-gradient(59% 113% at 95% 100%, #fddf33 0%, rgba(253, 223, 51, 0.000) 100%), linear-gradient(#fb7d06, #fb7d06)",
       "opacity": 1,
       "border": {
         "color": "#ffe7a7",

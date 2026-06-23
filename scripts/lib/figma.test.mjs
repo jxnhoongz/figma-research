@@ -1,7 +1,41 @@
 import { describe, it, expect } from 'vitest'
-import { exportable, area, hex, compositeFills, makeBox, findScreen, textStyle, textRuns } from './figma.mjs'
+import { exportable, area, hex, compositeFills, makeBox, findScreen, textStyle, textRuns, gradientCss } from './figma.mjs'
 
 const solid = (r, g, b, opacity) => ({ type: 'SOLID', color: { r, g, b }, ...(opacity !== undefined ? { opacity } : {}) })
+
+describe('gradientCss', () => {
+  const whiteSheen = [
+    { position: 0, color: { r: 1, g: 1, b: 1, a: 0.6 } },
+    { position: 1, color: { r: 1, g: 1, b: 1, a: 0 } },
+  ]
+
+  it('radial: localises to the handle center + radii (no full-bleed wash)', () => {
+    // Figma handles = [center, radius-handle-1, radius-handle-2]
+    const css = gradientCss({
+      type: 'GRADIENT_RADIAL',
+      gradientStops: whiteSheen,
+      gradientHandlePositions: [{ x: 0.571, y: 0.411 }, { x: 0.564, y: 1.049 }, { x: -0.433, y: 0.363 }],
+    })
+    // rx = max(|.564-.571|,|-.433-.571|)=1.004→100%, ry = max(|1.049-.411|,|.363-.411|)=.638→64%
+    expect(css).toMatch(/^radial-gradient\(100% 64% at 57% 41%,/)
+    expect(css).toContain('rgba(255, 255, 255, 0.600) 0%')
+    expect(css).not.toContain('circle') // the bug was an unsized full-bleed circle
+  })
+
+  it('radial without handles falls back to a centered circle', () => {
+    expect(gradientCss({ type: 'GRADIENT_RADIAL', gradientStops: whiteSheen })).toMatch(/^radial-gradient\(circle,/)
+  })
+
+  it('linear: angle derived from handles', () => {
+    const css = gradientCss({
+      type: 'GRADIENT_LINEAR',
+      gradientStops: [{ position: 0, color: { r: 0, g: 0, b: 0, a: 1 } }, { position: 1, color: { r: 1, g: 1, b: 1, a: 1 } }],
+      gradientHandlePositions: [{ x: 0, y: 0 }, { x: 0, y: 1 }],
+    })
+    expect(css).toMatch(/^linear-gradient\(180deg,/)
+    expect(css).toContain('#000000 0%')
+  })
+})
 
 describe('figma helpers', () => {
   it('hex formats a color', () => {

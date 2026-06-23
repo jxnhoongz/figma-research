@@ -14,7 +14,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
-import { exportable, hex, compositeFills, makeBox, findScreen } from "./lib/figma.mjs";
+import { exportable, hex, compositeFills, makeBox, findScreen, rgba, gradientCss } from "./lib/figma.mjs";
 
 const [, , exportDir, screenName, destAssets, scenePath] = process.argv;
 if (!exportDir || !screenName || !destAssets || !scenePath) {
@@ -48,23 +48,6 @@ const RECT_BG_TYPES = ["RECTANGLE", "FRAME", "COMPONENT", "INSTANCE", "SECTION"]
 
 // --- fill → CSS helpers ---
 // Colour → CSS, honouring the colour's own alpha times an extra layer opacity.
-// Translucent paints (e.g. a white gradient sheen over a solid base) MUST keep
-// their alpha or they occlude everything beneath them.
-const rgba = (c, op = 1) => {
-  const a = (c.a === undefined ? 1 : c.a) * op;
-  if (a >= 0.999) return hex(c);
-  const to = (v) => Math.round(v * 255);
-  return `rgba(${to(c.r)}, ${to(c.g)}, ${to(c.b)}, ${a.toFixed(3)})`;
-};
-
-function gradientCss(f) {
-  const op = f.opacity === undefined ? 1 : f.opacity;
-  const stops = (f.gradientStops || []).map((s) => `${rgba(s.color, op)} ${Math.round(s.position * 100)}%`).join(", ");
-  if (f.type === "GRADIENT_RADIAL") return `radial-gradient(circle, ${stops})`;
-  const [p0, p1] = f.gradientHandlePositions || [{ x: 0, y: 0 }, { x: 0, y: 1 }];
-  const ang = Math.round((Math.atan2(p1.x - p0.x, -(p1.y - p0.y)) * 180) / Math.PI);
-  return `linear-gradient(${ang}deg, ${stops})`;
-}
 // One Figma paint → one CSS background layer (solids become a flat gradient so
 // they can stack in the `background` shorthand).
 function fillToCssLayer(f) {
