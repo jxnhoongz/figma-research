@@ -45,6 +45,14 @@ describe('replicate-screen SKILL.md', () => {
     expect(doc).toMatch(/SceneRenderer|render\/<screen>\.png/)
   })
 
+  it('adapts to the host project (init or follow) and organizes assets properly', () => {
+    expect(doc).toContain('## 0. Adapt to the project')
+    expect(doc).toMatch(/initialize it/i)
+    expect(doc).toMatch(/follow its conventions/i)
+    expect(doc).toMatch(/never dumped inside the screen/i)
+    expect(doc).toMatch(/do \*\*not\*\* hardcode `src\/\.\.\.`|don't impose one/i)
+  })
+
   it('mandates promoting dynamic data (amounts/counts/progress) instead of keeping it baked', () => {
     expect(doc).toMatch(/obviously dynamic/i)
     expect(doc).toMatch(/data is NOT a "keep baked" case|never to live data/i)

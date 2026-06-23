@@ -119,31 +119,40 @@ seams → verify → log.
   (amounts, counts, currency, progress, user/session values) by default — see the
   skill's §2 rule — not leave it hardcoded.**
 
-## Using the exported kit in a clean repo
+## Using the exported kit (capability, not a project)
 
-`python3 scripts/export-kit.py` produces `figma-react-kit/` (and optionally a zip)
-containing the plugin, the Node tools + tests, the renderer components, the skill,
-the token + component-map templates, and config starters — everything Layer 1 + 2
-needs, minus the section-specific screens.
+`python3 scripts/export-kit.py` produces `figma-react-kit/` (+ optional zip)
+containing **only the pipeline capability** — the plugin, the Node tools, the
+renderer (under `renderer/`), and the `replicate-screen` skill. It ships **no
+screens, app shell, design tokens, or config**, so it imposes no project layout.
 
-In the clean repo:
-1. Copy the kit in; `npm install` (deps listed in the kit's `package.json`).
-2. Drop your Figma **section export JSON(s)** anywhere.
-3. Run the Layer-1 commands above to get a `scene.json` + IR.
-4. Invoke `replicate-screen` and let the agent build the screen against the
-   ground-truth render.
+When the kit is dropped into a repo and you invoke the skill, the skill's
+**"0. Adapt to the project"** step decides:
+- **Empty / not a React app** → it **initializes** one (Vite + React + TS +
+  Tailwind), installs the deps (listed in the bundle's `README.md`), and installs
+  the renderer from `renderer/`.
+- **Existing project** → it **reads and follows** the project's conventions —
+  where components / assets / screens live, the styling system — reusing the
+  project's components + tokens and matching its layout. Generated **assets go in
+  the project's shared assets location, never dumped inside a screen's folder.**
 
-The clean-repo run is the real generality test: how much the agent reuses vs
-creates vs keeps-baked, measured by its synthesis log.
+Then: drop your Figma export JSON(s), run the Layer-1 commands above to get a
+`scene.json` + IR, and let the agent build the screen against the ground-truth
+render. The clean/existing-repo run is the real generality test: how much the
+agent reuses vs creates vs keeps-baked, measured by its synthesis log.
 
 ## File inventory (what the kit ships)
 
 - `figma-plugin/` — exporter (`code.js`, `manifest.json`, `ui.html`)
 - `scripts/` — `import-figma-export`, `build-ir`, `build-section-scene`,
-  `emit-component`, `verify-screen`, `nudge-section3-header`, `lib/figma`,
-  `lib/visual-diff` (+ their `*.test.mjs` and `__fixtures__/`)
-- `src/components/SceneRenderer`, `src/components/PositionedText`, `src/lib/cn.ts`
-- `src/index.css` — Tailwind `@theme` token starter
-- `skills/replicate-screen/` — `SKILL.md` (+ test)
-- `docs/components.map.md` — reuse-catalog template; `docs/figma-react-kit.md` — this doc
-- `package.json`, `tsconfig*.json`, `vite.config.ts` — config starters
+  `emit-component`, `verify-screen`, `lib/figma`, `lib/visual-diff`
+  (+ their `*.test.mjs` and `__fixtures__/`)
+- `renderer/` — `components/SceneRenderer`, `components/PositionedText`,
+  `lib/cn.ts` (the agent installs these into the project's component location)
+- `skills/replicate-screen/` — `SKILL.md` (+ test) — **start here**
+- `templates/components.map.md` — reuse-catalog seed
+- `README.md` (+ `KIT-MANIFEST.txt`) — generated; lists the exact deps + steps
+- `docs/figma-react-kit.md` — this doc
+
+Project-specific pieces (app shell, design tokens, `package.json`/config, screens)
+are **not** shipped — the skill's step 0 creates or adapts them per the host repo.

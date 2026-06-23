@@ -23,12 +23,44 @@ result against the ground-truth render.
 
 ## Prerequisites (stop with a precise message if any is missing)
 
-- An export dir with: `structure/<screen>.json` (run `node scripts/build-ir.mjs`
-  to get the role-tagged IR), `manifest.json`, `chrome.json`, and
-  `render/<screen>.png` (the ground-truth render; if absent, screenshot the
-  baked scene as an interim reference and say so in the log).
-- `docs/components.map.md` (the reuse catalog) and `src/index.css` `@theme`.
-- The Vite app + `npx playwright` for the verify loop.
+- The **kit** present in the repo: `figma-plugin/`, the `scripts/` tools, the
+  renderer (`SceneRenderer` + `PositionedText` — install in §0 if absent), and
+  this skill.
+- A Figma **export dir** with: `structure/<screen>.json` (→ run
+  `node scripts/build-ir.mjs` for the IR), `manifest.json`, `chrome.json`, and
+  `render/<screen>.png` (the ground-truth render; if absent, screenshot the baked
+  scene as an interim reference and say so in the log).
+- `npx playwright` for the verify loop.
+
+The component catalog (`components.map.md`) and the design tokens are **the
+project's** — discover them in §0, don't assume a fixed path.
+
+## 0. Adapt to the project (do this first)
+
+The kit is capability, not a project layout — **fit the host project, don't impose
+one.** Inspect the repo, then:
+
+- **Empty / not a React app** → **initialize it.** Scaffold Vite + React + TS,
+  add Tailwind v4, and `npm install` the kit's runtime deps: `react react-dom`,
+  `clsx tailwind-merge` (the renderer), and dev deps `vite @vitejs/plugin-react
+  @tailwindcss/vite typescript vitest jsdom @testing-library/react @testing-library/jest-dom
+  pixelmatch pngjs playwright`. Create a minimal `@theme` token block if none
+  exists. Seed an empty `docs/components.map.md`.
+- **Existing project** → **read and follow its conventions.** Before generating
+  anything, learn: where components live, where **assets** live, where screens /
+  pages live and how they're routed, and the styling system (Tailwind `@theme`?
+  CSS modules? a token file?). Reuse the project's components + tokens; match its
+  file layout, naming, and import style. Do **not** hardcode `src/...` paths from
+  this kit — discover the project's equivalents.
+- **Install the renderer** (`SceneRenderer`, `PositionedText`, and the `cn` util)
+  into the project's component location if it isn't already there; wire its deps.
+
+**Asset organization (important).** Generated assets go in the project's
+**assets** location (a shared dir, e.g. `<assets>/<screen>/`), following the
+project's convention — **never dumped inside the screen component's own folder.**
+Pass that dir as `build-section-scene`'s `<assetsOut>`, and have the screen
+resolve assets from there. Record the chosen layout (assets / scenes / components
+/ screen) in the synthesis log.
 
 ## 1. Inventory
 
