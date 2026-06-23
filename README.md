@@ -4,7 +4,10 @@ An experiment in **fast, high-fidelity Figma → React replication**. Given a
 Figma section, a local plugin exports the design once; a generator reconstructs
 each screen from the exact node coordinates; a generic renderer paints it. The
 goal is **~90% visual accuracy on the first pass, in minutes, with almost no
-hand-positioning** — efficiency over everything else.
+hand-positioning** — efficiency over everything else. A second, **agent-driven
+layer** (the `replicate-screen` skill) then turns that baked output into
+**structured, integration-ready React** — reusing a component library and exposing
+typed props + callbacks — all packaged as a portable kit.
 
 > **Demo:** [`demo/`](demo/) contains a screen recording of the running app
 > (tab nav across the replicated sections + per-theme switching).
@@ -44,9 +47,10 @@ Figma plugin (local: no REST API, no token, no rate limit)
 React screen
 ```
 
-> **Structured mode (WIP):** `scripts/build-ir.mjs` produces a semantic IR
-> (role-tagged tree) from the same export — the foundation for componentized,
-> data-driven, API-ready output. See the limitations section.
+> **Structured / agent mode:** `scripts/build-ir.mjs` produces a semantic IR
+> (role-tagged tree) from the same export. It's the input the **`replicate-screen`
+> agent skill** (Layer 2 below) uses to emit componentized, data-driven,
+> integration-ready code — instead of a flat baked scene.
 
 **Why it's fast and faithful:**
 
@@ -62,6 +66,44 @@ React screen
 
 See [`docs/components.map.md`](docs/components.map.md) for the Figma-layer →
 component map and per-screen regeneration commands.
+
+## Layer 2 — agent-driven synthesis (`replicate-screen` skill)
+
+The pipeline above is **Layer 1**: deterministic, faithful, but it produces a
+*flat baked scene*. **Layer 2** turns that into **structured, integration-ready
+React** by handing the IR + scene to an agent that follows the
+[`replicate-screen`](skills/replicate-screen/SKILL.md) skill. "Different screens
+need different logic" is a curse for a hand-written emitter and a non-issue for an
+agent, so synthesis is a *procedure for an agent*, not a program. Its rules (each
+learned from a real failure):
+
+- **Baked fidelity base, then promote.** Render the whole scene first (nothing is
+  ever missing), then overlay structured/interactive components where confident —
+  REUSE a library component → CREATE + REGISTER one → KEEP BAKED. Never omit.
+- **Integration-ready seams.** Interactive nodes get typed `onX` callbacks; data
+  gets typed props. Wiring real logic/API is a prop-swap, not a rewrite.
+- **Verify against the ground-truth render**, and **adapt cautiously** — never
+  deviate from the design to look "nicer" (a decoration over text may be faithful).
+
+The **fill-split rule** in the plugin supports this: it decomposes simple gradient
+chrome (buttons/bars) into themeable CSS instead of baking it. The deterministic
+`scripts/emit-component.mjs` is a frozen *proof* that structured output is
+achievable; the agent + skill supersede it.
+
+The three section-3 tabs show the progression:
+
+| Tab | What it is |
+|---|---|
+| `点击领取` | baked pipeline (Layer 1, flat scene) |
+| `点击领取 (structured)` | editable, data-bound component overlaid on the baked base |
+| `点击领取 (replicated)` | the skill's baked-base + interactive claim seam, **8 themes** |
+
+### Portable kit
+
+`python3 scripts/export-kit.py` bundles the plugin, Node tools, scene renderer,
+and the `replicate-screen` skill into `figma-react-kit/` (+ optional zip) — for
+running the whole pipeline in a **clean repo**. Full guide:
+[`docs/figma-react-kit.md`](docs/figma-react-kit.md).
 
 ## Replicate a new section
 
@@ -82,12 +124,16 @@ component map and per-screen regeneration commands.
 Health checks: the generator prints `missing: 0` and the export reports
 `failed: 0`. Treat anything else (plus a screenshot diff) as the punch-list.
 
-## The `figma-replicate` skill
+## The two skills
 
-The full playbook lives in [`.claude/skills/figma-replicate/`](.claude/skills/figma-replicate/)
-— SKILL.md (workflow), `references/gotchas.md` (every fidelity rule + the bug it
-prevents), and the bundled plugin + scripts + renderer. It's project-scoped so a
-fresh agent session inherits all the hard-won lessons.
+- **`.claude/skills/figma-replicate/`** — the **Layer-1** playbook: export → scene
+  → render, with `references/gotchas.md` (every fidelity rule + the bug it
+  prevents). Use it to faithfully replicate a screen as a baked scene.
+- **`skills/replicate-screen/`** — the **Layer-2** agent skill: baked fidelity
+  base → promote structured/interactive overlays → verify against the ground-truth
+  render. Use it to turn a screen into structured, integration-ready React.
+
+Both are project-scoped, so a fresh agent session inherits the hard-won lessons.
 
 ## Accuracy: ~90%, and what the last 10% costs
 
@@ -107,18 +153,18 @@ rather than rediscover them.
 
 ### Fundamental (consequences of "export rendered assets + place by coords")
 
-1. **Static only — no interactivity or animation.** The output is a faithful
-   *still*: the wheel doesn't spin, tabs don't switch, no hover/press/scroll
-   states, no transitions. Anything dynamic in the design is not captured.
-   *Improve:* layer behaviour on top by hand, or extend the scene schema with
-   interaction/animation hints.
+1. **Static by default — Layer 1 is a still.** The bare pipeline output doesn't
+   spin the wheel or switch tabs. *Now:* the Layer-2 `replicate-screen` skill adds
+   **integration-ready seams** (typed `onX` callbacks), so behaviour is a
+   prop-swap away (see `docs/figma-react-kit.md`); animation/transitions are still
+   out of scope.
 
-2. **Assets are baked pixels, not editable.** Text/colour inside an exported
-   asset (component, instance, decor, grid panel) is rendered to SVG paths or
-   PNG. You cannot change copy, recolour, localise, or restyle it without
-   re-exporting from Figma. Only *loose* text nodes stay live.
-   *Improve:* optionally recurse instances to emit live text + separate icon
-   images instead of one baked asset (trades fidelity/effort for editability).
+2. **Baked assets — but chrome can be un-baked.** Text/colour inside an exported
+   asset is rendered to SVG/PNG; only *loose* text stays live in Layer 1. *Now:*
+   the **fill-split rule** un-bakes simple gradient chrome (buttons/bars) into
+   themeable CSS, and Layer-2 **structured overlays** make chosen regions editable
+   / data-bound. Complex masked art (e.g. notched cards) is still baked — see
+   `docs/superpowers/specs/2026-06-23-card-fill-split-widen-design.md`.
 
 3. **Not responsive.** Fixed 390 px, absolutely-positioned canvas. No breakpoints,
    reflow, or fluid layout. *Improve:* infer auto-layout/constraints from the
@@ -161,10 +207,12 @@ rather than rediscover them.
     sensible tab order. It's a visual shell, not accessible markup. *Improve:*
     emit semantic roles for known patterns (nav, headings, lists).
 
-11. **No component reuse / data-binding in pipeline screens.** A pipeline screen
-    is a flat scene of assets, not composable React with props — you can't drive
-    reward amounts or copy from data (contrast the hand-built `BobiLevelTheme1`,
-    which is fully componentised). This is the deliberate efficiency tradeoff.
+11. **Layer-1 screens are flat (Layer 2 fixes this).** A bare pipeline screen is a
+    scene of assets, not composable React with props. *Now:* the
+    `replicate-screen` skill reuses library components + promotes regions to
+    data-bound overlays on the baked base. The **reuse-vs-create-vs-keep-baked
+    ratio** (from each run's synthesis log) is the research metric — and it's
+    capped by how much structure Layer 1 exposes (un-baking is the lever).
 
 12. **Manual orchestration.** You run the generator once per screen *and* per
     theme, hand-mapping frame ids → theme names, and hand-wire `App.tsx`.
@@ -184,15 +232,29 @@ rather than rediscover them.
 figma-plugin/                exporter plugin (code.js, ui.html, manifest.json)
 scripts/
   import-figma-export.mjs    unpack a bundle to disk
-  build-section-scene.mjs    build a scene.json from one screen (follows manifest)
+  build-section-scene.mjs    structure → scene.json (Layer 1)
+  build-ir.mjs               structure → role-tagged IR (agent input)
+  emit-component.mjs         frozen "proof" emitter (IR → one component)
+  verify-screen.mjs          screenshot vs ground-truth render (pixel-diff gate)
+  nudge-section3-header.mjs   example deliberate-deviation tool
+  lib/figma.mjs              shared pure helpers (gradientCss, compositeFills, …)
+  lib/visual-diff.mjs        diffPngs pixel-diff helper
+  export-kit.py              bundle the portable kit for a clean repo
 src/
   components/SceneRenderer/   generic absolute-positioned renderer
-  screens/<Screen>/           scene(s).json + screen component
-  assets/<section>/img/       exported, deduped assets
-  App.tsx                     tab nav + per-page theme switcher
-.claude/skills/figma-replicate/  the replication playbook (skill)
-docs/components.map.md        Figma layer → component map + regen commands
-demo/                         screen recording of the running app
+  components/PositionedText/   shared text rendering (font/stroke/colour runs)
+  screens/Section3/            baked pipeline screen
+  screens/Section3Structured/  editable overlay over the baked base
+  screens/Section3Replicated/  baked-base + claim seam, 8 themes (Layer 2)
+  assets/<section>/img/        exported, deduped assets
+  App.tsx                      tab nav + per-page theme switcher
+skills/replicate-screen/      Layer-2 agent skill (baked base + promote + verify)
+.claude/skills/figma-replicate/  Layer-1 deterministic replication playbook
+docs/
+  figma-react-kit.md          full pipeline + portable-kit guide
+  components.map.md            Figma layer → component map + regen commands
+  superpowers/specs|plans|notes/  design docs, plans, findings
+demo/                          screen recording of the running app
 ```
 
 ## Commands
