@@ -106,6 +106,26 @@ its baked counterpart. Fix the largest, re-run. Stop when `ratio <= 0.05` or aft
 a fixed iteration cap; report residual diffs honestly — never claim 1:1 against a
 worse ratio.
 
+**Fidelity discipline — adapt cautiously.** Before "fixing" anything that *looks*
+off, decide whether it is a real reconstruction bug or a **faithful reproduction
+of the design**. Check the IR/structure: a decoration overlapping text, an element
+layered over another, or a slightly-off position may be exactly how Figma draws it
+(e.g. an accent deliberately layered above a heading). **Never deviate from the
+design to make it look "nicer"** — that lowers fidelity, it doesn't raise it. Two
+common non-bugs to recognise and *log* rather than patch:
+- **Font substitution.** Proprietary display fonts are usually unavailable, so
+  text renders in a fallback at a different width/position; fixed-coordinate
+  decorations can then read as colliding with text. This is a known limitation
+  (`docs/research-tracks.md`), not a paint-order bug — do not reorder paint to
+  hide it.
+- **Faithful overlaps / z-order.** If a sibling is layered over text *in the
+  design*, reproducing that is correct.
+
+Only fix genuine logic errors: a gradient that's wrong, a position that disagrees
+with the IR box, a missing region, an overlay that doesn't cover its baked
+counterpart. Record faithful-but-imperfect cosmetics (font, etc.) as known
+artifacts in the synthesis log.
+
 ## 5. Mock interaction (demo wrapper only)
 
 Outside the library components, the screen's demo wrapper wires exactly ONE

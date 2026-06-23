@@ -44,4 +44,11 @@ describe('replicate-screen SKILL.md', () => {
     // the base layer is rendered via SceneRenderer / the ground-truth render
     expect(doc).toMatch(/SceneRenderer|render\/<screen>\.png/)
   })
+
+  it('teaches cautious adaptation — distinguish faithful reproduction from bugs (font/z-order)', () => {
+    expect(doc).toMatch(/fidelity discipline/i)
+    expect(doc).toMatch(/faithful/i)
+    expect(doc).toMatch(/font substitution/i)
+    expect(doc).toMatch(/never deviate from the\s+design/i)
+  })
 })
