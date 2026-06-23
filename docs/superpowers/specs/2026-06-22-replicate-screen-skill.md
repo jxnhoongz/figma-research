@@ -40,7 +40,10 @@ chrome + a ground-truth render) for one screen and produces:
 1. a screen component composed of **reused** library components where they match,
 2. **new, registered** library components where they do not, and
 3. baked `<img>` assets only for genuine art,
-verified against a ground-truth render via a render→screenshot→diff loop.
+all **integration-ready** (typed data props + typed event-callback seams, so
+logic/API can be plugged in without touching the component), verified against a
+ground-truth render via a render→screenshot→diff loop, and demonstrated with
+**one mock-wired interaction** so the integration seam is shown working.
 
 ## Non-goals
 
@@ -48,9 +51,14 @@ verified against a ground-truth render via a render→screenshot→diff loop.
   the plugin as an installable tool) — deferred. This skill lives in *this* repo
   and targets *this* repo's `src/components/`, `docs/components.map.md`, and
   `src/index.css` `@theme`.
-- **Behavior / logic / API wiring** (P6) — deferred. The skill emits presentational,
-  editable components; interactive nodes are reused/created as components but not
-  wired to handlers or data sources. (No API examples exist yet.)
+- **Real logic / API / data-source wiring** (P6) — out of scope; no API examples
+  exist. What **is** in scope: the emitted components are *integration-ready* —
+  interactive nodes get typed event-callback props (`onClaim`, `onClick`), content
+  gets a typed data interface — and the showcase wires **one** mock interaction
+  (local state, clearly fake) to prove the seam. Swapping the mock handler for a
+  real `fetch` is the only step left, which is exactly the "easy to integrate"
+  claim. The skill itself guarantees *seams*, never behavior, so it stays
+  screen-agnostic.
 - **Replacing Layer 1.** The plugin/IR keep their current design; this spec only
   *adds* a ground-truth full-screen render to the export (see Verification).
 - **Not a deterministic emitter.** The skill is a *procedure for an agent*, not a
@@ -124,6 +132,19 @@ Tie-breakers: prefer REUSE over CREATE; prefer CREATE over BAKE whenever the
 region carries text or a token-able fill (so the output trends toward real
 components, not pixels).
 
+### 2b. Make every disposition integration-ready (general, every run)
+This is a property of the emitted components, not per-screen behavior — so it is
+screen-agnostic:
+- **Content regions** expose a **typed data interface** (e.g. `RewardItem[]`), as
+  the deterministic emitter already does — data flows in via props.
+- **Interactive regions** (`interactive` role: buttons, tabs) expose **typed
+  event-callback props** — `onClaim?(id)`, `onClick?()`, controlled `active` +
+  `onChange` for tabs — but the skill wires **nothing** to them. The seam is the
+  deliverable. A REUSE of an existing interactive component inherits its existing
+  callbacks; a CREATE must add them.
+The skill never invents handlers, state, or data sources. It only guarantees the
+seam exists and is typed.
+
 ### 3. Assemble
 Compose the screen component from the dispositions, positioning regions per the
 IR layout. Tokens from `@theme` only; if a needed token is missing, add it to
@@ -141,11 +162,20 @@ Fix the largest discrepancies and repeat until no discrepancy exceeds the bar or
 fixed iteration cap is hit. Report residual diffs honestly (never claim 1:1 if
 the diff says otherwise).
 
-### 5. Output + report
+### 5. Showcase one mock interaction (demo only, not part of the skill's core)
+Outside the reusable component code, the screen's **showcase/demo** wires exactly
+**one** interaction to a mock handler to prove the seam: e.g. clicking the
+立即领取 button calls `onClaim`, which a local `useState` handler marks the reward
+claimed and advances the progress value. It is obviously mock (a comment +
+local-only state, no network), and lives in the demo wrapper, never in the
+emitted library component. This keeps the components pure and the seam
+demonstrated. Real integration = replace this one handler with a `fetch`.
+
+### 6. Output + report
 Deliver: the screen component, any new `src/components/*`, the updated
-`components.map.md`, and a synthesis log (per-region disposition + justification +
-final diff). The log is the research artifact — it shows *how much was reused vs
-created vs baked*.
+`components.map.md`, the one mock-wired showcase interaction, and a synthesis log
+(per-region disposition + justification + final diff). The log is the research
+artifact — it shows *how much was reused vs created vs baked*.
 
 ## Data flow
 
@@ -193,6 +223,11 @@ The skill is a procedure, so validation is empirical, on two screens:
 
 Component-level: every CREATE + REGISTER output must itself meet the repo bar — a
 co-located `*.test.tsx` asserting behavior via `data-variant`, tokens not hex.
+
+Integration-readiness: interactive components must expose typed event-callback
+props (asserted by a test that fires the callback), and the showcase's one
+mock-wired interaction must visibly react (e.g. a test clicks 立即领取 and asserts
+the claimed state / progress update). This proves the seam without a real API.
 
 ## Risks
 
