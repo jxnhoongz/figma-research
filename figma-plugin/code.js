@@ -36,7 +36,7 @@ const manifest = {}; // nodeId → asset path (incl. deduped nodes → shared pa
 const chromeSeen = new Map(); // contentHash → text-less chrome asset path
 const chromeManifest = {}; // instanceId → chrome asset path (TEXT hidden)
 const failures = []; // structured, identifiable: { id, name, type, box, fills, visible, reason }
-const stats = { components: 0, instances: 0, decor: 0, grids: 0, images: 0, deduped: 0, chrome: 0, chromeDeduped: 0, failed: 0 };
+const stats = { components: 0, instances: 0, decor: 0, grids: 0, images: 0, split: 0, deduped: 0, chrome: 0, chromeDeduped: 0, failed: 0 };
 
 // Record an export failure with everything needed to identify and backfill the
 // node later (by id, via the REST images endpoint, or by reconstructing simple
@@ -123,6 +123,31 @@ function countPartialStrokedCells(node) {
 function isGridPanel(node) {
   if (node.type !== "FRAME" && node.type !== "GROUP") return false;
   return isPureGridSubtree(node) && countPartialStrokedCells(node) >= GRID_MIN_CELLS;
+}
+// A node whose OWN fill is a token-able gradient/solid — no image paint on the
+// node itself — so it can be reconstructed as a CSS background downstream.
+function ownFillTokenable(node) {
+  const fills = Array.isArray(node.fills) ? node.fills.filter((f) => f.visible !== false) : [];
+  return fills.length > 0 && fills.every((f) => f.type === "SOLID" || f.type.startsWith("GRADIENT"));
+}
+// A direct child that defines a non-rectangular silhouette (a clip mask or a
+// boolean subtract) — the reward-card case the narrow rule defers.
+function hasMaskOrBoolean(node) {
+  return Array.isArray(node.children) && node.children.some((c) => c.isMask === true || c.type === "BOOLEAN_OPERATION");
+}
+// "Fill-split": an instance/component that bakes whole ONLY because of a raster
+// child, but whose own background is a token-able fill on a simple (rectangular)
+// silhouette. Recursing it lets the background become a themeable CSS rect and
+// the raster child its own asset, instead of one flat PNG. Conservative — any
+// uncertainty returns false, so the node bakes exactly as before.
+function isFillSplittable(node) {
+  return (
+    (node.type === "INSTANCE" || node.type === "COMPONENT") &&
+    ownFillTokenable(node) &&
+    deepHasImage(node) &&
+    !isGridPanel(node) &&
+    !hasMaskOrBoolean(node)
+  );
 }
 // djb2 — fast non-crypto hash for content dedup of the rendered bytes.
 function hashStr(s) {
@@ -255,6 +280,18 @@ async function walk(node, files) {
     // Classify WHAT to export whole; dedup-by-content + the manifest live in
     // emitWhole. An instance is rendered WITH its overrides, so each distinct
     // card naturally gets its own asset (or shares one iff byte-identical).
+    // Fill-split: decompose simple gradient/solid chrome (e.g. a button pill, a
+    // progress bar) instead of baking it whole, so its colour becomes a themeable
+    // CSS rect (the generator paints a non-baked instance's fill) and its raster
+    // children export as their own assets. Narrow + conservative — see
+    // isFillSplittable; anything that doesn't qualify falls through and bakes below.
+    if (isFillSplittable(node)) {
+      stats.split++;
+      if ("children" in node) {
+        for (const c of node.children) await walk(c, files);
+      }
+      return; // decomposed — no whole bake, no chrome variant, no manifest entry
+    }
     if (node.type === "COMPONENT") {
       await emitWhole(node, files, () => stats.components++);
       return; // whole — don't recurse
