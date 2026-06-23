@@ -35,4 +35,20 @@ describe('replicate-screen SKILL.md', () => {
     expect(doc).toMatch(/@theme/)
     expect(doc).toMatch(/verify-screen\.mjs/)
   })
+
+  it('mandates a baked fidelity base with promoted overlays — never omit (calibration lesson)', () => {
+    expect(doc).toContain('KEEP BAKED')
+    expect(doc).toMatch(/baked (scene|base|fidelity)/i)
+    expect(doc).toMatch(/overlay/i)
+    expect(doc).toMatch(/never omit/i)
+    // the base layer is rendered via SceneRenderer / the ground-truth render
+    expect(doc).toMatch(/SceneRenderer|render\/<screen>\.png/)
+  })
+
+  it('teaches cautious adaptation — distinguish faithful reproduction from bugs (font/z-order)', () => {
+    expect(doc).toMatch(/fidelity discipline/i)
+    expect(doc).toMatch(/faithful/i)
+    expect(doc).toMatch(/font substitution/i)
+    expect(doc).toMatch(/never deviate from the\s+design/i)
+  })
 })
