@@ -310,6 +310,20 @@ async function run() {
       figma.ui.postMessage({ type: "log", msg: "JSON_REST_V1 failed: " + e.message });
     }
     await walk(root, files);
+    // Flat full-screen render = the ground-truth reference the replicate-screen
+    // skill diffs generated output against (diffing our own baked scene would be
+    // circular). Best-effort: on failure, skip — the rest of the export stands.
+    try {
+      files.push({
+        path: `render/${safeName(root)}.png`,
+        kind: "base64",
+        data: figma.base64Encode(
+          await root.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: PNG_SCALE } }),
+        ),
+      });
+    } catch (e) {
+      figma.ui.postMessage({ type: "log", msg: "full-screen render failed: " + (e && e.message) });
+    }
   }
   stats.failed = failures.length;
   // nodeId → asset path for every exported node. The generator reads this and
