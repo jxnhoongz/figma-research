@@ -101,12 +101,23 @@ seams → verify → log.
 - **Behaviour is a prop-swap.** A replicated screen's interactive seam is a local
   mock (`useState`); lift it to controlled props (`claimed` + `onClaim`) and wire
   `onClaim` to a real `fetch`. Library components are already callback-driven.
-- **Data binding means promoting that region.** Baked values are pixels — you
-  cannot bind an API value to a baked image. Promote the region to a structured
-  overlay (a typed component over the baked base) and feed it from your API.
+- **Data binding means promoting that region — and there are two cases.** A value
+  can be in one of three states:
+  1. **Baked pixel** (inside an exported asset, e.g. the reward amounts `28¥` are
+     in the card PNGs). You *cannot* bind an API value to a pixel — it must first
+     be un-baked (the fill-split / card-WIDEN work) or rebuilt as a structured
+     component.
+  2. **Live but hardcoded text** (a `<text>` node in `scene.json` with a literal
+     string, e.g. the progress numbers `266 / 734 / 1000`). It's real, editable
+     text — but a constant, not bound to data.
+  3. **Data-driven** (extracted into a typed component prop fed from your API).
+  Promoting means moving a region from state 1 or 2 → state 3: overlay a typed
+  component (e.g. `<ProgressCard data={api}>`) over the baked base and feed it.
   `src/screens/Section3Structured` is the reference for an editable, data-bound
   overlay; `Section3Replicated` is the baked-base + interaction-seam reference
-  (with 8 themed variants).
+  (with 8 themed variants). **The agent should promote obviously-dynamic content
+  (amounts, counts, currency, progress, user/session values) by default — see the
+  skill's §2 rule — not leave it hardcoded.**
 
 ## Using the exported kit in a clean repo
 

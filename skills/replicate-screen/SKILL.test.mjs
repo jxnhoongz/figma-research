@@ -45,6 +45,12 @@ describe('replicate-screen SKILL.md', () => {
     expect(doc).toMatch(/SceneRenderer|render\/<screen>\.png/)
   })
 
+  it('mandates promoting dynamic data (amounts/counts/progress) instead of keeping it baked', () => {
+    expect(doc).toMatch(/obviously dynamic/i)
+    expect(doc).toMatch(/data is NOT a "keep baked" case|never to live data/i)
+    expect(doc).toMatch(/data-binding gap/i)
+  })
+
   it('teaches cautious adaptation — distinguish faithful reproduction from bugs (font/z-order)', () => {
     expect(doc).toMatch(/fidelity discipline/i)
     expect(doc).toMatch(/faithful/i)

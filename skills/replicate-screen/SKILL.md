@@ -63,6 +63,18 @@ adds real value — editable data, an interaction seam, or a themeable token. Wh
 in doubt, KEEP BAKED: the base is already faithful, so a skipped promotion costs
 nothing, while a bad overlay costs fidelity.
 
+**Dynamic data is NOT a "keep baked" case — promote it.** The IR tags every text
+node `content`, so a live value (`266`) and a static label (`当前有效投注`) look
+the same — you must judge. Content that is **obviously dynamic** — numeric
+amounts, currency, counts, progress values, dates, user/session-specific text —
+is data, not chrome: REUSE or CREATE a typed component and bind it (e.g. the
+progress numbers → `<ProgressCard data={…}>`). "KEEP BAKED is the default" applies
+to **art and static chrome**, never to live data. If such a value is already a
+**baked pixel** (inside an exported asset, e.g. reward amounts inside card PNGs),
+you cannot bind it without un-baking — log it as a **data-binding gap** (the
+region wants the fill-split / structured treatment) rather than silently accepting
+it as static.
+
 ## 2b. Integration-ready seams (every run, screen-agnostic)
 
 - Content regions expose a **typed data interface** (props in).
