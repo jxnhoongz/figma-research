@@ -17,6 +17,39 @@ typed props + callbacks — all packaged as a portable kit.
 > agent skill). Run `python3 scripts/export-kit.py` to bundle the plugin, tools,
 > renderer, and skill into `figma-react-kit/` for use in a clean repo.
 
+## TL;DR — how to use it
+
+**A. Package the kit** (once, from this repo):
+
+```
+python3 scripts/export-kit.py --zip     # → figma-react-kit.zip  (~56K, capability only)
+```
+
+**B. Use it in any project** (clean *or* existing):
+
+1. **Unzip the kit** into the repo.
+2. **Export from Figma:** open the plugin ([`figma-plugin/`](figma-plugin/) → Plugins →
+   Development → Import from manifest), **select a screen frame**, run it, save the
+   bundle JSON.
+3. **Point your coding agent at the skill:** "follow `skills/replicate-screen/SKILL.md`."
+   Claude Code loads it automatically; **Codex / OpenCode / Cursor** read `AGENTS.md`;
+   **Gemini** reads `GEMINI.md` — all the same procedure.
+
+The agent then, on its own: **adapts to the project** (initializes a fresh app or
+follows your existing structure) → imports the export → builds the scene + IR →
+renders a **baked fidelity base** → **promotes** structured/interactive components
+on top (reusing your component library, exposing typed props + `onX` callbacks) →
+**verifies** against the Figma render.
+
+**Prefer to run it by hand?** The pipeline is four plain commands:
+
+```
+node scripts/import-figma-export.mjs <bundle.json> <exportDir>
+node scripts/build-section-scene.mjs <exportDir> "<screenId>" <assetsDir> <sceneOut.json>
+# mount <SceneRenderer scene={sceneJson} …/> in a React app, then:
+node scripts/verify-screen.mjs <url> <exportDir>/render/<screen>.png <outDir>
+```
+
 ## What's replicated
 
 Five real promo screens, each with its theme variants, all driven from one
